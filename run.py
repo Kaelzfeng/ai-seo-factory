@@ -1506,5 +1506,30 @@ def _dict_to_strategy(d: dict):
     )
 
 
+# ── Phase 6: 发布运营 ─────────────────────────────────
+
+
+def sync_generated_site(project_id: int, tenant_id: int,
+                        dry_run: bool = True, mode: str = "draft") -> dict:
+    """同步当前项目所有 page_contents 到 CMS。"""
+    from lib.publish_sync import sync_project_pages
+    return sync_project_pages(
+        project_id=project_id, tenant_id=tenant_id,
+        cms_type="wordpress", mode=mode, dry_run=dry_run,
+    )
+
+
+def rollback_last_sync(project_id: int, tenant_id: int,
+                       dry_run: bool = True) -> dict:
+    """回滚项目最近同步。"""
+    from lib.publish_rollback import rollback_project
+    from lib.publish_snapshot import list_publish_snapshots
+    snaps = list_publish_snapshots(project_id=project_id, tenant_id=tenant_id)
+    snap_ids = [s["id"] for s in snaps[:1]] if snaps else []
+    if not snap_ids:
+        return {"ok": False, "error": "No snapshots found for this project"}
+    return rollback_project(project_id, tenant_id, snap_ids, dry_run=dry_run)
+
+
 if __name__ == "__main__":
     main()

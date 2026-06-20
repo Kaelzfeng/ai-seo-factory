@@ -867,6 +867,101 @@ def api_page_content_detail(pc_id):
     return jsonify({"ok": True, "page_content": pc})
 
 
+# ── Phase 6: Publish API ─────────────────────────────
+
+
+@app.route("/api/publish/sync-page", methods=["POST"])
+def api_publish_sync_page():
+    err = _require_login(); tid, err2 = _require_tenant()
+    if err: return err
+    if err2: return err2
+    data = request.get_json() or {}
+    pc_id = data.get("page_content_id")
+    if not pc_id:
+        return jsonify({"ok": False, "error": "缺少 page_content_id"}), 400
+    from lib.publish_sync import sync_page_content
+    result = sync_page_content(pc_id, tid, dry_run=data.get("dry_run", True), mode=data.get("mode", "draft"))
+    return jsonify(result)
+
+
+@app.route("/api/publish/sync-project", methods=["POST"])
+def api_publish_sync_project():
+    err = _require_login(); tid, err2 = _require_tenant()
+    if err: return err
+    if err2: return err2
+    data = request.get_json() or {}
+    pid = data.get("project_id")
+    if not pid:
+        return jsonify({"ok": False, "error": "缺少 project_id"}), 400
+    from lib.publish_sync import sync_project_pages
+    result = sync_project_pages(pid, tid, dry_run=data.get("dry_run", True), mode=data.get("mode", "draft"))
+    return jsonify(result)
+
+
+@app.route("/api/publish/rollback", methods=["POST"])
+def api_publish_rollback():
+    err = _require_login(); tid, err2 = _require_tenant()
+    if err: return err
+    if err2: return err2
+    data = request.get_json() or {}
+    snap_id = data.get("snapshot_id")
+    if not snap_id:
+        return jsonify({"ok": False, "error": "缺少 snapshot_id"}), 400
+    from lib.publish_rollback import rollback_page_content
+    result = rollback_page_content(snap_id, tid, dry_run=data.get("dry_run", True))
+    return jsonify(result)
+
+
+@app.route("/api/publish/snapshots")
+def api_publish_snapshots():
+    err = _require_login(); tid, err2 = _require_tenant()
+    if err: return err
+    if err2: return err2
+    pid = request.args.get("project_id", type=int)
+    pc_id = request.args.get("page_content_id", type=int)
+    from lib.publish_snapshot import list_publish_snapshots
+    return jsonify({"ok": True, "snapshots": list_publish_snapshots(project_id=pid, page_content_id=pc_id, tenant_id=tid)})
+
+
+@app.route("/api/publish/snapshots/<int:snap_id>")
+def api_publish_snapshot_detail(snap_id):
+    err = _require_login(); tid, err2 = _require_tenant()
+    if err: return err
+    if err2: return err2
+    from lib.publish_snapshot import get_publish_snapshot
+    snap = get_publish_snapshot(snap_id, tenant_id=tid)
+    if not snap: return jsonify({"ok": False, "error": "Snapshot not found"}), 404
+    return jsonify({"ok": True, "snapshot": snap})
+
+
+@app.route("/api/webhooks/events")
+def api_webhook_events():
+    err = _require_login(); tid, err2 = _require_tenant()
+    if err: return err
+    if err2: return err2
+    from lib.webhooks import list_webhook_events
+    return jsonify({"ok": True, "events": list_webhook_events(tid)})
+
+
+@app.route("/api/webhooks/events/<int:event_id>/dispatch", methods=["POST"])
+def api_webhook_dispatch(event_id):
+    err = _require_login(); tid, err2 = _require_tenant()
+    if err: return err
+    if err2: return err2
+    from lib.webhooks import dispatch_webhook_event
+    result = dispatch_webhook_event(event_id, tid, dry_run=True)
+    return jsonify(result)
+
+
+@app.route("/api/audit/logs")
+def api_audit_logs():
+    err = _require_login(); tid, err2 = _require_tenant()
+    if err: return err
+    if err2: return err2
+    from lib.audit_log import list_audit_logs
+    return jsonify({"ok": True, "logs": list_audit_logs(tid)})
+
+
 # ── Phase 5: Competitor API ──────────────────────────
 
 

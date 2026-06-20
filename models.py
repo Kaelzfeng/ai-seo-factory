@@ -360,6 +360,49 @@ def _create_tables(conn):
 
     CREATE INDEX IF NOT EXISTS idx_cr_tenant ON competitor_reports(tenant_id);
     CREATE INDEX IF NOT EXISTS idx_cr_project ON competitor_reports(project_id);
+
+    CREATE TABLE IF NOT EXISTS publish_snapshots (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        tenant_id INTEGER REFERENCES tenants(id) ON DELETE SET NULL,
+        project_id INTEGER REFERENCES projects(id) ON DELETE SET NULL,
+        page_content_id INTEGER REFERENCES page_contents(id) ON DELETE SET NULL,
+        cms_type TEXT NOT NULL DEFAULT 'wordpress',
+        remote_id TEXT DEFAULT '',
+        remote_url TEXT DEFAULT '',
+        before_json TEXT DEFAULT '{}',
+        after_json TEXT DEFAULT '{}',
+        remote_json TEXT DEFAULT '{}',
+        created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
+    CREATE TABLE IF NOT EXISTS webhook_events (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        tenant_id INTEGER REFERENCES tenants(id) ON DELETE SET NULL,
+        event_type TEXT NOT NULL DEFAULT '',
+        status TEXT NOT NULL DEFAULT 'pending',
+        payload_json TEXT DEFAULT '{}',
+        error TEXT DEFAULT '',
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        sent_at TEXT DEFAULT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS audit_logs (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        tenant_id INTEGER REFERENCES tenants(id) ON DELETE SET NULL,
+        user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+        action TEXT NOT NULL DEFAULT '',
+        resource_type TEXT NOT NULL DEFAULT '',
+        resource_id INTEGER DEFAULT NULL,
+        details_json TEXT DEFAULT '{}',
+        created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_ps_tenant ON publish_snapshots(tenant_id);
+    CREATE INDEX IF NOT EXISTS idx_ps_page ON publish_snapshots(page_content_id);
+    CREATE INDEX IF NOT EXISTS idx_we_tenant ON webhook_events(tenant_id);
+    CREATE INDEX IF NOT EXISTS idx_we_status ON webhook_events(status);
+    CREATE INDEX IF NOT EXISTS idx_al_tenant ON audit_logs(tenant_id);
+    CREATE INDEX IF NOT EXISTS idx_al_resource ON audit_logs(resource_type);
     """
     )
 
@@ -1256,3 +1299,106 @@ def update_competitor_report_status(report_id, status, report_json=None):
             (status, report_id),
         )
     db.commit()
+
+
+# ── 发布快照 (Phase 6) ───────────────────────────────
+
+
+def create_publish_snapshot_record(tenant_id=None, project_id=None,
+                                   page_content_id=None, cms_type="wordpress",
+                                   remote_id="", remote_url="",
+                                   before_json="{}", after_json="{}",
+                                   remote_json="{}"):
+    db = _get_db()
+    db.execute(
+        """INSERT INTO publish_snapshots (tenant_id, project_id, page_content_id,
+           cms_type, remote_id, remote_url, before_json, after_json, remote_json)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+        (tenant_id, project_id, page_content_id, cms_type, remote_id, remote_url,
+         before_json, after_json, remote_json),
+    )
+    db.commit()
+    return db.execute("SELECT last_insert_rowid()").fetchone()[0]
+
+
+def get_publish_snapshot_record(snapshot_id):
+    db = _get_db()
+    row = db.execute("SELECT * FROM publish_snapshots WHERE id = ?", (snapshot_id,)).fetchone()
+    return dict(row) if row else None
+
+
+def list_publish_snapshot_records(tenant_id=None, project_id=None, page_content_id=None):
+    db = _get_db()
+    sql = "SELECT * FROM publish_snapshots WHERE 1=1"
+    params = []
+    if tenant_id is not None:
+        sql += " AND tenant_id = ?"; params.append(tenant_id)
+    if project_id is not None:
+        sql += " AND project_id = ?"; params.append(project_id)
+    if page_content_id is not None:
+        sql += " AND page_content_id = ?"; params.append(page_content_id)
+    sql += " ORDER BY created_at DESC"
+    return [dict(r) for r in db.execute(sql, params).fetchall()]
+
+
+# ── Webhook 事件 (Phase 6) ────────────────────────────
+
+
+def create_webhook_event_record(tenant_id=None, event_type="", payload_json="{}"):
+    db = _get_db()
+    db.execute(
+        "INSERT INTO webhook_events (tenant_id, event_type, payload_json) VALUES (?, ?, ?)",
+        (tenant_id, event_type, payload_json),
+    )
+    db.commit()
+    return db.execute("SELECT last_insert_rowid()").fetchone()[0]
+
+
+def list_webhook_event_records(tenant_id=None, status=None):
+    db = _get_db()
+    sql = "SELECT * FROM webhook_events WHERE 1=1"
+    params = []
+    if tenant_id is not None:
+        sql += " AND tenant_id = ?"; params.append(tenant_id)
+    if status is not None:
+        sql += " AND status = ?"; params.append(status)
+    sql += " ORDER BY created_at DESC LIMIT 200"
+    return [dict(r) for r in db.execute(sql, params).fetchall()]
+
+
+def update_webhook_event_status(event_id, status, error=""):
+    db = _get_db()
+    db.execute(
+        "UPDATE webhook_events SET status = ?, error = ?, sent_at = datetime('now') WHERE id = ?",
+        (status, error, event_id),
+    )
+    db.commit()
+
+
+# ── 审计日志 (Phase 6) ───────────────────────────────
+
+
+def create_audit_log_record(tenant_id=None, user_id=None, action="",
+                            resource_type="", resource_id=None, details_json="{}"):
+    db = _get_db()
+    db.execute(
+        """INSERT INTO audit_logs (tenant_id, user_id, action, resource_type, resource_id, details_json)
+           VALUES (?, ?, ?, ?, ?, ?)""",
+        (tenant_id, user_id, action, resource_type, resource_id, details_json),
+    )
+    db.commit()
+    return db.execute("SELECT last_insert_rowid()").fetchone()[0]
+
+
+def list_audit_log_records(tenant_id=None, resource_type=None, resource_id=None, limit=100):
+    db = _get_db()
+    sql = "SELECT * FROM audit_logs WHERE 1=1"
+    params = []
+    if tenant_id is not None:
+        sql += " AND tenant_id = ?"; params.append(tenant_id)
+    if resource_type is not None:
+        sql += " AND resource_type = ?"; params.append(resource_type)
+    if resource_id is not None:
+        sql += " AND resource_id = ?"; params.append(resource_id)
+    sql += " ORDER BY created_at DESC LIMIT ?"; params.append(limit)
+    return [dict(r) for r in db.execute(sql, params).fetchall()]
