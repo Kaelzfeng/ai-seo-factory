@@ -44,6 +44,13 @@ def create_app(testing=False):
 
 app = create_app()
 
+# Phase 8: Apply security headers
+try:
+    from lib.security_headers import apply_security_headers
+    apply_security_headers(app)
+except Exception:
+    pass
+
 
 # ── 辅助函数 ────────────────────────────────────────
 
@@ -1016,6 +1023,41 @@ def api_admin_reset_monthly():
     data = request.get_json() or {}
     from lib.monthly_reset import reset_monthly_usage
     return jsonify(reset_monthly_usage(tid, dry_run=data.get("dry_run", True)))
+
+
+# ── Phase 8: System API ──────────────────────────────
+
+@app.route("/api/health")
+def api_health():
+    from lib.health import health_check
+    return jsonify(health_check())
+
+@app.route("/api/ready")
+def api_ready():
+    from lib.health import readiness_check
+    return jsonify(readiness_check())
+
+@app.route("/api/config/report")
+def api_config_report():
+    err = _require_login()
+    if err: return err
+    from lib.config_check import get_config_report
+    return jsonify(get_config_report(strict=False))
+
+@app.route("/api/system/info")
+def api_system_info():
+    err = _require_login(); tid, err2 = _require_tenant()
+    if err: return err
+    if err2: return err2
+    from lib.health import service_check_summary
+    return jsonify({"ok": True, "info": service_check_summary(), "tenant_id": tid})
+
+@app.route("/api/system/routes")
+def api_system_routes():
+    err = _require_login()
+    if err: return err
+    from lib.api_contract import collect_routes
+    return jsonify({"ok": True, "routes": collect_routes(app)})
 
 
 # ── Phase 5: Competitor API ──────────────────────────
