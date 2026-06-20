@@ -344,6 +344,22 @@ def _create_tables(conn):
     CREATE INDEX IF NOT EXISTS idx_pc_project ON page_contents(project_id);
     CREATE INDEX IF NOT EXISTS idx_pc_blueprint ON page_contents(blueprint_id);
     CREATE INDEX IF NOT EXISTS idx_pc_slug ON page_contents(slug);
+
+    CREATE TABLE IF NOT EXISTS competitor_reports (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        tenant_id INTEGER REFERENCES tenants(id) ON DELETE SET NULL,
+        project_id INTEGER REFERENCES projects(id) ON DELETE SET NULL,
+        query TEXT NOT NULL DEFAULT '',
+        market TEXT NOT NULL DEFAULT 'global',
+        language TEXT NOT NULL DEFAULT 'English',
+        status TEXT NOT NULL DEFAULT 'pending',
+        report_json TEXT DEFAULT '{}',
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_cr_tenant ON competitor_reports(tenant_id);
+    CREATE INDEX IF NOT EXISTS idx_cr_project ON competitor_reports(project_id);
     """
     )
 
@@ -1186,5 +1202,57 @@ def update_page_content_review_status(pc_id, review_status, quality_score=None):
         db.execute(
             "UPDATE page_contents SET review_status = ?, updated_at = datetime('now') WHERE id = ?",
             (review_status, pc_id),
+        )
+    db.commit()
+
+
+# ── 竞品报告 (Phase 5) ───────────────────────────────
+
+
+def create_competitor_report(tenant_id=None, project_id=None, query="",
+                             market="global", language="English",
+                             status="pending", report_json="{}"):
+    db = _get_db()
+    db.execute(
+        """INSERT INTO competitor_reports (tenant_id, project_id, query, market,
+           language, status, report_json)
+           VALUES (?, ?, ?, ?, ?, ?, ?)""",
+        (tenant_id, project_id, query, market, language, status, report_json),
+    )
+    db.commit()
+    return db.execute("SELECT last_insert_rowid()").fetchone()[0]
+
+
+def get_competitor_report(report_id):
+    db = _get_db()
+    row = db.execute("SELECT * FROM competitor_reports WHERE id = ?", (report_id,)).fetchone()
+    return dict(row) if row else None
+
+
+def list_competitor_reports(tenant_id=None, project_id=None):
+    db = _get_db()
+    sql = "SELECT * FROM competitor_reports WHERE 1=1"
+    params = []
+    if tenant_id is not None:
+        sql += " AND tenant_id = ?"
+        params.append(tenant_id)
+    if project_id is not None:
+        sql += " AND project_id = ?"
+        params.append(project_id)
+    sql += " ORDER BY created_at DESC"
+    return [dict(r) for r in db.execute(sql, params).fetchall()]
+
+
+def update_competitor_report_status(report_id, status, report_json=None):
+    db = _get_db()
+    if report_json:
+        db.execute(
+            "UPDATE competitor_reports SET status = ?, report_json = ?, updated_at = datetime('now') WHERE id = ?",
+            (status, report_json, report_id),
+        )
+    else:
+        db.execute(
+            "UPDATE competitor_reports SET status = ?, updated_at = datetime('now') WHERE id = ?",
+            (status, report_id),
         )
     db.commit()

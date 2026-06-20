@@ -993,23 +993,100 @@ def build_link_graph(pages: list[PagePlan]) -> dict:
     return dict(graph)
 
 
+# ── Phase 5.1: Competitor Hints Merge ────────────────
+
+
+def _merge_competitor_hints(pages: list, hints: dict,
+                            min_pages: int, max_pages: int) -> bool:
+    """把 competitor hints 的 recommended_pages 合并进现有 pages。
+
+    规则:
+    - 不重复 slug
+    - 不引入事实风险
+    - 注入 hints (faq/schema/angle/diff) 到已有页面
+    - 新页面优先按 priority_score 和 B2B relevance 选择
+    - 注入后重新构建 link_graph
+    """
+    if not hints:
+        return False
+
+    seen_slugs = {p.slug for p in pages}
+    seen_pks = {p.primary_keyword.lower() for p in pages}
+    applied = False
+
+    # 1. 对已有 page 注入 hints (always do this, even if no new pages)
+    for p in pages:
+        if hints.get("recommended_sections"):
+            p.competitor_gap_hints = list(hints["recommended_sections"][:5])
+        if hints.get("recommended_faq"):
+            p.recommended_faq = list(hints["recommended_faq"][:3])
+        if hints.get("recommended_schema"):
+            p.recommended_schema = list(hints["recommended_schema"][:3])
+        if hints.get("content_angle"):
+            p.content_angle = hints["content_angle"]
+        if hints.get("differentiation_points"):
+            p.differentiation_points = list(hints["differentiation_points"][:3])
+    applied = True
+
+    # 2. 合并新推荐页面 (不超过 max_pages)
+    rec_pages = hints.get("recommended_pages", [])
+    for rp in rec_pages:
+        if len(pages) >= max_pages:
+            break
+        slug = rp.get("slug", "")
+        pk = rp.get("primary_keyword", "")
+        if not slug or slug in seen_slugs:
+            continue
+        if not pk or pk.lower() in seen_pks:
+            continue
+        if _has_fact_risk(pk):
+            safe = _rewrite_risky_keyword_to_safe_page(pk)
+            if safe:
+                pk = safe["primary_keyword"]
+                slug = safe["slug"]
+                rp["page_type"] = safe["page_type"]
+            else:
+                continue
+
+        seen_slugs.add(slug)
+        seen_pks.add(pk.lower())
+        pt = rp.get("page_type", "article")
+        pages.append(PagePlan(
+            slug=slug,
+            title=rp.get("title", pk.title()),
+            page_type=pt,
+            primary_keyword=pk,
+            competitor_gap_hints=list(hints.get("recommended_sections", [])[:5]),
+            recommended_faq=list(hints.get("recommended_faq", [])[:3]),
+            recommended_schema=list(hints.get("recommended_schema", [])[:3]),
+            content_angle=hints.get("content_angle", ""),
+            differentiation_points=list(hints.get("differentiation_points", [])[:3]),
+        ))
+        applied = True
+
+    return applied
+
+
 # ── Main Orchestrator ────────────────────────────────
 
 
 def build_site_blueprint(project_id: int, profile: BusinessProfile,
                          seed_keywords: list[str] = None,
                          min_pages: int = 8,
-                         max_pages: int = 12) -> SiteBlueprint:
+                         max_pages: int = 12,
+                         competitor_hints: dict = None) -> SiteBlueprint:
     """从 BusinessProfile 生成 SiteBlueprint。
 
-    Phase 3.1: 默认 8-12 页, 语义聚类, 高质量 title/slug。
+    Phase 3.1/5.1: 默认 8-12 页, 语义聚类, 高质量 title/slug。
+    支持 competitor_hints 反哺 webpage 候选。
 
     Pipeline:
     1. expand_seed_keywords() → list[Keyword]
     2. cluster_keywords() → list[Topic] (语义 cluster)
     3. allocate_pages() → list[PagePlan] (8-12 pages, diverse types)
-    4. build_link_graph() → dict
-    5. Return SiteBlueprint
+    4. (5.1) merge competitor_hints recommended_pages
+    5. build_link_graph() → dict
+    6. Return SiteBlueprint
     """
     # 1. 关键词扩展
     keywords = expand_seed_keywords(profile, seed_keywords, limit=210)
@@ -1019,6 +1096,11 @@ def build_site_blueprint(project_id: int, profile: BusinessProfile,
 
     # 3. 页面分配 (8-12 pages by default)
     pages = allocate_pages(topics, min_pages=min_pages, max_pages=max_pages)
+
+    # 3b. (Phase 5.1) 合并 competitor hints 推荐页面
+    hints_applied = False
+    if competitor_hints:
+        hints_applied = _merge_competitor_hints(pages, competitor_hints, min_pages, max_pages)
 
     # 如果页面不够 min_pages, 从关键词直接生成补充页(带 proper title)
     if len(pages) < min_pages:
@@ -1055,4 +1137,5 @@ def build_site_blueprint(project_id: int, profile: BusinessProfile,
         link_graph=link_graph,
         created_at=time.strftime("%Y-%m-%dT%H:%M:%S"),
         review_status="approved_for_generation",
+        competitor_hints=competitor_hints,
     )

@@ -132,6 +132,12 @@ class PagePlan:
     parent_slug: str = ""
     suggested_sections: list[str] = field(default_factory=list)
     internal_links: list[str] = field(default_factory=list)
+    # Phase 5.1: competitor gap hints
+    competitor_gap_hints: list[str] = field(default_factory=list)
+    recommended_faq: list[str] = field(default_factory=list)
+    recommended_schema: list[str] = field(default_factory=list)
+    content_angle: str = ""
+    differentiation_points: list[str] = field(default_factory=list)
 
     def to_dict(self) -> dict:
         return asdict(self)
@@ -154,6 +160,9 @@ class SiteBlueprint:
     link_graph: dict = field(default_factory=dict)
     created_at: str = ""
     review_status: str = "pending_review"
+    # Phase 5.1: competitor integration
+    competitor_hints: dict | None = None
+    source_competitor_report_id: int | None = None
 
     def to_dict(self) -> dict:
         return {
@@ -165,6 +174,8 @@ class SiteBlueprint:
             "link_graph": self.link_graph,
             "created_at": self.created_at,
             "review_status": self.review_status,
+            "competitor_hints": self.competitor_hints,
+            "source_competitor_report_id": self.source_competitor_report_id,
         }
 
     @classmethod
@@ -179,6 +190,8 @@ class SiteBlueprint:
             link_graph=d.get("link_graph", {}),
             created_at=d.get("created_at", ""),
             review_status=d.get("review_status", "pending_review"),
+            competitor_hints=d.get("competitor_hints"),
+            source_competitor_report_id=d.get("source_competitor_report_id"),
         )
 
 

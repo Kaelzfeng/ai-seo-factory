@@ -867,6 +867,104 @@ def api_page_content_detail(pc_id):
     return jsonify({"ok": True, "page_content": pc})
 
 
+# ── Phase 5: Competitor API ──────────────────────────
+
+
+@app.route("/api/competitor/analyze", methods=["POST"])
+def api_competitor_analyze():
+    err = _require_login()
+    if err:
+        return err
+    tid, err = _require_tenant()
+    if err:
+        return err
+    data = request.get_json() or {}
+    query = data.get("query", "")
+    if not query:
+        return jsonify({"ok": False, "error": "缺少 query"}), 400
+
+    project_id = data.get("project_id")
+    urls = data.get("urls")
+    market = data.get("market", "global")
+    language = data.get("language", "English")
+    limit = data.get("limit", 10)
+
+    import run as _run
+    result = _run.analyze_competitor_seo(
+        query=query, project_id=project_id, tenant_id=tid,
+        urls=urls, market=market, language=language, limit=limit,
+    )
+    return jsonify({"ok": True, "report": result})
+
+
+@app.route("/api/competitor/reports")
+def api_competitor_reports():
+    err = _require_login()
+    if err:
+        return err
+    tid, err = _require_tenant()
+    if err:
+        return err
+    from models import list_competitor_reports
+    reports = list_competitor_reports(tenant_id=tid)
+    return jsonify({"ok": True, "reports": reports})
+
+
+@app.route("/api/competitor/reports/<int:report_id>")
+def api_competitor_report_detail(report_id):
+    err = _require_login()
+    if err:
+        return err
+    tid, err = _require_tenant()
+    if err:
+        return err
+    from models import get_competitor_report
+    report = get_competitor_report(report_id)
+    if not report:
+        return jsonify({"ok": False, "error": "Report 不存在"}), 404
+    if report.get("tenant_id") and report.get("tenant_id") != tid:
+        return jsonify({"ok": False, "error": "无权访问"}), 403
+    return jsonify({"ok": True, "report": report})
+
+
+@app.route("/api/competitor/reports/<int:report_id>/strategy")
+def api_competitor_strategy(report_id):
+    err = _require_login()
+    if err:
+        return err
+    tid, err = _require_tenant()
+    if err:
+        return err
+    from models import get_competitor_report
+    import json as _json
+    report = get_competitor_report(report_id)
+    if not report:
+        return jsonify({"ok": False, "error": "Report 不存在"}), 404
+    if report.get("tenant_id") and report.get("tenant_id") != tid:
+        return jsonify({"ok": False, "error": "无权访问"}), 403
+    rj = _json.loads(report.get("report_json", "{}"))
+    return jsonify({"ok": True, "strategy": rj.get("surpass_strategy")})
+
+
+@app.route("/api/competitor/reports/<int:report_id>/gaps")
+def api_competitor_gaps(report_id):
+    err = _require_login()
+    if err:
+        return err
+    tid, err = _require_tenant()
+    if err:
+        return err
+    from models import get_competitor_report
+    import json as _json
+    report = get_competitor_report(report_id)
+    if not report:
+        return jsonify({"ok": False, "error": "Report 不存在"}), 404
+    if report.get("tenant_id") and report.get("tenant_id") != tid:
+        return jsonify({"ok": False, "error": "无权访问"}), 403
+    rj = _json.loads(report.get("report_json", "{}"))
+    return jsonify({"ok": True, "gaps": rj.get("gap_matrix")})
+
+
 # ── 启动 ────────────────────────────────────────────
 
 

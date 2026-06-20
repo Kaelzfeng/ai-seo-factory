@@ -40,6 +40,34 @@ def page_plan_to_prompt_context(page_plan: PagePlan,
         if bp.terminology:
             lines.append(f"TERMINOLOGY: {', '.join(bp.terminology[:10])}")
 
+    # Phase 5.1: Inject competitor gap hints
+    gap_hints = getattr(pp, 'competitor_gap_hints', []) or []
+    rec_faq = getattr(pp, 'recommended_faq', []) or []
+    rec_schema = getattr(pp, 'recommended_schema', []) or []
+    content_angle = getattr(pp, 'content_angle', '') or ''
+    diff_points = getattr(pp, 'differentiation_points', []) or []
+
+    if gap_hints or rec_faq or content_angle:
+        lines.append("")
+        lines.append("COMPETITOR GAP INSIGHTS (observed from competitor analysis, use these to strengthen your content):")
+        if gap_hints:
+            lines.append("Must-cover topics competitors missed:")
+            for g in gap_hints[:5]:
+                lines.append(f"  - {g}")
+        if rec_faq:
+            lines.append("Recommended FAQ to include:")
+            for f in rec_faq[:3]:
+                lines.append(f"  - {f}")
+        if rec_schema:
+            lines.append(f"Recommended schema types: {', '.join(rec_schema)}")
+        if content_angle:
+            lines.append(f"Content differentiation angle: {content_angle}")
+        if diff_points:
+            lines.append("Key differentiation points:")
+            for d in diff_points[:3]:
+                lines.append(f"  - {d}")
+        lines.append("IMPORTANT: Do NOT fabricate rankings or search volumes. Only reference observed gaps and inferred opportunities. Do not say 'top 10 competitors all...' without evidence.")
+
     return "\n".join(lines)
 
 

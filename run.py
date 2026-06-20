@@ -1296,16 +1296,13 @@ def generate_site_from_blueprint(project: dict, blueprint,
 def generate_site_from_input(user_input: str, project_id: int = None,
                              tenant_id: int = None, mode: str = "dry-run",
                              bypass_subscription: bool = False,
-                             max_pages: int = None) -> dict:
+                             max_pages: int = None,
+                             use_competitor: bool = False,
+                             competitor_query: str = None,
+                             competitor_urls: list[str] = None) -> dict:
     """从自然语言输入执行完整 S0 → PageContent 管线。
 
-    1. S0 clarify → scope
-    2. S1 profile → BusinessProfile
-    3. S2 blueprint → SiteBlueprint (default 8-12 pages)
-    4. generate_site_from_blueprint → PageContent (all pages)
-
-    Args:
-        max_pages: None=全量生成; >0=截断到前 N 页
+    Phase 5.1: 可选竞品分析增强 (use_competitor=True)。
     """
     from lib.seo_engine.stage0_clarify import clarify_request
     from lib.seo_engine.stage1_profile import build_business_profile
@@ -1326,8 +1323,29 @@ def generate_site_from_input(user_input: str, project_id: int = None,
         project["tenant_id"] = tenant_id
     profile = build_business_profile(scope, project)
 
+    # Optional: competitor analysis → hints
+    competitor_hints = None
+    if use_competitor:
+        try:
+            cq = competitor_query or user_input
+            report = analyze_competitor_seo(
+                query=cq, project_id=project_id, tenant_id=tenant_id,
+                urls=competitor_urls,
+            )
+            if report.get("surpass_strategy"):
+                from lib.surpass_strategy import strategy_to_blueprint_hints
+                ss_dict = report["surpass_strategy"]
+                from lib.surpass_strategy import SurpassStrategy as SS
+                ss = SS(**{k: v for k, v in ss_dict.items() if k in SS.__dataclass_fields__})
+                competitor_hints = strategy_to_blueprint_hints(ss)
+        except Exception:
+            pass
+
     # S2
-    blueprint = build_site_blueprint(project_id=project_id or 0, profile=profile)
+    blueprint = build_site_blueprint(
+        project_id=project_id or 0, profile=profile,
+        competitor_hints=competitor_hints,
+    )
 
     # Phase 4 generation
     gen_project = {
@@ -1340,6 +1358,152 @@ def generate_site_from_input(user_input: str, project_id: int = None,
     return generate_site_from_blueprint(gen_project, blueprint, mode=mode,
                                         bypass_subscription=bypass_subscription,
                                         max_pages=max_pages)
+
+
+# ── Phase 5: 竞品 SEO 分析 ─────────────────────────────
+
+
+def analyze_competitor_seo(query: str, project_id: int = None,
+                           tenant_id: int = None, urls: list[str] = None,
+                           market: str = None, language: str = None,
+                           limit: int = 10) -> dict:
+    """执行竞品 SEO 分析 (mock 默认)。
+
+    Pipeline:
+    1. SERP search → competitor_analysis
+    2. gap_analyzer → GapMatrix
+    3. surpass_strategy → SurpassStrategy
+    4. Save competitor_reports
+
+    Returns CompetitorReport.to_dict()
+    """
+    from lib.competitor_analysis import analyze_competitors
+    from lib.gap_analyzer import build_gap_matrix
+    from lib.surpass_strategy import build_surpass_strategy
+
+    provider = "manual" if urls else "mock"
+
+    # 1. 竞品分析 (mock 模式不真实抓取)
+    report = analyze_competitors(
+        query=query, market=market, language=language,
+        urls=urls, limit=limit, tenant_id=tenant_id, project_id=project_id,
+        provider_name=provider,
+    )
+
+    # 2. Gap matrix
+    gap = build_gap_matrix(report.competitors)
+    report.gap_matrix = gap
+
+    # 3. Surpass strategy
+    strategy = build_surpass_strategy(query, gap, report.competitors)
+    report.surpass_strategy = strategy
+
+    # 4. Save to DB
+    try:
+        from models import create_competitor_report
+        import json as _json
+        report_id = create_competitor_report(
+            tenant_id=tenant_id, project_id=project_id,
+            query=query, market=market or "global",
+            language=language or "English",
+            status=report.status,
+            report_json=_json.dumps(report.to_dict(), ensure_ascii=False),
+        )
+        report.id = report_id
+    except Exception:
+        pass
+
+    return report.to_dict()
+
+
+def generate_blueprint_with_competitor_input(user_input: str,
+                                             project_id: int = None,
+                                             tenant_id: int = None,
+                                             query: str = None,
+                                             urls: list[str] = None,
+                                             market: str = None,
+                                             language: str = None,
+                                             limit: int = 10) -> dict:
+    """Phase 5.1: 竞品分析 → Blueprint Hints → 增强 SiteBlueprint。
+
+    Pipeline:
+    1. analyze_competitor_seo → CompetitorReport + SurpassStrategy
+    2. strategy_to_blueprint_hints → structured hints
+    3. S0 clarify → scope
+    4. S1 profile → BusinessProfile
+    5. S2 blueprint → SiteBlueprint (with competitor_hints)
+    6. Save blueprint + return
+    """
+    from lib.surpass_strategy import strategy_to_blueprint_hints
+
+    # 1. 竞品分析
+    competitor_query = query or user_input
+    report = analyze_competitor_seo(
+        query=competitor_query, project_id=project_id, tenant_id=tenant_id,
+        urls=urls, market=market, language=language, limit=limit,
+    )
+
+    # 2. Strategy → hints
+    hints = strategy_to_blueprint_hints(
+        _dict_to_strategy(report.get("surpass_strategy", {}))
+    ) if report.get("surpass_strategy") else None
+
+    # 3-5. S0 → S1 → S2
+    from lib.seo_engine.stage0_clarify import clarify_request
+    from lib.seo_engine.stage1_profile import build_business_profile
+    from lib.seo_engine.stage2_blueprint import build_site_blueprint
+
+    scope_result = clarify_request(user_input)
+    scope = scope_result.get("scope", {})
+
+    profile = build_business_profile(scope)
+
+    blueprint = build_site_blueprint(
+        project_id=project_id or 0, profile=profile,
+        competitor_hints=hints,
+    )
+    blueprint.competitor_hints = hints
+    blueprint.source_competitor_report_id = report.get("id")
+
+    # 6. Save blueprint
+    blueprint_id = None
+    try:
+        from models import create_site_blueprint
+        import json as _json
+        blueprint_id = create_site_blueprint(
+            tenant_id=tenant_id, project_id=project_id,
+            blueprint_json=_json.dumps(blueprint.to_dict(), ensure_ascii=False),
+        )
+    except Exception:
+        pass
+
+    return {
+        "ok": True,
+        "competitor_report_id": report.get("id"),
+        "blueprint_id": blueprint_id,
+        "pages_total": len(blueprint.pages),
+        "pages": [p.to_dict() for p in blueprint.pages],
+        "hints_applied": hints is not None,
+    }
+
+
+def _dict_to_strategy(d: dict):
+    """Convert dict to SurpassStrategy for hints generation。"""
+    if not d:
+        return None
+    from lib.surpass_strategy import SurpassStrategy as SS
+    return SS(
+        target_keyword=d.get("target_keyword", ""),
+        recommended_pages=d.get("recommended_pages", []),
+        recommended_sections=d.get("recommended_sections", []),
+        recommended_faq=d.get("recommended_faq", []),
+        recommended_schema=d.get("recommended_schema", []),
+        recommended_internal_links=d.get("recommended_internal_links", []),
+        content_angle=d.get("content_angle", ""),
+        differentiation_points=d.get("differentiation_points", []),
+        priority_score=d.get("priority_score", 0),
+        rationale=d.get("rationale", ""),
+    )
 
 
 if __name__ == "__main__":
