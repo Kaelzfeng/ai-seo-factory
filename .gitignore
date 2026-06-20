@@ -48,3 +48,8 @@ node_modules/
 
 # Data
 data/app.db
+
+# Local runtime cache
+.cache/
+backups/
+

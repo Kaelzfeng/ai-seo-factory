@@ -64,10 +64,10 @@ def test_api_ready_returns_json(app):
         assert resp.status_code == 200
 
 def test_api_config_report_no_leak(app):
-    from auth import register_user, login_user
-    # Create a user in app's db context
-    tid = models.create_tenant("p8-api")
-    uid = models.create_user("p8api@t.com", "h", "s")
+    import secrets
+    email = f"p8api-{secrets.token_hex(4)}@t.com"
+    tid = models.create_tenant(f"p8api-{secrets.token_hex(4)}")
+    uid = models.create_user(email, "h", "s")
     models.add_tenant_member(tid, uid, "owner")
     with app.test_client() as c:
         with c.session_transaction() as sess: sess["user_id"] = uid
