@@ -13,6 +13,8 @@ def main():
     print(f"OK: {cfg['ok']}")
     for svc, info in cfg["services"].items():
         print(f"  {svc}: {info}")
+    llm = cfg["services"]["llm"]
+    print(f"  LLM provider: {llm['provider']} (configured={llm['configured']}, model={llm['model']})")
     if cfg.get("warnings"): print(f"Warnings: {cfg['warnings']}")
     if cfg.get("errors"): print(f"Errors: {cfg['errors']}")
     sys.exit(0 if cfg["ok"] else 1)

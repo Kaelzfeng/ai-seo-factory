@@ -1,14 +1,18 @@
 """LLM 封装：加载 skill 文件 + 强制结构化输出。
 
-支持两个 provider(同一套 tool-use / 流式代码,零分叉):
+支持的 provider:
 - anthropic（默认）：官方 Anthropic API,读 ANTHROPIC_API_KEY。
-- deepseek：走 DeepSeek 的 **Anthropic 兼容端点** https://api.deepseek.com/anthropic,
-  读 DEEPSEEK_API_KEY。因为接口同形,structured()/structured_stream() 一行不用改。
+- deepseek：走 DeepSeek Anthropic 兼容端点 https://api.deepseek.com/anthropic,
+  读 DEEPSEEK_API_KEY。接口同形,structured()/structured_stream() 复用。
+- openai：OpenAI Chat Completions API,读 OPENAI_API_KEY,
+  使用 response_format json_object + prompt-level schema 实现结构化输出。
+- mock：返回 mock 结构化数据,用于测试(无需 API key)。
 
-provider 选择(`_provider()`,每次动态读环境,避免 import 顺序坑):
-  显式 LLM_PROVIDER 优先；否则只要设了 DEEPSEEK_API_KEY 就自动走 deepseek；再否则 anthropic。
-所以最简用法:把 DEEPSEEK_API_KEY 放进 .env 即可,整条管线自动切到 DeepSeek。
+provider 选择(`_provider()`,每次动态读环境):
+  显式 LLM_PROVIDER 优先；否则有 DEEPSEEK_API_KEY → deepseek；
+  有 OPENAI_API_KEY → openai；再否则 anthropic。
 """
+import json
 import os
 import pathlib
 import threading
@@ -84,16 +88,24 @@ _DEFAULT_MODELS = {
                   "polish": "claude-haiku-4-5-20251001"},
     "deepseek":  {"planner": "deepseek-v4-flash",          "writer": "deepseek-v4-pro",
                   "polish": "deepseek-v4-flash"},
+    "openai":    {"planner": "gpt-4o-mini",                "writer": "gpt-4o",
+                  "polish": "gpt-4o-mini"},
+    "mock":      {"planner": "mock",                       "writer": "mock",
+                  "polish": "mock"},
 }
 
 
 def _provider() -> str:
-    """动态判定当前 provider：显式 LLM_PROVIDER > 有 DEEPSEEK_API_KEY 则 deepseek > anthropic。"""
+    """动态判定当前 provider：
+    显式 LLM_PROVIDER > DEEPSEEK_API_KEY > OPENAI_API_KEY > anthropic。
+    """
     p = os.getenv("LLM_PROVIDER", "").strip().lower()
     if p:
         return p
     if os.getenv("DEEPSEEK_API_KEY"):
         return "deepseek"
+    if os.getenv("OPENAI_API_KEY"):
+        return "openai"
     return "anthropic"
 
 
@@ -106,11 +118,12 @@ def default_model(role: str, provider: str = None) -> str:
 
 _client = None
 _client_provider = None
+_openai_client = None
 
 
 def _get_client():
-    # 延迟创建，确保 run.py 先 load_dotenv() 再读 key；按 provider 缓存,切换 provider 会重建。
-    global _client, _client_provider
+    """返回 (anthropic_client, openai_client_or_none)。"""
+    global _client, _client_provider, _openai_client
     p = _provider()
     if _client is None or _client_provider != p:
         if p == "deepseek":
@@ -118,10 +131,69 @@ def _get_client():
             if not key:
                 raise RuntimeError("provider=deepseek 但未设置 DEEPSEEK_API_KEY")
             _client = Anthropic(base_url=_DEEPSEEK_BASE_URL, api_key=key)
+            _openai_client = None
+        elif p == "openai":
+            key = os.getenv("OPENAI_API_KEY")
+            if not key:
+                raise RuntimeError("provider=openai 但未设置 OPENAI_API_KEY")
+            try:
+                import openai as _openai_mod
+                _openai_client = _openai_mod.OpenAI(api_key=key)
+                _client = None
+            except ImportError:
+                raise RuntimeError("provider=openai 需要 pip install openai")
+        elif p == "mock":
+            _client = None
+            _openai_client = None
         else:
-            _client = Anthropic()  # 读 ANTHROPIC_API_KEY
+            _client = Anthropic()  # ANTHROPIC_API_KEY
+            _openai_client = None
         _client_provider = p
-    return _client
+    return _client, _openai_client
+
+
+def _structured_openai(model: str, system: str, user: str, schema: dict,
+                       max_tokens: int = 4096) -> dict:
+    """OpenAI structured output: JSON mode + parse。"""
+    import openai as _oai
+    client, _ = _get_client()  # returns (None, openai_client)
+    if _openai_client is None:
+        raise RuntimeError("OpenAI client not initialized")
+    # 构建 JSON schema 描述
+    schema_desc = json.dumps(schema, ensure_ascii=False)
+    prompt = f"""{user}
+
+IMPORTANT: You MUST return a valid JSON object matching this schema:
+{schema_desc}
+
+Return ONLY the JSON object, no markdown, no code fences."""
+    try:
+        resp = _openai_client.chat.completions.create(
+            model=model,
+            messages=[
+                {"role": "system", "content": system},
+                {"role": "user", "content": prompt},
+            ],
+            max_tokens=max_tokens,
+            response_format={"type": "json_object"},
+            temperature=0.7,
+        )
+        text = resp.choices[0].message.content
+        # Parse JSON
+        if text:
+            text = text.strip()
+            if text.startswith("```"):
+                text = re.sub(r'^```\w*\n?', '', text)
+                text = re.sub(r'\n?```$', '', text)
+            return json.loads(text)
+        raise RuntimeError("OpenAI 返回空响应")
+    except json.JSONDecodeError as e:
+        raise RuntimeError(f"OpenAI JSON 解析失败: {e}")
+    except Exception as e:
+        raise RuntimeError(f"OpenAI 调用异常: {e}")
+
+
+import re
 
 
 def load_skill(name: str) -> str:
@@ -131,13 +203,26 @@ def load_skill(name: str) -> str:
 
 def structured(model: str, system: str, user: str, schema: dict,
                max_tokens: int = 4096, tool_name: str = "emit") -> dict:
-    """用 tool use 强制模型返回符合 schema 的 JSON。"""
-    resp = _get_client().messages.create(
+    """用 tool use / json_mode 强制模型返回符合 schema 的 JSON。
+
+    支持: anthropic/deepseek (tool_use), openai (json_object), mock (fake return)。
+    """
+    p = _provider()
+
+    # Mock provider: return fake structured data
+    if p == "mock":
+        return _mock_structured(schema)
+
+    # OpenAI provider: json_object mode
+    if p == "openai":
+        return _structured_openai(model, system, user, schema, max_tokens)
+
+    # Anthropic / DeepSeek: tool_use mode
+    client, _ = _get_client()
+    resp = client.messages.create(
         model=model,
         max_tokens=max_tokens,
         system=system,
-        # 关思考模式:DeepSeek 默认开思考,而思考模式不允许强制 tool_choice(会 400)。
-        # 对原生 Claude 无害(本就默认关)。强制工具=保证结构化输出,优先级高于 CoT。
         thinking={"type": "disabled"},
         tools=[{
             "name": tool_name,
@@ -147,12 +232,30 @@ def structured(model: str, system: str, user: str, schema: dict,
         tool_choice={"type": "tool", "name": tool_name},
         messages=[{"role": "user", "content": user}],
     )
-    # 旁路记账:把本次响应的 token 用量累加进线程计数器,不影响下面返回值。
     _record_usage(getattr(resp, "usage", None))
     for block in resp.content:
         if block.type == "tool_use":
             return block.input
     raise RuntimeError("模型未返回结构化结果")
+
+
+def _mock_structured(schema: dict) -> dict:
+    """Mock provider: 从 schema 构造最小合法输出。"""
+    result = {}
+    props = schema.get("properties", {})
+    required = schema.get("required", [])
+    for key in required:
+        prop = props.get(key, {})
+        ptype = prop.get("type", "string")
+        if ptype == "string":
+            result[key] = f"mock_{key}_value"
+        elif ptype == "array":
+            result[key] = []
+        elif ptype == "object":
+            result[key] = {}
+        else:
+            result[key] = f"mock_{key}"
+    return result
 
 
 def _partial_field(buf: str, key: str):

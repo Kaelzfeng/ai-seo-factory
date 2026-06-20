@@ -10,8 +10,12 @@ SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-change-in-production")
 DATABASE_URL = os.getenv("DATABASE_URL", str(ROOT / "data" / "app.db"))
 SQLITE_PATH = os.getenv("SQLITE_PATH", str(ROOT / "data" / "app.db"))
 LLM_PROVIDER = os.getenv("LLM_PROVIDER", "")
+LLM_MODEL = os.getenv("LLM_MODEL", "")
+LLM_TIMEOUT = int(os.getenv("LLM_TIMEOUT", "45"))
+LLM_MAX_RETRIES = int(os.getenv("LLM_MAX_RETRIES", "2"))
 DEEPSEEK_API_KEY = os.getenv("DEEPSEEK_API_KEY", "")
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
 SERP_PROVIDER = os.getenv("SERP_PROVIDER", "mock")
 WP_URL = os.getenv("WORDPRESS_BASE_URL", os.getenv("WP_SITE", ""))
 WP_USER = os.getenv("WORDPRESS_USERNAME", os.getenv("WP_USER", ""))
@@ -29,13 +33,19 @@ def mask_secret(value: str) -> str:
 
 
 def masked_config() -> dict:
+    # Resolve effective provider
+    effective_provider = LLM_PROVIDER or ("deepseek" if DEEPSEEK_API_KEY else "openai" if OPENAI_API_KEY else "auto-detect")
     return {
         "APP_ENV": APP_ENV,
         "SECRET_KEY": mask_secret(SECRET_KEY),
         "SQLITE_PATH": SQLITE_PATH,
-        "LLM_PROVIDER": LLM_PROVIDER or "auto-detect",
+        "LLM_PROVIDER": effective_provider,
+        "LLM_MODEL": LLM_MODEL or "(default per role)",
+        "LLM_TIMEOUT": LLM_TIMEOUT,
+        "LLM_MAX_RETRIES": LLM_MAX_RETRIES,
         "DEEPSEEK_API_KEY": "configured" if DEEPSEEK_API_KEY else "missing",
         "ANTHROPIC_API_KEY": "configured" if ANTHROPIC_API_KEY else "missing",
+        "OPENAI_API_KEY": "configured" if OPENAI_API_KEY else "missing",
         "SERP_PROVIDER": SERP_PROVIDER,
         "WP_URL": WP_URL or "not configured",
         "WP_USER": WP_USER or "not configured",
