@@ -62,11 +62,29 @@ def collect_beta_metrics(tenant_id, project_id=None):
         pass
     metrics["page_contents"] = pcs_summary
 
-    # Generated result summary (from jobs when no persisted page_contents)
+    # Persistence errors from job results
+    persistence_errors_total = 0
+    persistence_warnings_list = []
+    for j in jobs:
+        try:
+            meta = json.loads(j.get("meta_json", "{}"))
+            res = meta.get("_result", {})
+            pe = res.get("persistence_errors", [])
+            persistence_errors_total += len(pe)
+        except (json.JSONDecodeError, TypeError):
+            pass
+
+    # Generated result summary
+    note = None
+    if pcs_summary["persisted"] == 0 and jobs_summary["generated_pages"] > 0:
+        note = "Pages from job results but not persisted as page_contents"
+    elif persistence_errors_total > 0:
+        note = f"{persistence_errors_total} persistence error(s) detected — some pages generated but not saved"
     metrics["generated_pages"] = {
         "from_job_results": jobs_summary["generated_pages"],
-        "note": "Pages from job results (may not be persisted as page_contents in mock mode)" if pcs_summary["persisted"] == 0 else None,
+        "note": note,
     }
+    metrics["persistence_errors_count"] = persistence_errors_total
 
     # Competitor reports
     try:
@@ -133,6 +151,13 @@ def beta_report_to_markdown(report: dict) -> str:
     ]
     if gp.get("note"):
         lines.append(f"- Note: {gp['note']}")
+
+    lines.extend([
+        f"## Persistence",
+        f"- Errors: {m.get('persistence_errors_count', 0)}",
+    ])
+    if m.get("persistence_errors_count", 0) > 0:
+        lines.append("- ⚠️ Some pages were generated but NOT persisted. Check persistence_errors in job results.")
 
     lines.extend([
         "",

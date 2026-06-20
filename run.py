@@ -1154,6 +1154,7 @@ def generate_site_from_blueprint(project: dict, blueprint,
     errors = []
     gen_ids = []
     failed_gen_ids = []
+    persistence_errors_list = []
 
     for pc in page_contents:
         try:
@@ -1216,6 +1217,8 @@ def generate_site_from_blueprint(project: dict, blueprint,
                 gen_id = None
 
             # Save page_content
+            persistence_ok = True
+            persistence_error_msg = ""
             try:
                 from models import create_page_content
                 import json as _json
@@ -1228,8 +1231,27 @@ def generate_site_from_blueprint(project: dict, blueprint,
                     review_status="approved" if review.get("ok") else "needs_review",
                     generation_id=gen_id,
                 )
-            except Exception:
-                pass
+            except Exception as exc:
+                persistence_ok = False
+                persistence_error_msg = str(exc)
+                persistence_errors_list.append({
+                    "slug": pc.slug,
+                    "error": persistence_error_msg,
+                    "step": "create_page_content",
+                })
+                # Log to generation_logs
+                try:
+                    from lib.generation_logs import log_generation_step
+                    log_generation_step(
+                        tenant_id=tenant_id, project_id=project_id,
+                        generation_id=gen_id,
+                        step="page_content_persist_failed",
+                        status="failed",
+                        message=f"PageContent 持久化失败: {persistence_error_msg}",
+                        meta={"slug": pc.slug, "error": persistence_error_msg},
+                    )
+                except Exception:
+                    pass
 
             all_results.append({
                 "page": {"slug": pc.slug, "type": pc.page_type, "target_keyword": pc.primary_keyword, "gen_id": gen_id},
@@ -1278,6 +1300,13 @@ def generate_site_from_blueprint(project: dict, blueprint,
     else:
         code = "generation_failed"; ok = False; retryable = len(failed_gen_ids) > 0
 
+    # Build persistence warnings
+    persistence_warnings = []
+    if persistence_errors_list:
+        persistence_warnings.append(
+            f"{len(persistence_errors_list)} page(s) generated but NOT persisted to DB"
+        )
+
     return {
         "ok": ok, "code": code,
         "message": f"{pages_success}/{pages_total} pages generated",
@@ -1289,6 +1318,8 @@ def generate_site_from_blueprint(project: dict, blueprint,
         "pages_failed": pages_failed, "truncated": truncated,
         "mode": mode, "usage": usage_info, "retryable": retryable,
         "pages": all_results, "errors": errors,
+        "persistence_errors": persistence_errors_list,
+        "warnings": persistence_warnings,
         "summary": {"total_pages": pages_success, "errors": len(errors)},
     }
 
