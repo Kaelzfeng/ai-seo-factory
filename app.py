@@ -874,6 +874,81 @@ def api_page_content_detail(pc_id):
     return jsonify({"ok": True, "page_content": pc})
 
 
+# ── Phase 9.2: Job API ───────────────────────────────
+
+
+@app.route("/api/jobs/generation", methods=["POST"])
+def api_create_generation_job():
+    err = _require_login(); tid, err2 = _require_tenant()
+    if err: return err
+    if err2: return err2
+    data = request.get_json() or {}
+    from lib.generation_job_mode import create_generation_job
+    result = create_generation_job(
+        tenant_id=tid, project_id=data.get("project_id"),
+        user_input=data.get("user_input"),
+        blueprint_id=data.get("blueprint_id"),
+        mode=data.get("mode", "dry-run"),
+        use_competitor=data.get("use_competitor", False),
+        bypass_subscription=data.get("bypass_subscription", False),
+    )
+    return jsonify(result)
+
+
+@app.route("/api/jobs/generation/<int:job_id>/run", methods=["POST"])
+def api_run_generation_job(job_id):
+    err = _require_login(); tid, err2 = _require_tenant()
+    if err: return err
+    if err2: return err2
+    from lib.generation_job_mode import run_generation_job
+    return jsonify(run_generation_job(job_id, tenant_id=tid))
+
+
+@app.route("/api/jobs/generation/<int:job_id>/run-background", methods=["POST"])
+def api_run_generation_job_bg(job_id):
+    err = _require_login(); tid, err2 = _require_tenant()
+    if err: return err
+    if err2: return err2
+    from lib.generation_job_mode import run_generation_job_background
+    return jsonify(run_generation_job_background(job_id, tenant_id=tid))
+
+
+@app.route("/api/jobs/generation/<int:job_id>")
+def api_job_status(job_id):
+    err = _require_login(); tid, err2 = _require_tenant()
+    if err: return err
+    if err2: return err2
+    from lib.generation_job_mode import get_generation_job_status
+    return jsonify(get_generation_job_status(job_id, tenant_id=tid))
+
+
+@app.route("/api/jobs/generation/<int:job_id>/result")
+def api_job_result(job_id):
+    err = _require_login(); tid, err2 = _require_tenant()
+    if err: return err
+    if err2: return err2
+    from lib.generation_job_mode import get_generation_job_result
+    return jsonify(get_generation_job_result(job_id, tenant_id=tid))
+
+
+@app.route("/api/jobs/generation/<int:job_id>/cancel", methods=["POST"])
+def api_cancel_job(job_id):
+    err = _require_login(); tid, err2 = _require_tenant()
+    if err: return err
+    if err2: return err2
+    from lib.generation_job_mode import cancel_generation_job
+    return jsonify(cancel_generation_job(job_id, tenant_id=tid))
+
+
+@app.route("/api/jobs/generation/<int:job_id>/retry", methods=["POST"])
+def api_retry_job(job_id):
+    err = _require_login(); tid, err2 = _require_tenant()
+    if err: return err
+    if err2: return err2
+    from lib.generation_job_mode import retry_generation_job
+    return jsonify(retry_generation_job(job_id, tenant_id=tid))
+
+
 # ── Phase 6: Publish API ─────────────────────────────
 
 

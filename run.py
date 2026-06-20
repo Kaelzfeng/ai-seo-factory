@@ -1506,6 +1506,29 @@ def _dict_to_strategy(d: dict):
     )
 
 
+# ── Phase 9.2: Job Mode ───────────────────────────────
+
+
+def create_real_llm_generation_job(tenant_id: int, project_id: int = None,
+                                   user_input: str = None,
+                                   blueprint_id: int = None,
+                                   mode: str = "dry-run",
+                                   use_competitor: bool = False,
+                                   bypass_subscription: bool = False) -> dict:
+    from lib.generation_job_mode import create_generation_job
+    return create_generation_job(
+        tenant_id=tenant_id, project_id=project_id,
+        user_input=user_input, blueprint_id=blueprint_id,
+        mode=mode, use_competitor=use_competitor,
+        bypass_subscription=bypass_subscription,
+    )
+
+
+def run_real_llm_generation_job(job_id: int, tenant_id: int = None) -> dict:
+    from lib.generation_job_mode import run_generation_job
+    return run_generation_job(job_id, tenant_id=tenant_id)
+
+
 # ── Phase 6: 发布运营 ─────────────────────────────────
 
 
