@@ -1,0 +1,60 @@
+<!doctype html><html lang="zh"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>超级管理员 · {% block title %}AI SEO 内容工厂{% endblock %}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&family=Roboto+Mono:wght@400;500;600&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..0" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='console.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}">
+{% block head %}{% endblock %}
+</head><body>
+<div class="admin">
+  <!-- 深色侧栏:11 模块 + SEO 策略子项 -->
+  <aside class="arail">
+    <div class="arail__top">
+      <div class="spark" style="width:34px;height:34px"><span class="ms fill">space_dashboard</span></div>
+      <div class="arail__brand"><b>AI SEO 内容工厂</b><span>Super Admin</span></div>
+    </div>
+    <nav class="arail__list">
+      {% for m in modules %}
+      {% set href = url_for('admin.agent_skill') if m.key=='agent' else (url_for('admin.feasibility') if m.key=='seo' else url_for('admin.module', key=m.key)) %}
+      <a class="anav {{ 'on' if active==m.key or (m.children and active in m.children|map(attribute='key')|list) }}" href="{{ href }}">
+        <span class="anav__badge">{{ m.letter }}</span>
+        <span class="anav__tx"><b>{{ m.label }}</b><span>{{ m.sub }}</span></span>
+      </a>
+      {% if m.children and (active==m.key or active in m.children|map(attribute='key')|list) %}
+      <div class="anav__sub">
+        {% for c in m.children %}
+        {% set chref = url_for('admin.'+c.key) if c.key in ['feasibility','competitors','keyword_map'] else url_for('admin.module', key=c.key) %}
+        <a class="asub {{ 'on' if active==c.key }}" href="{{ chref }}">{{ c.label }}</a>
+        {% endfor %}
+        <a class="asub {{ 'on' if active=='transparency' }}" href="{{ url_for('admin.transparency') }}">生成档案(透明)</a>
+      </div>
+      {% endif %}
+      {% endfor %}
+    </nav>
+  </aside>
+
+  <main class="amain">
+    <!-- 顶栏:租户/项目/成员选择器(.projpill 复用) + 搜索 + 角色 + 通知 -->
+    <header class="atop">
+      <a class="projpill" href="?tenant={{ tenant.id }}"><span class="dot"></span>{{ tenant.name }} · {{ project.locale if project }}<span class="ms">expand_more</span></a>
+      <span class="chip">租户:{{ tenant.name }}</span>
+      <span class="chip">项目:{{ project.name if project }}</span>
+      <span class="chip">成员:{{ member.name }}</span>
+      <span class="grow"></span>
+      <input class="asearch" placeholder="搜索页面、关键词、任务、成员">
+      <span class="arole"><span class="ms" style="font-size:16px">shield_person</span>{{ member.role }}</span>
+      <button class="iconbtn"><span class="ms">notifications</span></button>
+    </header>
+    <!-- 数据范围四卡 -->
+    <section class="ascope">
+      <div class="card"><div class="lbl">租户</div><div class="val">{{ tenant.name }}</div><div class="meta">{{ tenant.plan }} · {{ tenant.status }}</div></div>
+      <div class="card"><div class="lbl">项目</div><div class="val">{{ project.name if project }}</div><div class="meta">{{ project.domain if project }} · {{ project.cms if project }}</div></div>
+      <div class="card"><div class="lbl">当前成员</div><div class="val">{{ member.name }}</div><div class="meta">{{ member.role }}</div></div>
+      <div class="card"><div class="lbl">数据范围</div><div class="val">{{ member.scope }}</div><div class="meta">超级管理员可跨租户查看</div></div>
+    </section>
+    <div class="abody">{% block main %}{% endblock %}</div>
+  </main>
+</div>
+</body></html>

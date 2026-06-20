@@ -1,0 +1,152 @@
+{% extends "admin/_shell.html" %}{% block title %}生成档案(透明){% endblock %}
+
+{% block head %}
+<style>
+  /* transparency.html —— 去 AI 味重构:状态收敛为 .adv-status 圆点,去亮底糖果,英文标识符缩到角落 .adv-code。
+     只引用 console.css/admin.css 既有 token 与 .adv-* 套件,无新增全局变量。 */
+  .tx-head{display:flex;align-items:flex-start;gap:18px;flex-wrap:wrap;margin:12px 0 4px;
+    padding-bottom:20px;border-bottom:1px solid var(--line)}
+  .tx-head .tx-copy{flex:1;min-width:280px}
+  .tx-kicker{display:inline-flex;align-items:center;gap:7px;font-size:11.5px;font-weight:500;
+    letter-spacing:.02em;color:var(--gray);margin-bottom:12px}
+  .tx-kicker .ms{font-size:16px;color:var(--gray)}
+  .tx-h1{font-size:23px;font-weight:700;line-height:1.2;color:var(--ink);margin:0 0 7px}
+  .tx-sub{font-size:13.5px;color:var(--faint);line-height:1.65;margin:0;max-width:62ch}
+  .tx-page{display:inline-flex;align-items:center;gap:7px;margin-top:13px;font-size:12.5px;
+    color:var(--ink2)}
+  .tx-page .ms{font-size:16px;color:var(--gray)}
+  .tx-page b{font-weight:600;color:var(--ink)}
+  .tx-page .adv-code{margin-left:2px}
+
+  /* 总分环形(单蓝,属数据可视化,保留) */
+  .tx-score{display:flex;align-items:center;gap:16px;flex:none}
+  .tx-ring{--v:0;width:104px;height:104px;border-radius:50%;flex:none;display:grid;place-items:center;
+    background:conic-gradient(var(--blue) calc(var(--v)*1%),var(--line2) 0);position:relative}
+  .tx-ring::before{content:"";position:absolute;inset:9px;border-radius:50%;background:var(--surface)}
+  .tx-ring .tx-num{position:relative;text-align:center;line-height:1}
+  .tx-ring .tx-num b{font-family:var(--mono);font-size:30px;font-weight:600;color:var(--ink)}
+  .tx-ring .tx-num span{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.12em;
+    text-transform:uppercase;color:var(--faint);margin-top:4px}
+  .tx-verdict{display:flex;flex-direction:column;gap:9px;align-items:flex-start}
+  .tx-verdict .adv-status{font-size:13.5px;font-weight:600;color:var(--ink2)}
+  .tx-verdict .adv-status .dot{width:9px;height:9px}
+  .tx-thr{font-family:var(--mono);font-size:11.5px;color:var(--faint)}
+
+  /* 评分维度网格(一体化,实线分割,无悬浮卡) */
+  .tx-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:0;margin-top:6px;
+    border:1px solid var(--line);border-radius:var(--ad-r-lg);overflow:hidden}
+  .tx-dim{padding:16px 18px;border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .tx-dim__top{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+  .tx-dim__name{font-size:13px;font-weight:600;color:var(--ink2)}
+  .tx-dim__key{display:block;margin-top:3px}
+  .tx-dim__score{font-family:var(--mono);font-size:15px;font-weight:600;color:var(--ink);white-space:nowrap}
+  .tx-dim__score em{font-style:normal;font-size:11.5px;font-weight:500;color:var(--faint)}
+  /* 达标维度:中性进度条;扣分维度:低饱和琥珀,不高饱和、不亮底 */
+  .tx-bar{height:6px;border-radius:5px;background:var(--line2);overflow:hidden;margin:12px 0 11px}
+  .tx-bar i{display:block;height:100%;border-radius:5px;background:var(--gray)}
+  .tx-bar i.docked{background:#A0522D}
+  .tx-note{font-size:12.5px;line-height:1.6;color:var(--gray);margin:0;display:flex;align-items:flex-start;gap:6px}
+  .tx-note .ms{font-size:15px;color:var(--gray);flex:none;margin-top:1px}
+  .tx-note.docked{color:var(--ink2)}
+  .tx-note.docked .ms{color:#A0522D}
+
+  /* 关键词落位表 */
+  .tx-table{width:100%;border-collapse:collapse;font-size:13px}
+  .tx-table th{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;
+    color:var(--gray);text-align:left;font-weight:500;padding:10px 14px;border-bottom:1px solid var(--line)}
+  .tx-table td{padding:12px 14px;border-bottom:1px solid var(--line);color:var(--ink2);vertical-align:middle}
+  .tx-table tr:last-child td{border-bottom:0}
+  .tx-table .kw{font-family:var(--mono);font-size:12.5px;color:var(--ink);font-weight:500}
+  .tx-table .where{color:var(--gray)}
+
+  .tx-foot{display:flex;align-items:flex-start;gap:10px;margin-top:18px;font-size:12.5px;line-height:1.6;
+    color:var(--gray);border-left:2px solid var(--blue);background:var(--surface3);border-radius:0 8px 8px 0;padding:13px 15px}
+  .tx-foot .ms{font-size:17px;color:var(--gray);flex:none}
+  .sec-title{display:flex;align-items:center;gap:9px;font-size:14.5px;font-weight:600;color:var(--ink);margin:26px 0 12px}
+  .sec-title .ms{font-size:19px;color:var(--gray)}
+  .sec-title .sec-hint{font-size:12px;font-weight:400;color:var(--faint);margin-left:2px}
+</style>
+{% endblock %}
+
+{% set DIM_LABELS = {
+  "keyword_usage":"关键词使用",
+  "structure":"标题结构",
+  "depth_wordcount":"内容深度与篇幅",
+  "internal_links":"内部链接",
+  "content_uniqueness":"内容独特性",
+  "meta_title_quality":"元信息质量"
+} %}
+
+{% block main %}
+<!-- ① 标语、页名、总分环形与质检判定 -->
+<section class="tx-head">
+  <div class="tx-copy">
+    <span class="tx-kicker"><span class="ms">visibility</span>透明化生成档案</span>
+    <h1 class="tx-h1">生成过程,每页看得见</h1>
+    <p class="tx-sub">每一页都附确定性质检快照:六个维度如实显示得分与扣分理由,关键词落位逐条可查。我们只展示真实结果,扣分不掩饰、不摆假失败页。</p>
+    <span class="tx-page"><span class="ms">description</span><b>{{ t.title }}</b><span class="adv-code">{{ t.page }}</span></span>
+  </div>
+  <div class="tx-score">
+    <div class="tx-ring" style="--v:{{ t.score }}">
+      <div class="tx-num"><b>{{ t.score }}</b><span>质检总分</span></div>
+    </div>
+    <div class="tx-verdict">
+      {% if t.passed %}
+      <span class="adv-status ok"><span class="dot"></span>已通过质检</span>
+      {% else %}
+      <span class="adv-status warn"><span class="dot"></span>未通过质检</span>
+      {% endif %}
+      <span class="tx-thr">阈值 70 · {{ t.breakdown|length }} 维确定性评分</span>
+    </div>
+  </div>
+</section>
+
+<!-- ② 六维评分卡:如实显示 得分/满分 与判定理由(扣分原样照出,不改写) -->
+<div class="sec-title"><span class="ms">fact_check</span>确定性质检评分<span class="sec-hint">每维如实显示得分 / 满分与判定理由</span></div>
+<div class="tx-grid">
+  {% for d in t.breakdown %}
+  {% set docked = d.score < d.max %}
+  <div class="tx-dim">
+    <div class="tx-dim__top">
+      <span class="tx-dim__name">{{ DIM_LABELS[d.dim]|default(d.dim) }}<span class="tx-dim__key adv-code">{{ d.dim }}</span></span>
+      <span class="tx-dim__score">{{ d.score }}<em> / {{ d.max }}</em></span>
+    </div>
+    <div class="tx-bar"><i class="{{ 'docked' if docked }}" style="width:{{ (d.score / d.max * 100)|round(0,'floor')|int }}%"></i></div>
+    <p class="tx-note {{ 'docked' if docked }}">
+      {% if docked %}<span class="ms">remove_circle_outline</span>{% else %}<span class="ms">check_circle</span>{% endif %}
+      <span>{{ d.note }}</span>
+    </p>
+  </div>
+  {% endfor %}
+</div>
+
+<!-- ③ 关键词落位表:关键词 / 落位 / 命中 -->
+<div class="sec-title"><span class="ms">my_location</span>关键词落位<span class="sec-hint">每个目标词在页面中的实际位置</span></div>
+<div class="card">
+  <table class="tx-table">
+    <thead>
+      <tr><th>关键词</th><th>落位</th><th>命中</th></tr>
+    </thead>
+    <tbody>
+      {% for p in t.placements %}
+      <tr>
+        <td class="kw">{{ p.kw }}</td>
+        <td class="where">{{ p.where }}</td>
+        <td>
+          {% if p.hit %}
+          <span class="adv-status ok"><span class="dot"></span>已命中</span>
+          {% else %}
+          <span class="adv-status warn"><span class="dot"></span>未命中</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<div class="tx-foot">
+  <span class="ms">info</span>
+  <span>本档案为只读快照:分数与扣分理由由确定性质检流程产出,程序化生成、可复算;任何一处扣分都会原样呈现给客户,可逐项追溯。</span>
+</div>
+{% endblock %}

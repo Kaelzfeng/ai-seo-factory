@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="robots" content="noindex" />
+<title>PU Leather: The Complete Sourcing Guide for Importers</title>
+<meta name="description" content="A factory sourcing guide to PU leather: thickness, weight, abrasion, peel, certifications, MOQ and lead times to help importers spec and buy correctly." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=Archivo+Black&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --paper:#F2EEE3;
+    --paper-2:#ECE6D7;
+    --ink:#15110B;
+    --accent:#E2402A;
+    --accent-deep:#B82E1C;
+    --muted:#6B6357;
+    --line:#D8D1C2;
+    --line-strong:#C4BBA6;
+    --th-bg:#EAE4D6;
+    --measure:68ch;
+    --maxw:1180px;
+    --gutter:clamp(20px,5vw,72px);
+  }
+
+  *,*::before,*::after{box-sizing:border-box;}
+
+  html{ -webkit-text-size-adjust:100%; scroll-behavior:smooth; }
+
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:"Newsreader",Georgia,serif;
+    font-size:1.0625rem;
+    line-height:1.72;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+    overflow-x:hidden;
+  }
+
+  /* ---- paper grain / noise overlay ---- */
+  body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    z-index:9999;
+    pointer-events:none;
+    opacity:.045;
+    mix-blend-mode:multiply;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  ::selection{ background:var(--accent); color:var(--paper); }
+
+  a{ color:inherit; }
+
+  /* ---------- TOP BAR ---------- */
+  .topbar{
+    position:sticky;
+    top:0;
+    z-index:50;
+    background:rgba(242,238,227,.86);
+    backdrop-filter:saturate(140%) blur(8px);
+    -webkit-backdrop-filter:saturate(140%) blur(8px);
+    border-bottom:1px solid var(--line);
+  }
+  .topbar__inner{
+    max-width:var(--maxw);
+    margin:0 auto;
+    padding:0 var(--gutter);
+    display:flex;
+    align-items:stretch;
+    justify-content:space-between;
+    gap:24px;
+    min-height:64px;
+  }
+  .brand{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    text-decoration:none;
+    color:var(--ink);
+    flex-shrink:0;
+  }
+  .brand__mark{
+    width:30px;height:30px;
+    flex-shrink:0;
+    display:grid;place-items:center;
+    background:var(--ink);
+    color:var(--paper);
+    font-family:"Archivo Black","Archivo",sans-serif;
+    font-size:1rem;
+    line-height:1;
+    transform:rotate(-3deg);
+  }
+  .brand__mark span{ transform:rotate(3deg); }
+  .brand__txt{ display:flex; flex-direction:column; line-height:1.05; }
+  .brand__name{
+    font-family:"Archivo",sans-serif;
+    font-weight:900;
+    letter-spacing:-.01em;
+    font-size:.98rem;
+    text-transform:uppercase;
+  }
+  .brand__est{
+    font-family:"IBM Plex Mono",monospace;
+    font-size:.58rem;
+    letter-spacing:.18em;
+    text-transform:uppercase;
+    color:var(--muted);
+    margin-top:2px;
+  }
+
+  nav.mainnav{
+    display:flex;
+    align-items:stretch;
+    gap:0;
+    overflow-x:auto;
+    scrollbar-width:none;
+    -ms-overflow-style:none;
+  }
+  nav.mainnav::-webkit-scrollbar{ display:none; }
+  nav.mainnav a{
+    display:flex;
+    align-items:center;
+    padding:0 14px;
+    text-decoration:none;
+    color:var(--muted);
+    font-family:"IBM Plex Mono",monospace;
+    font-size:.66rem;
+    font-weight:500;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    white-space:nowrap;
+    position:relative;
+    transition:color .18s ease;
+  }
+  nav.mainnav a::after{
+    content:"";
+    position:absolute;
+    left:14px;right:14px;bottom:18px;
+    height:2px;
+    background:var(--accent);
+    transform:scaleX(0);
+    transform-origin:left;
+    transition:transform .22s ease;
+  }
+  nav.mainnav a:hover{ color:var(--ink); }
+  nav.mainnav a:hover::after{ transform:scaleX(1); }
+  nav.mainnav a.active{ color:var(--ink); }
+  nav.mainnav a.active::after{ transform:scaleX(1); background:var(--accent); }
+
+  /* ---------- BREADCRUMB ---------- */
+  .crumb{
+    max-width:var(--maxw);
+    margin:0 auto;
+    padding:14px var(--gutter) 0;
+    font-family:"IBM Plex Mono",monospace;
+    font-size:.66rem;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    color:var(--muted);
+  }
+  .crumb a{ color:var(--muted); text-decoration:none; transition:color .15s; }
+  .crumb a:hover{ color:var(--accent); }
+  .crumb .sep{ color:var(--line-strong); margin:0 8px; }
+  .crumb .here{ color:var(--ink); }
+
+  /* ---------- HERO ---------- */
+  .hero{
+    max-width:var(--maxw);
+    margin:0 auto;
+    padding:clamp(34px,6vw,72px) var(--gutter) clamp(30px,4.5vw,52px);
+    position:relative;
+  }
+  .hero__kicker{
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    font-family:"IBM Plex Mono",monospace;
+    font-size:.68rem;
+    letter-spacing:.22em;
+    text-transform:uppercase;
+    color:var(--accent-deep);
+    margin-bottom:clamp(20px,3vw,34px);
+  }
+  .hero__kicker .tick{
+    width:30px;height:1px;background:var(--accent);display:inline-block;
+  }
+  .hero__kicker .doc{
+    color:var(--muted);
+  }
+
+  .hero__title{
+    font-family:"Archivo Black","Archivo",sans-serif;
+    font-weight:900;
+    font-size:clamp(2.7rem,7.4vw,5.5rem);
+    line-height:.95;
+    letter-spacing:-.022em;
+    margin:0;
+    max-width:14ch;
+    text-wrap:balance;
+  }
+  .hero__title .vm{ color:var(--accent); }
+
+  .hero__lede{
+    font-family:"Newsreader",serif;
+    font-size:clamp(1.08rem,1.9vw,1.35rem);
+    line-height:1.55;
+    color:var(--ink);
+    max-width:58ch;
+    margin:clamp(20px,3vw,30px) 0 0;
+    font-weight:400;
+  }
+  .hero__lede em{ color:var(--muted); font-style:italic; }
+
+  .chips{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-top:clamp(26px,3.5vw,38px);
+    padding-top:clamp(22px,3vw,30px);
+    border-top:1px solid var(--line);
+  }
+  .chip{
+    font-family:"IBM Plex Mono",monospace;
+    font-size:.68rem;
+    letter-spacing:.05em;
+    text-transform:uppercase;
+    padding:7px 12px;
+    border:1px solid var(--line-strong);
+    background:transparent;
+    color:var(--ink);
+    display:inline-flex;
+    align-items:center;
+    gap:7px;
+    transition:border-color .18s,background .18s;
+  }
+  .chip::before{
+    content:"";
+    width:5px;height:5px;border-radius:50%;
+    background:var(--accent);
+    flex-shrink:0;
+  }
+  .chip:hover{ border-color:var(--accent); background:rgba(226,64,42,.05); }
+  .chip strong{ font-weight:600; }
+
+  /* ---------- ARTICLE ---------- */
+  .sheet{
+    max-width:var(--maxw);
+    margin:0 auto;
+    padding:0 var(--gutter) clamp(60px,8vw,110px);
+  }
+  .article{
+    counter-reset:h2;
+    max-width:var(--measure);
+    margin:0;
+  }
+  /* The in-article heading is the real H1; the hero uses non-h1 text.
+     This rule styles that article-level top heading as an eyebrow line. */
+  .article h1{
+    font-family:"Archivo",sans-serif;
+    font-weight:800;
+    font-size:clamp(1.05rem,2vw,1.3rem);
+    line-height:1.25;
+    letter-spacing:.01em;
+    text-transform:uppercase;
+    color:var(--muted);
+    margin:0 0 clamp(26px,4vw,40px);
+    padding-bottom:18px;
+    border-bottom:2px solid var(--ink);
+    max-width:100%;
+  }
+
+  .article > p{
+    margin:0 0 1.35em;
+    font-size:1.115rem;
+    line-height:1.74;
+    color:#211B12;
+  }
+  .article > p:first-of-type::first-letter,
+  .article h1 + p::first-letter{
+    /* intentionally none — keep editorial restraint */
+  }
+
+  .article h2{
+    counter-increment:h2;
+    font-family:"Archivo",sans-serif;
+    font-weight:800;
+    font-size:clamp(1.55rem,3.2vw,2.3rem);
+    line-height:1.08;
+    letter-spacing:-.018em;
+    color:var(--ink);
+    margin:clamp(48px,6vw,74px) 0 .55em;
+    padding-top:clamp(34px,4.5vw,48px);
+    border-top:1px solid var(--line);
+    position:relative;
+    text-wrap:balance;
+  }
+  .article h2::before{
+    content:counter(h2,decimal-leading-zero) "  —";
+    display:block;
+    font-family:"IBM Plex Mono",monospace;
+    font-size:.78rem;
+    font-weight:500;
+    letter-spacing:.16em;
+    color:var(--accent);
+    margin-bottom:14px;
+    text-transform:none;
+  }
+
+  .article h3{
+    font-family:"Archivo",sans-serif;
+    font-weight:700;
+    font-size:1.2rem;
+    letter-spacing:-.01em;
+    margin:2em 0 .5em;
+    color:var(--ink);
+  }
+
+  .article a{
+    color:var(--ink);
+    text-decoration:none;
+    background-image:linear-gradient(var(--accent),var(--accent));
+    background-position:0 100%;
+    background-repeat:no-repeat;
+    background-size:100% 1.5px;
+    padding-bottom:1px;
+    transition:background-size .2s ease,color .2s ease;
+  }
+  .article a:hover{
+    color:var(--accent-deep);
+    background-size:100% calc(100% );
+    background-image:linear-gradient(rgba(226,64,42,.12),rgba(226,64,42,.12));
+  }
+
+  .article ul{
+    list-style:none;
+    margin:1.6em 0 1.8em;
+    padding:0;
+  }
+  .article ul li{
+    position:relative;
+    padding:.62em 0 .62em 34px;
+    border-bottom:1px solid var(--line);
+    font-size:1.05rem;
+    line-height:1.6;
+  }
+  .article ul li:first-child{ border-top:1px solid var(--line); }
+  .article ul li::before{
+    content:"";
+    position:absolute;
+    left:6px;
+    top:1.18em;
+    width:9px;height:9px;
+    background:var(--accent);
+    transform:rotate(45deg);
+  }
+
+  /* ---------- DATASHEET TABLE ---------- */
+  .article table{
+    width:100%;
+    border-collapse:collapse;
+    margin:1.8em 0 2em;
+    font-family:"Newsreader",serif;
+    background:var(--paper);
+    border:1px solid var(--line-strong);
+    display:block;
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+  }
+  .table-scroll{
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+    margin:1.9em 0 2.2em;
+    border:1px solid var(--line-strong);
+  }
+  .table-scroll table{ margin:0; border:none; min-width:600px; display:table; }
+
+  .article thead th{
+    background:var(--th-bg);
+    color:var(--ink);
+    text-align:left;
+    font-family:"IBM Plex Mono",monospace;
+    font-weight:600;
+    font-size:.64rem;
+    letter-spacing:.13em;
+    text-transform:uppercase;
+    padding:13px 16px;
+    border-bottom:2px solid var(--ink);
+    white-space:nowrap;
+  }
+  .article tbody td{
+    padding:12px 16px;
+    border-bottom:1px solid var(--line);
+    font-size:.98rem;
+    vertical-align:top;
+    color:#241D14;
+  }
+  .article tbody tr:last-child td{ border-bottom:none; }
+  .article tbody tr:hover{ background:rgba(226,64,42,.035); }
+  /* property column = label */
+  .article tbody td:first-child{
+    font-family:"Archivo",sans-serif;
+    font-weight:600;
+    color:var(--ink);
+    width:24%;
+  }
+  /* range column = mono numeric datasheet feel */
+  .article tbody td:nth-child(2){
+    font-family:"IBM Plex Mono",monospace;
+    font-size:.86rem;
+    letter-spacing:-.01em;
+    color:var(--accent-deep);
+    font-weight:500;
+    white-space:nowrap;
+  }
+  /* test standard column = mono uppercase */
+  .article tbody td:nth-child(3){
+    font-family:"IBM Plex Mono",monospace;
+    font-size:.76rem;
+    letter-spacing:.04em;
+    text-transform:uppercase;
+    color:var(--muted);
+    white-space:nowrap;
+  }
+  .article tbody td:nth-child(4){
+    color:var(--muted);
+    font-size:.95rem;
+  }
+
+  /* ---------- INDEX GROUPS ---------- */
+  .article .grp-skip{
+    font-family:"IBM Plex Mono",monospace;
+    font-size:.6rem;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color:var(--muted);
+    border:1px solid var(--line-strong);
+    padding:2px 7px;
+    margin-left:8px;
+    vertical-align:middle;
+  }
+  .article .grp-kind{ font-weight:600; }
+
+  /* ---------- FOOTER ---------- */
+  .footer{
+    border-top:2px solid var(--ink);
+    background:var(--paper-2);
+  }
+  .footer__inner{
+    max-width:var(--maxw);
+    margin:0 auto;
+    padding:clamp(36px,5vw,56px) var(--gutter);
+    display:flex;
+    flex-wrap:wrap;
+    align-items:flex-end;
+    justify-content:space-between;
+    gap:24px;
+  }
+  .footer__brand{
+    font-family:"Archivo Black","Archivo",sans-serif;
+    font-weight:900;
+    font-size:clamp(1.6rem,4vw,2.6rem);
+    letter-spacing:-.02em;
+    line-height:.95;
+    text-transform:uppercase;
+    color:var(--ink);
+  }
+  .footer__brand .vm{ color:var(--accent); }
+  .footer__meta{
+    font-family:"IBM Plex Mono",monospace;
+    font-size:.66rem;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:var(--muted);
+    text-align:right;
+    line-height:1.9;
+  }
+  .footer__meta .accent{ color:var(--accent-deep); }
+
+  /* ---------- LOAD ANIMATION ---------- */
+  @keyframes rise{
+    from{ opacity:0; transform:translateY(16px); }
+    to{ opacity:1; transform:translateY(0); }
+  }
+  .anim{ opacity:0; animation:rise .72s cubic-bezier(.2,.7,.2,1) forwards; }
+  .d1{ animation-delay:.05s; }
+  .d2{ animation-delay:.16s; }
+  .d3{ animation-delay:.28s; }
+  .d4{ animation-delay:.42s; }
+  @media (prefers-reduced-motion:reduce){
+    .anim{ animation:none; opacity:1; }
+    html{ scroll-behavior:auto; }
+  }
+
+  /* ---------- TRUST BAND (conversion chrome · standards detected from body) ---------- */
+  .trustband{
+    max-width:var(--maxw);
+    margin:0 auto;
+    padding:0 var(--gutter);
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    gap:14px clamp(14px,2.4vw,26px);
+    margin-bottom:clamp(6px,1.5vw,14px);
+  }
+  .trustband__lead{
+    font-family:"IBM Plex Mono",monospace;
+    font-size:.6rem;
+    letter-spacing:.2em;
+    text-transform:uppercase;
+    color:var(--accent-deep);
+    white-space:nowrap;
+    padding-right:6px;
+    border-right:2px solid var(--ink);
+  }
+  .trustband__list{
+    list-style:none;
+    margin:0;
+    padding:0;
+    display:flex;
+    flex-wrap:wrap;
+    align-items:stretch;
+    gap:0;
+    border-top:1px solid var(--line-strong);
+    border-bottom:1px solid var(--line-strong);
+  }
+  .trustband__item{
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    padding:8px 16px;
+    border-left:1px solid var(--line);
+    min-width:0;
+  }
+  .trustband__item:first-child{ border-left:none; }
+  .trustband__std{
+    font-family:"Archivo",sans-serif;
+    font-weight:800;
+    font-size:.82rem;
+    letter-spacing:-.005em;
+    line-height:1.1;
+    color:var(--ink);
+    white-space:nowrap;
+  }
+  .trustband__sub{
+    font-family:"IBM Plex Mono",monospace;
+    font-size:.54rem;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color:var(--muted);
+    margin-top:2px;
+    white-space:nowrap;
+  }
+  .trustband__note{
+    font-family:"Newsreader",serif;
+    font-style:italic;
+    font-size:.84rem;
+    line-height:1.4;
+    color:var(--muted);
+    flex:1 1 220px;
+    min-width:200px;
+  }
+
+  /* ---------- PULL-QUOTE (decision line lifted from intro) ---------- */
+  .pullquote{
+    max-width:var(--measure);
+    margin:clamp(20px,3vw,34px) 0 clamp(8px,1.5vw,16px);
+    padding:0 0 0 clamp(18px,2.4vw,26px);
+    border-left:4px solid var(--accent);
+  }
+  .pullquote__txt{
+    margin:0;
+    font-family:"Archivo",sans-serif;
+    font-weight:700;
+    font-size:clamp(1.25rem,2.6vw,1.7rem);
+    line-height:1.22;
+    letter-spacing:-.012em;
+    color:var(--ink);
+    text-wrap:balance;
+  }
+
+  /* ---------- VERMILION CTA ACTION BLOCK ---------- */
+  .cta{
+    max-width:var(--maxw);
+    margin:0 auto;
+    padding:0 var(--gutter) clamp(56px,8vw,96px);
+  }
+  .cta__inner{
+    background:var(--accent);
+    color:var(--paper);
+    border:2px solid var(--ink);
+    padding:clamp(28px,4vw,46px) clamp(24px,4vw,52px);
+    position:relative;
+  }
+  .cta__inner::after{
+    content:"";
+    position:absolute;
+    left:0;right:0;bottom:-9px;
+    height:7px;
+    background:var(--ink);
+  }
+  .cta__kicker{
+    font-family:"IBM Plex Mono",monospace;
+    font-size:.66rem;
+    letter-spacing:.24em;
+    text-transform:uppercase;
+    color:var(--paper);
+    opacity:.85;
+    margin:0 0 14px;
+  }
+  .cta__head{
+    font-family:"Archivo Black","Archivo",sans-serif;
+    font-weight:900;
+    font-size:clamp(1.7rem,4vw,2.9rem);
+    line-height:1.02;
+    letter-spacing:-.02em;
+    color:var(--paper);
+    margin:0 0 .5em;
+    max-width:20ch;
+    text-wrap:balance;
+  }
+  .cta__sub{
+    font-family:"Newsreader",serif;
+    font-size:clamp(1.02rem,1.6vw,1.18rem);
+    line-height:1.55;
+    color:var(--paper);
+    margin:0 0 clamp(20px,2.6vw,28px);
+    max-width:60ch;
+  }
+  .cta__deliv{
+    list-style:none;
+    margin:0;
+    padding:0;
+    display:flex;
+    flex-wrap:wrap;
+    gap:0;
+    border-top:2px solid rgba(242,238,227,.55);
+  }
+  .cta__deliv li{
+    font-family:"IBM Plex Mono",monospace;
+    font-size:.7rem;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    color:var(--paper);
+    padding:14px 22px 0 0;
+    margin-right:22px;
+    position:relative;
+  }
+  .cta__deliv li::before{
+    content:"";
+    position:absolute;
+    left:-15px;top:18px;
+    width:6px;height:6px;
+    background:var(--paper);
+    transform:rotate(45deg);
+  }
+  .cta__deliv li:first-child::before{ display:none; }
+  .cta__sig{
+    font-family:"IBM Plex Mono",monospace;
+    font-size:.62rem;
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    color:var(--paper);
+    opacity:.8;
+    margin:clamp(20px,2.6vw,26px) 0 0;
+  }
+
+  /* ---------- RESPONSIVE ---------- */
+  @media (max-width:880px){
+    .topbar__inner{ flex-direction:column; min-height:0; padding-top:12px; padding-bottom:0; gap:8px; }
+    .brand{ padding-bottom:2px; }
+    nav.mainnav{
+      border-top:1px solid var(--line);
+      margin:0 calc(var(--gutter) * -1);
+      padding:0 var(--gutter);
+    }
+    nav.mainnav a{ padding:12px 12px; }
+    nav.mainnav a::after{ bottom:8px; }
+  }
+  @media (max-width:720px){
+    body{ font-size:1rem; }
+    .hero__title{ max-width:100%; }
+    .article ul li{ padding-left:30px; }
+    .trustband__lead{ border-right:none; padding-right:0; }
+    .trustband__list{ width:100%; }
+    .trustband__note{ flex-basis:100%; }
+    .cta__deliv li{ flex:1 1 100%; padding-right:0; margin-right:0; }
+    .cta__deliv li::before{ display:none; }
+    .cta__deliv li:not(:first-child){ border-top:1px solid rgba(242,238,227,.3); }
+  }
+  @media (max-width:520px){
+    .footer__inner{ flex-direction:column; align-items:flex-start; }
+    .footer__meta{ text-align:left; }
+  }
+</style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://demo-leather.example.com#organization",
+      "name": "https://demo-leather.example.com",
+      "url": "https://demo-leather.example.com/"
+    },
+    {
+      "@type": "Article",
+      "@id": "https://demo-leather.example.com/pu-leather-guide/#article",
+      "headline": "PU Leather: The Complete Sourcing Guide for Importers",
+      "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "https://demo-leather.example.com/pu-leather-guide/"
+      },
+      "url": "https://demo-leather.example.com/pu-leather-guide/",
+      "author": {
+        "@id": "https://demo-leather.example.com#organization"
+      },
+      "publisher": {
+        "@id": "https://demo-leather.example.com#organization"
+      },
+      "datePublished": "2026-06-20T13:44:10+08:00",
+      "dateModified": "2026-06-20T13:44:10+08:00",
+      "inLanguage": "en",
+      "description": "A factory sourcing guide to PU leather: thickness, weight, abrasion, peel, certifications, MOQ and lead times to help importers spec and buy correctly.",
+      "keywords": "pu-leather-guide"
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "https://demo-leather.example.com/pu-leather-guide/#breadcrumb",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://demo-leather.example.com/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "PU Leather: The Complete Sourcing Guide for Importers",
+          "item": "https://demo-leather.example.com/pu-leather-guide/"
+        }
+      ]
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<header class="topbar"><div class="topbar__inner"><a class="brand" href="./index.html" aria-label="demo-leather.example.com home"><span class="brand__mark"><span>D</span></span><span class="brand__txt"><span class="brand__name">demo-leather.example.com</span><span class="brand__est">Specification-grade documentation</span></span></a><nav class="mainnav" aria-label="Primary"><a href="./is-pu-leather-durable-waterproof.html">is-pu-leather-durable-waterproof</a><a href="./microfiber-pu-leather-bags.html">microfiber-pu-leather-bags</a><a href="./pu-leather-for-automotive.html">pu-leather-for-automotive</a><a href="./pu-leather-for-furniture.html">pu-leather-for-furniture</a><a href="./pu-leather-guide.html" class="active" aria-current="page">pu-leather-guide</a><a href="./pu-leather-vs-genuine-leather.html">pu-leather-vs-genuine-leather</a><a href="./pu-leather-vs-pvc-leather.html">pu-leather-vs-pvc-leather</a><a href="./types-of-synthetic-leather.html">types-of-synthetic-leather</a></nav></div></header><nav class="crumb" aria-label="Breadcrumb"><a href="./index.html">Home</a><span class="sep">›</span><span class="here">Guides</span><span class="sep">›</span><span class="here">PU Leather: The Complete Sourcing Guide for Importers</span></nav><section class="hero" aria-labelledby="hero-title"><p class="hero__kicker anim d1"><span class="tick"></span><span>Guide &middot; DOC</span><span class="doc">/ SPEC SHEET &middot; REV.A</span></p><div class="hero__title anim d2" id="hero-title" role="heading" aria-level="1">PU Leather: The Complete Sourcing Guide for Importers</div><p class="hero__lede anim d3">A factory sourcing guide to PU leather: thickness, weight, abrasion, peel, certifications, MOQ and lead times to help importers spec and buy correctly.</p></section><aside class="trustband anim d3" aria-label="Standards and certifications cited"><span class="trustband__lead">Verified against</span><ul class="trustband__list"><li class="trustband__item"><span class="trustband__std">ISO</span><span class="trustband__sub">Test methods</span></li><li class="trustband__item"><span class="trustband__std">REACH</span><span class="trustband__sub">EU SVHC</span></li><li class="trustband__item"><span class="trustband__std">RoHS</span><span class="trustband__sub">Restricted subst.</span></li><li class="trustband__item"><span class="trustband__std">OEKO-TEX</span><span class="trustband__sub">Skin-safe</span></li><li class="trustband__item"><span class="trustband__std">ASTM</span><span class="trustband__sub">US methods</span></li><li class="trustband__item"><span class="trustband__std">Martindale</span><span class="trustband__sub">Abrasion</span></li><li class="trustband__item"><span class="trustband__std">Wyzenbeek</span><span class="trustband__sub">Double rubs</span></li><li class="trustband__item"><span class="trustband__std">Prop 65</span><span class="trustband__sub">CA exposure</span></li></ul><span class="trustband__note">Test reports tied to the production batch &mdash; re-validated per lot.</span></aside><main class="sheet"><article class="article"><h1>PU Leather: The Complete Sourcing Guide for Importers</h1>
+<p>PU leather is a polyurethane-coated synthetic material built on a textile or non-woven base, and it has become the default upholstery and goods material for importers who need consistent rolls, predictable color, and clean compliance paperwork. As a factory that runs both solvent-based and water-based coating lines, we wrote this guide to help buyers spec the right article instead of ordering by photo. Below we walk through construction, the test numbers that actually matter on a purchase order, certification requirements for the EU and US markets, and the commercial terms (MOQ, width, lead time) that decide whether a sample ever becomes a container.</p>
+<p>The goal here is plain: give you enough technical vocabulary to write a tight RFQ, compare two mills fairly, and avoid the classic mistakes that cause a shipment to peel, crack, or fail a chemical screen at customs. We will keep the specs concrete, with units and standards, so your QA team and your supplier are reading from the same sheet.</p>
+
+<h2>How Is This Material Actually Made?</h2>
+<p>The material is a layered composite, not a single film. From the back of the roll to the face, a typical article has four parts. First is the substrate: a woven polyester, a brushed knit, or a non-woven microfiber mat. Second is one or more polyurethane intermediate layers that give the body its hand and stretch behavior. Third is the skin or top coat, an engineered PU film that carries the grain. Fourth is the surface finish, where we add embossing, a topcoat for stain release, a matte or semi-gloss sheen, and any flame-retardant or anti-microbial treatment the program requires.</p>
+<p>Two coating routes dominate. In the wet (DMF) process, PU resin is cast onto release paper or coagulated into a porous layer, which produces a soft, breathable hand favored for garments and premium seating. In the dry process, layers are knife-coated and laminated, which is faster and well suited to high-volume furniture and case-goods grades. Increasingly we run water-based PU to cut solvent content, which matters for buyers chasing tighter VOC limits and cleaner factory audits. The route you pick changes hand-feel, hydrolysis resistance, and cost, so it belongs in your spec, not left to the mill's discretion.</p>
+<p>Grain is created on an embossing roll under heat and pressure. A litchi (pebble) grain hides scuffs and is forgiving in production; a smooth nappa grain looks premium but shows every blemish, so it demands tighter QC. Color is matched to a physical standard or a Pantone reference, and we recommend approving a lab-dip and a bulk strike-off before mass production, because monitors and printed swatches lie about depth and undertone.</p>
+
+<h2>What Specs Should Importers Put on the Purchase Order?</h2>
+<p>A weak RFQ says "brown PU, soft, good quality." A strong one names numbers. The table below shows the working ranges we quote across furniture, automotive, footwear, and bag programs. Treat these as the dial settings you adjust per application, not as one universal grade.</p>
+<table>
+<thead>
+<tr><th>Property</th><th>Typical Range</th><th>Test Standard</th><th>Why It Matters</th></tr>
+</thead>
+<tbody>
+<tr><td>Total thickness</td><td>0.6 - 1.8 mm</td><td>ISO 2589</td><td>Drives hand, drape, and cut-yield</td></tr>
+<tr><td>Roll weight</td><td>320 - 1,100 g/m&sup2;</td><td>ISO 2286-2</td><td>Affects freight cost and substrate strength</td></tr>
+<tr><td>Abrasion (Martindale)</td><td>40,000 - 150,000 cycles</td><td>ISO 5470-2</td><td>Predicts wear on seating contact zones</td></tr>
+<tr><td>Abrasion (Wyzenbeek)</td><td>30,000 - 100,000 double rubs</td><td>ASTM D4157</td><td>US/contract spec for upholstery</td></tr>
+<tr><td>Coating peel strength</td><td>18 - 40 N/25 mm</td><td>ISO 2411</td><td>Stops delamination and surface lift</td></tr>
+<tr><td>Hydrolysis resistance</td><td>3 - 7 weeks, no cracking</td><td>ISO 1419</td><td>Critical for humid climates and exports</td></tr>
+<tr><td>Roll width</td><td>54 - 58 in (137 - 147 cm)</td><td>--</td><td>Determines nesting and cutting waste</td></tr>
+<tr><td>Color fastness to rubbing</td><td>Grade 4 - 5</td><td>ISO 105-X12</td><td>Prevents dye transfer onto garments</td></tr>
+</tbody>
+</table>
+<p>A few notes on reading that table. Thickness and weight are not the same lever: a thin face on a heavy base behaves differently from a thick face on a light knit, and the difference shows up in tear strength and in how the material wraps a corner. Abrasion is the headline durability number, but buyers in the US contract market quote Wyzenbeek double rubs while EU and Asian programs quote Martindale cycles, so always state which test and which target so the mill quotes the right top coat.</p>
+<p>Peel strength is the quiet hero of warranty claims. A face that looks beautiful but peels at 12 N/25 mm will lift at seams and bolster edges within months; insisting on 18 N/25 mm or higher under ISO 2411 removes most field failures. Hydrolysis resistance, measured under ISO 1419, predicts whether a solvent-based PU will turn tacky and crumble in a tropical warehouse, which is why humid-market buyers should specify a target of at least 5 weeks.</p>
+
+<h2>Which Certifications and Chemical Limits Apply?</h2>
+<p>Compliance is where many first-time importers get surprised at the border, so build it into the order from day one. For the European market, REACH (EC 1907/2006) governs restricted substances, and you should ask for an SVHC declaration plus current test reports on azo dyes, DMFa residue, and phthalates. RoHS matters when the material ships inside electronics or appliance assemblies. OEKO-TEX Standard 100 certification is the cleanest way to prove the article is safe for skin contact, which retailers increasingly demand for bags, footwear, and consumer goods.</p>
+<p>For the United States, California Proposition 65 drives warning-label exposure for substances like certain phthalates and heavy metals, and CPSIA applies if any portion of the program is intended for children. Automotive and transit programs add flammability standards (FMVSS 302 in the US, and the relevant regional equivalents) plus low-fogging and odor requirements. We supply the following documentation set with bulk shipments so your broker and your retail compliance team are never left guessing:</p>
+<ul>
+<li>Material safety / technical data sheet with the full construction and finish description</li>
+<li>REACH SVHC and RoHS declarations against the current candidate list</li>
+<li>Third-party test reports for abrasion, peel, hydrolysis, and color fastness</li>
+<li>OEKO-TEX certificate number where the program requires skin-safe verification</li>
+<li>Flammability report (FMVSS 302 or regional equivalent) for transport and contract use</li>
+<li>Phthalate and heavy-metal screen to support Prop 65 risk assessment</li>
+</ul>
+<p>One practical warning: certifications belong to a specific article and a specific production window, not to a vendor in the abstract. A mill that passed last year on a different recipe is not automatically compliant on your color and finish. Re-test on your bulk lot, and keep the report tied to a roll batch number so a future audit can trace it.</p>
+
+<h2>How Much Should You Order, and How Long Does It Take?</h2>
+<p>Commercial terms separate a sample exchange from a real supply relationship, so let us be specific. Minimum order quantity depends on the construction. Standard dry-process and water-based PU grades run from roughly 1,000 m per color, because the coating line needs that length to stabilize gauge and shade. Microfiber PU, which uses a more expensive non-woven base and a longer process, starts around 300 m per color, and we accept those smaller runs for bag and high-end seating programs where the premium hand justifies the cost.</p>
+<p>Lead time for an in-stock or repeat color is typically 15 - 25 days FOB after deposit, covering coating, embossing, finishing, inspection, and roll packing. A brand-new color match adds a lab-dip and strike-off approval cycle, so budget an extra 7 - 14 days before the clock on bulk production even starts. Sea freight from a South China port to the US West Coast or North Europe then adds the usual ocean transit, which you should plan into your launch calendar rather than discovering it at the end.</p>
+<p>Pricing moves with the substrate, the coating route, the finish package, and the abrasion target you demand, so a 40,000-cycle furniture grade and a 150,000-cycle contract grade are not the same conversation. We quote per linear meter or per square meter against a written spec; ask any supplier to confirm which unit they use, because a meter-vs-square-meter mismatch is a common and expensive misunderstanding.</p>
+
+<h2>Matching the Right Grade to Your Application</h2>
+<p>The same family of materials serves very different end products, and the smart move is to start from the use case and work backward to thickness, abrasion, and finish. If you are sourcing seating, our breakdown of <a href="https://demo-leather.example.com/pu-leather-for-furniture/">synthetic upholstery for sofas and furniture</a> covers the grain, weight, and double-rub targets that survive daily living-room use. For transport interiors, where flammability, fogging, and UV stability dominate, see our guidance on <a href="https://demo-leather.example.com/pu-leather-for-automotive/">coated material for automotive seats and interiors</a>.</p>
+<p>Buyers who need to defend a material choice to a procurement committee often start with the comparisons. Read <a href="https://demo-leather.example.com/pu-leather-vs-genuine-leather/">our comparison of PU leather versus genuine hide and which you should source</a> when cost, consistency, and animal-free positioning are in play, and study <a href="https://demo-leather.example.com/pu-leather-vs-pvc-leather/">the key differences between polyurethane and PVC coated fabric</a> when softness, breathability, and chemical profile are the deciding factors. To see where this material sits in the wider category, our overview of <a href="https://demo-leather.example.com/types-of-synthetic-leather/">the types of synthetic leather and how to choose</a> maps the full landscape from non-woven backings to microfiber.</p>
+<p>Two more resources answer the questions buyers ask most. If a customer or a tender keeps challenging longevity and water behavior, our buyer's FAQ on <a href="https://demo-leather.example.com/is-pu-leather-durable-waterproof/">whether this material is durable and waterproof</a> gives you straight answers you can quote back. And when your program is specifically handbags or small leather goods, the spec sheet for our <a href="https://demo-leather.example.com/microfiber-pu-leather-bags/">1.2 mm microfiber PU leather for bags at wholesale</a> shows the exact construction, hand, and MOQ we run for that segment.</p>
+<p>A quick mapping to anchor your thinking: light bag and footwear grades cluster at 0.6 - 1.0 mm with a fine grain and high color fastness; furniture grades sit at 1.0 - 1.4 mm with a forgiving litchi emboss and 40,000 to 60,000 Martindale cycles; contract and transit grades push 1.2 - 1.8 mm with 100,000-plus cycles, flame-retardant finishes, and strict fogging limits. Microfiber occupies the premium corner of every one of these segments because its non-woven base mimics the fiber structure of hide far more closely than a woven backing can.</p>
+
+<h2>A Practical Sourcing Checklist Before You Wire a Deposit</h2>
+<p>Before money moves, run this short sequence and you will catch most problems while they are still cheap to fix. It costs a few days and saves a container.</p>
+<ul>
+<li>Approve a physical lab-dip and a bulk strike-off, never a screen color or a printed swatch alone.</li>
+<li>Confirm the test target and the standard in writing: state Martindale cycles or Wyzenbeek double rubs, and the peel target in N/25 mm under ISO 2411.</li>
+<li>Specify the hydrolysis target under ISO 1419 if the goods ship to or sell in humid climates.</li>
+<li>Lock the roll width (54 - 58 in) so your cutting yield calculation holds.</li>
+<li>Require the compliance pack (REACH/RoHS, OEKO-TEX, Prop 65 screen, flammability) tied to the bulk batch number.</li>
+<li>Agree the MOQ, the unit of price (linear vs square meter), and a written 15 - 25 day FOB lead time with deposit and balance terms.</li>
+<li>Order a small pre-production cutting and abuse it: flex it, soak it, rub it, and leave it in a hot car for a weekend.</li>
+</ul>
+<p>Sourcing this material well is mostly discipline. The mills that disappoint are rarely the ones that cannot make good rolls; they are the ones that were never given a spec precise enough to make the right rolls. Write the numbers down, hold the strike-off in your hand, tie the certificates to the batch, and the gap between sample and shipment closes fast.</p>
+<p>If you want a starting point tailored to your product, send us the application, the abrasion target, the climate your goods will live in, and your order quantity, and we will come back with a construction, a finish package, and a quoted lead time you can build a launch around. A well-written brief almost always pays for itself in fewer revisions and a cleaner first container.</p></article><aside class="cta" aria-labelledby="cta-h"><div class="cta__inner"><p class="cta__kicker">Request a quote</p><p class="cta__head" id="cta-h">Tell us the application, market and order quantity.</p><p class="cta__sub">Send the end use, the abrasion and compliance standards your buyer enforces, and your volume. We return a construction spec, current third-party test reports, and an FOB lead time priced against your real MOQ &mdash; not a catalog number.</p><ul class="cta__deliv" aria-label="What you receive"><li>Construction spec sheet</li><li>Current test reports</li><li>FOB quote &amp; lead time</li></ul><p class="cta__sig">demo-leather.example.com</p></div></aside></main><footer class="footer"><div class="footer__inner"><div class="footer__brand">demo-leather.example.com<span class="vm">.</span></div><div class="footer__meta">&copy; 2026 demo-leather.example.com<br><span class="accent">Specification-grade sourcing</span><br>Demo build</div></div></footer>
+</body>
+</html>

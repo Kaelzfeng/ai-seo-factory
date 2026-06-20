@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>登录 · 内容工厂</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&family=Roboto+Mono:wght@400;500;600&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..0" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='console.css') }}">
+<!--
+  登录 / 注册卡片 —— Gemini 设计语言(近白底 #FDFCFC + 墨字 #1F1F1F + 动作蓝 #1A73E8 +
+  蓝紫粉 sparkle 渐变)。字体 Lexend(中文 Noto Sans SC)+ Material Symbols Rounded。
+  配色/字体/按钮/输入复用 static/console.css 的 token 与基元;本页 <style> 只放专属布局。
+  零外部 JS,一个登录/注册切换卡;移动端单列自适应。功能/逻辑与旧版逐字一致。
+-->
+<style>
+  /* ---- 页面专属布局(居中卡片 + tab 切换 + 文案联动)---- */
+  html,body{ height:100%; }
+  body{ display:flex; flex-direction:column; min-height:100%; }
+
+  /* 切换用的 radio 是纯 CSS 状态载体,本体永远不可见(只靠 .tabs 里的 label 触发) */
+  .tab-toggle{ position:absolute; width:1px; height:1px; opacity:0; pointer-events:none; }
+
+  /* 主区:卡片居中 */
+  .wrap{
+    flex:1; display:flex; align-items:center; justify-content:center;
+    padding:48px 20px;
+  }
+  .card{
+    width:100%; max-width:420px; background:var(--surface);
+    border:1px solid var(--line); border-radius:24px;
+    box-shadow:var(--shadow-lg);
+    padding:36px clamp(24px,5vw,38px) 32px;
+  }
+
+  /* 抬头:sparkle 印记 + 品牌名 */
+  .brand{ display:flex; align-items:center; gap:12px; margin-bottom:4px; }
+  .brand .spark{ width:38px; height:38px; flex:none; }
+  .brand .spark .ms{ font-size:22px; }
+  .brand__txt b{ display:block; font-weight:700; font-size:15px; letter-spacing:.2px;
+    line-height:1.15; color:var(--ink); }
+  .brand__txt span{
+    display:block; margin-top:3px; font-family:var(--mono); font-size:9.5px; letter-spacing:.22em;
+    text-transform:uppercase; color:var(--faint);
+  }
+
+  /* 大标题(Lexend,无衬线,无硬阴影) */
+  .headline{
+    font-family:var(--sans); font-weight:600;
+    font-size:clamp(28px,7vw,36px); line-height:1.1; letter-spacing:-.01em;
+    margin:22px 0 6px; color:var(--ink);
+  }
+  .sub{ color:var(--ink2); font-size:13.5px; margin:0 0 22px; line-height:1.55; }
+
+  /* 登录/注册切换(Gemini 圆角 pill 段控) */
+  .tabs{ display:flex; gap:4px; background:var(--surface2); border:1px solid var(--line);
+    border-radius:9999px; padding:4px; margin-bottom:22px; }
+  .tabs label{ flex:1; }
+  .tabs input{ position:absolute; opacity:0; width:0; height:0; }
+  .tabs .seg{
+    display:block; text-align:center; padding:9px 0; border-radius:9999px;
+    font-size:13.5px; font-weight:600; color:var(--gray); user-select:none;
+    transition:background .2s var(--ease), color .2s var(--ease);
+  }
+  .tabs label:hover .seg{ color:var(--ink); }
+  #tab-login:checked   ~ .tabs label[for=tab-login]   .seg,
+  #tab-register:checked ~ .tabs label[for=tab-register] .seg{
+    background:var(--surface); color:var(--blue); box-shadow:var(--shadow-sm);
+  }
+
+  /* 表单:复用 console.css 的 .field(大圆角 12px 输入 + 蓝 ring 聚焦) */
+  .field input{ background:var(--surface3); }
+  .field input:focus{ background:var(--surface); }
+
+  /* 提交按钮 = 全圆 pill 动作蓝(复用 .btn.pri .block) */
+  .submit{
+    width:100%; margin-top:8px; height:48px; padding:0 20px;
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    border:0; border-radius:9999px; background:var(--blue); color:#fff;
+    font-family:var(--sans); font-size:15px; font-weight:600; letter-spacing:.01em;
+    box-shadow:0 1px 2px rgba(0,0,0,.12);
+    transition:filter .2s var(--ease), box-shadow .2s var(--ease);
+  }
+  .submit:hover{ filter:brightness(1.06); box-shadow:0 1px 3px rgba(0,0,0,.16),0 6px 18px rgba(26,115,232,.18); }
+  .submit:active{ filter:brightness(.98); }
+  .submit .ms{ font-size:20px; color:#fff; }
+
+  /* 文案随面板切换(纯 CSS,无 JS) */
+  .for-register{ display:none; }
+  #tab-register:checked ~ form .for-register{ display:inline-flex; }
+  #tab-register:checked ~ form .for-login{ display:none; }
+  #tab-register:checked ~ .headline .hl-login{ display:none; }
+  .hl-register{ display:none; }
+  #tab-register:checked ~ .headline .hl-register{ display:inline; }
+  #tab-register:checked ~ .sub .sub-login{ display:none; }
+  .sub-register{ display:none; }
+  #tab-register:checked ~ .sub .sub-register{ display:inline; }
+
+  /* 信任脚注:WP 发布 + 本地哈希(Gemini 圆角 pill + Material 图标) */
+  .trust{ display:flex; flex-wrap:wrap; gap:8px 10px; margin-top:24px; padding-top:20px;
+    border-top:1px solid var(--line); }
+  .trust .pill{
+    display:inline-flex; align-items:center; gap:6px;
+    height:28px; padding:0 12px; border-radius:9999px; background:var(--surface2);
+    font-size:11.5px; font-weight:500; color:var(--ink2);
+  }
+  .trust .pill .ms{ font-size:15px; color:var(--ok); }
+  .trust .pill.blue .ms{ color:var(--blue); }
+
+  .foot{ text-align:center; padding:0 20px 30px;
+    font-family:var(--mono); font-size:10.5px; letter-spacing:.1em; color:var(--faint); }
+
+  @media (max-width:420px){
+    .card{ border-radius:18px; }
+  }
+</style>
+</head>
+<body>
+  <main class="wrap">
+    <div class="card">
+      <div class="brand">
+        <div class="spark"><span class="ms">auto_awesome</span></div>
+        <div class="brand__txt">
+          <b>内容工厂</b>
+          <span>SEO Content Factory</span>
+        </div>
+      </div>
+
+      <!-- 切换开关(放在 headline/sub/form 之前,用 ~ 选择器联动文案) -->
+      <input class="tab-toggle" type="radio" name="__tab" id="tab-login" {% if mode != 'register' %}checked{% endif %}>
+      <input class="tab-toggle" type="radio" name="__tab" id="tab-register" {% if mode == 'register' %}checked{% endif %}>
+
+      <h1 class="headline">
+        <span class="hl-login">欢迎回来</span><span class="hl-register">开始试用</span>
+      </h1>
+      <p class="sub">
+        <span class="sub-login">登录后进入操作台，一句话生成一整组 SEO 网页。</span>
+        <span class="sub-register">创建账号，零门槛体验「生成不黑箱、每页看得见」。</span>
+      </p>
+
+      <div class="tabs">
+        <label for="tab-login"><span class="seg">登录</span></label>
+        <label for="tab-register"><span class="seg">注册</span></label>
+      </div>
+
+      {% if error %}
+      <div class="alert"><span class="ms">error</span><span>{{ error }}</span></div>
+      {% endif %}
+
+      <form method="post" action="{{ url_for('auth.login_page') }}" autocomplete="on">
+        <!-- mode 随选中的 tab 动态填充(下方脚本);无 JS 时默认 login,注册按钮另带 value 兜底 -->
+        <input type="hidden" name="mode" id="mode-field" value="{{ mode }}">
+        <input type="hidden" name="next" value="{{ next_url }}">
+
+        <div class="field">
+          <label for="email">邮箱</label>
+          <input type="email" id="email" name="email" value="{{ email }}"
+                 placeholder="you@example.com" autocomplete="username" required>
+        </div>
+        <div class="field">
+          <label for="password">密码</label>
+          <input type="password" id="password" name="password"
+                 placeholder="至少 6 位" autocomplete="current-password"
+                 minlength="6" required>
+        </div>
+
+        <button type="submit" class="submit">
+          <span class="for-login">登录</span>
+          <span class="for-register">创建账号</span>
+        </button>
+      </form>
+
+      <div class="trust">
+        <span class="pill"><span class="ms">lock</span>密码本地加盐哈希存储</span>
+        <span class="pill blue"><span class="ms">cloud_done</span>发布走 WordPress</span>
+      </div>
+    </div>
+  </main>
+
+  <div class="foot">© 内容工厂 · AI SEO CONTENT FACTORY</div>
+
+  <script>
+    // 让隐藏的 mode 字段跟随选中的 tab(纯增强;关 JS 时表单仍能用默认 mode 提交)。
+    (function(){
+      var login = document.getElementById('tab-login');
+      var reg   = document.getElementById('tab-register');
+      var field = document.getElementById('mode-field');
+      function sync(){ field.value = reg.checked ? 'register' : 'login'; }
+      login.addEventListener('change', sync);
+      reg.addEventListener('change', sync);
+      sync();
+    })();
+  </script>
+</body>
+</html>

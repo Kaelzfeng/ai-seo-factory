@@ -1,0 +1,4 @@
+keyword,industry_path,mode
+PU leather,industries/pu-leather.yaml,dry-run
+microfiber leather,industries/pu-leather.yaml,dry-run
+synthetic leather,industries/pu-leather.yaml,dry-run

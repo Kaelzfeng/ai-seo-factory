@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="robots" content="noindex" />
+<title>PU Leather for Car Seats – Automotive-Grade Specs &amp; Standards</title>
+<meta name="description" content="Automotive PU leather with 80k–150k Martindale, 50k flex at −30°C, and hydrolysis resistance tested to ISO 1419. FOB Wenzhou. Full test reports available." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=Archivo+Black&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --paper:#F2EEE3;
+    --paper-2:#ECE6D7;
+    --ink:#15110B;
+    --accent:#E2402A;
+    --accent-deep:#B82E1C;
+    --muted:#6B6357;
+    --line:#D8D1C2;
+    --line-strong:#C4BBA6;
+    --th-bg:#EAE4D6;
+    --measure:68ch;
+    --maxw:1180px;
+    --gutter:clamp(20px,5vw,72px);
+  }
+
+  *,*::before,*::after{box-sizing:border-box;}
+
+  html{ -webkit-text-size-adjust:100%; scroll-behavior:smooth; }
+
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:"Newsreader",Georgia,serif;
+    font-size:1.0625rem;
+    line-height:1.72;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+    overflow-x:hidden;
+  }
+
+  /* ---- paper grain / noise overlay ---- */
+  body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    z-index:9999;
+    pointer-events:none;
+    opacity:.045;
+    mix-blend-mode:multiply;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  ::selection{ background:var(--accent); color:var(--paper); }
+
+  a{ color:inherit; }
+
+  /* ---------- TOP BAR ---------- */
+  .topbar{
+    position:sticky;
+    top:0;
+    z-index:50;
+    background:rgba(242,238,227,.86);
+    backdrop-filter:saturate(140%) blur(8px);
+    -webkit-backdrop-filter:saturate(140%) blur(8px);
+    border-bottom:1px solid var(--line);
+  }
+  .topbar__inner{
+    max-width:var(--maxw);
+    margin:0 auto;
+    padding:0 var(--gutter);
+    display:flex;
+    align-items:stretch;
+    justify-content:space-between;
+    gap:24px;
+    min-height:64px;
+  }
+  .brand{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    text-decoration:none;
+    color:var(--ink);
+    flex-shrink:0;
+  }
+  .brand__mark{
+    width:30px;height:30px;
+    flex-shrink:0;
+    display:grid;place-items:center;
+    background:var(--ink);
+    color:var(--paper);
+    font-family:"Archivo Black","Archivo",sans-serif;
+    font-size:1rem;
+    line-height:1;
+    transform:rotate(-3deg);
+  }
+  .brand__mark span{ transform:rotate(3deg); }
+  .brand__txt{ display:flex; flex-direction:column; line-height:1.05; }
+  .brand__name{
+    font-family:"Archivo",sans-serif;
+    font-weight:900;
+    letter-spacing:-.01em;
+    font-size:.98rem;
+    text-transform:uppercase;
+  }
+  .brand__est{
+    font-family:"IBM Plex Mono",monospace;
+    font-size:.58rem;
+    letter-spacing:.18em;
+    text-transform:uppercase;
+    color:var(--muted);
+    margin-top:2px;
+  }
+
+  nav.mainnav{
+    display:flex;
+    align-items:stretch;
+    gap:0;
+    overflow-x:auto;
+    scrollbar-width:none;
+    -ms-overflow-style:none;
+  }
+  nav.mainnav::-webkit-scrollbar{ display:none; }
+  nav.mainnav a{
+    display:flex;
+    align-items:center;
+    padding:0 14px;
+    text-decoration:none;
+    color:var(--muted);
+    font-family:"IBM Plex Mono",monospace;
+    font-size:.66rem;
+    font-weight:500;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    white-space:nowrap;
+    position:relative;
+    transition:color .18s ease;
+  }
+  nav.mainnav a::after{
+    content:"";
+    position:absolute;
+    left:14px;right:14px;bottom:18px;
+    height:2px;
+    background:var(--accent);
+    transform:scaleX(0);
+    transform-origin:left;
+    transition:transform .22s ease;
+  }
+  nav.mainnav a:hover{ color:var(--ink); }
+  nav.mainnav a:hover::after{ transform:scaleX(1); }
+  nav.mainnav a.active{ color:var(--ink); }
+  nav.mainnav a.active::after{ transform:scaleX(1); background:var(--accent); }
+
+  /* ---------- BREADCRUMB ---------- */
+  .crumb{
+    max-width:var(--maxw);
+    margin:0 auto;
+    padding:14px var(--gutter) 0;
+    font-family:"IBM Plex Mono",monospace;
+    font-size:.66rem;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    color:var(--muted);
+  }
+  .crumb a{ color:var(--muted); text-decoration:none; transition:color .15s; }
+  .crumb a:hover{ color:var(--accent); }
+  .crumb .sep{ color:var(--line-strong); margin:0 8px; }
+  .crumb .here{ color:var(--ink); }
+
+  /* ---------- HERO ---------- */
+  .hero{
+    max-width:var(--maxw);
+    margin:0 auto;
+    padding:clamp(34px,6vw,72px) var(--gutter) clamp(30px,4.5vw,52px);
+    position:relative;
+  }
+  .hero__kicker{
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    font-family:"IBM Plex Mono",monospace;
+    font-size:.68rem;
+    letter-spacing:.22em;
+    text-transform:uppercase;
+    color:var(--accent-deep);
+    margin-bottom:clamp(20px,3vw,34px);
+  }
+  .hero__kicker .tick{
+    width:30px;height:1px;background:var(--accent);display:inline-block;
+  }
+  .hero__kicker .doc{
+    color:var(--muted);
+  }
+
+  .hero__title{
+    font-family:"Archivo Black","Archivo",sans-serif;
+    font-weight:900;
+    font-size:clamp(2.7rem,7.4vw,5.5rem);
+    line-height:.95;
+    letter-spacing:-.022em;
+    margin:0;
+    max-width:14ch;
+    text-wrap:balance;
+  }
+  .hero__title .vm{ color:var(--accent); }
+
+  .hero__lede{
+    font-family:"Newsreader",serif;
+    font-size:clamp(1.08rem,1.9vw,1.35rem);
+    line-height:1.55;
+    color:var(--ink);
+    max-width:58ch;
+    margin:clamp(20px,3vw,30px) 0 0;
+    font-weight:400;
+  }
+  .hero__lede em{ color:var(--muted); font-style:italic; }
+
+  .chips{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-top:clamp(26px,3.5vw,38px);
+    padding-top:clamp(22px,3vw,30px);
+    border-top:1px solid var(--line);
+  }
+  .chip{
+    font-family:"IBM Plex Mono",monospace;
+    font-size:.68rem;
+    letter-spacing:.05em;
+    text-transform:uppercase;
+    padding:7px 12px;
+    border:1px solid var(--line-strong);
+    background:transparent;
+    color:var(--ink);
+    display:inline-flex;
+    align-items:center;
+    gap:7px;
+    transition:border-color .18s,background .18s;
+  }
+  .chip::before{
+    content:"";
+    width:5px;height:5px;border-radius:50%;
+    background:var(--accent);
+    flex-shrink:0;
+  }
+  .chip:hover{ border-color:var(--accent); background:rgba(226,64,42,.05); }
+  .chip strong{ font-weight:600; }
+
+  /* ---------- ARTICLE ---------- */
+  .sheet{
+    max-width:var(--maxw);
+    margin:0 auto;
+    padding:0 var(--gutter) clamp(60px,8vw,110px);
+  }
+  .article{
+    counter-reset:h2;
+    max-width:var(--measure);
+    margin:0;
+  }
+  /* The in-article heading is the real H1; the hero uses non-h1 text.
+     This rule styles that article-level top heading as an eyebrow line. */
+  .article h1{
+    font-family:"Archivo",sans-serif;
+    font-weight:800;
+    font-size:clamp(1.05rem,2vw,1.3rem);
+    line-height:1.25;
+    letter-spacing:.01em;
+    text-transform:uppercase;
+    color:var(--muted);
+    margin:0 0 clamp(26px,4vw,40px);
+    padding-bottom:18px;
+    border-bottom:2px solid var(--ink);
+    max-width:100%;
+  }
+
+  .article > p{
+    margin:0 0 1.35em;
+    font-size:1.115rem;
+    line-height:1.74;
+    color:#211B12;
+  }
+  .article > p:first-of-type::first-letter,
+  .article h1 + p::first-letter{
+    /* intentionally none — keep editorial restraint */
+  }
+
+  .article h2{
+    counter-increment:h2;
+    font-family:"Archivo",sans-serif;
+    font-weight:800;
+    font-size:clamp(1.55rem,3.2vw,2.3rem);
+    line-height:1.08;
+    letter-spacing:-.018em;
+    color:var(--ink);
+    margin:clamp(48px,6vw,74px) 0 .55em;
+    padding-top:clamp(34px,4.5vw,48px);
+    border-top:1px solid var(--line);
+    position:relative;
+    text-wrap:balance;
+  }
+  .article h2::before{
+    content:counter(h2,decimal-leading-zero) "  —";
+    display:block;
+    font-family:"IBM Plex Mono",monospace;
+    font-size:.78rem;
+    font-weight:500;
+    letter-spacing:.16em;
+    color:var(--accent);
+    margin-bottom:14px;
+    text-transform:none;
+  }
+
+  .article h3{
+    font-family:"Archivo",sans-serif;
+    font-weight:700;
+    font-size:1.2rem;
+    letter-spacing:-.01em;
+    margin:2em 0 .5em;
+    color:var(--ink);
+  }
+
+  .article a{
+    color:var(--ink);
+    text-decoration:none;
+    background-image:linear-gradient(var(--accent),var(--accent));
+    background-position:0 100%;
+    background-repeat:no-repeat;
+    background-size:100% 1.5px;
+    padding-bottom:1px;
+    transition:background-size .2s ease,color .2s ease;
+  }
+  .article a:hover{
+    color:var(--accent-deep);
+    background-size:100% calc(100% );
+    background-image:linear-gradient(rgba(226,64,42,.12),rgba(226,64,42,.12));
+  }
+
+  .article ul{
+    list-style:none;
+    margin:1.6em 0 1.8em;
+    padding:0;
+  }
+  .article ul li{
+    position:relative;
+    padding:.62em 0 .62em 34px;
+    border-bottom:1px solid var(--line);
+    font-size:1.05rem;
+    line-height:1.6;
+  }
+  .article ul li:first-child{ border-top:1px solid var(--line); }
+  .article ul li::before{
+    content:"";
+    position:absolute;
+    left:6px;
+    top:1.18em;
+    width:9px;height:9px;
+    background:var(--accent);
+    transform:rotate(45deg);
+  }
+
+  /* ---------- DATASHEET TABLE ---------- */
+  .article table{
+    width:100%;
+    border-collapse:collapse;
+    margin:1.8em 0 2em;
+    font-family:"Newsreader",serif;
+    background:var(--paper);
+    border:1px solid var(--line-strong);
+    display:block;
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+  }
+  .table-scroll{
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+    margin:1.9em 0 2.2em;
+    border:1px solid var(--line-strong);
+  }
+  .table-scroll table{ margin:0; border:none; min-width:600px; display:table; }
+
+  .article thead th{
+    background:var(--th-bg);
+    color:var(--ink);
+    text-align:left;
+    font-family:"IBM Plex Mono",monospace;
+    font-weight:600;
+    font-size:.64rem;
+    letter-spacing:.13em;
+    text-transform:uppercase;
+    padding:13px 16px;
+    border-bottom:2px solid var(--ink);
+    white-space:nowrap;
+  }
+  .article tbody td{
+    padding:12px 16px;
+    border-bottom:1px solid var(--line);
+    font-size:.98rem;
+    vertical-align:top;
+    color:#241D14;
+  }
+  .article tbody tr:last-child td{ border-bottom:none; }
+  .article tbody tr:hover{ background:rgba(226,64,42,.035); }
+  /* property column = label */
+  .article tbody td:first-child{
+    font-family:"Archivo",sans-serif;
+    font-weight:600;
+    color:var(--ink);
+    width:24%;
+  }
+  /* range column = mono numeric datasheet feel */
+  .article tbody td:nth-child(2){
+    font-family:"IBM Plex Mono",monospace;
+    font-size:.86rem;
+    letter-spacing:-.01em;
+    color:var(--accent-deep);
+    font-weight:500;
+    white-space:nowrap;
+  }
+  /* test standard column = mono uppercase */
+  .article tbody td:nth-child(3){
+    font-family:"IBM Plex Mono",monospace;
+    font-size:.76rem;
+    letter-spacing:.04em;
+    text-transform:uppercase;
+    color:var(--muted);
+    white-space:nowrap;
+  }
+  .article tbody td:nth-child(4){
+    color:var(--muted);
+    font-size:.95rem;
+  }
+
+  /* ---------- INDEX GROUPS ---------- */
+  .article .grp-skip{
+    font-family:"IBM Plex Mono",monospace;
+    font-size:.6rem;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color:var(--muted);
+    border:1px solid var(--line-strong);
+    padding:2px 7px;
+    margin-left:8px;
+    vertical-align:middle;
+  }
+  .article .grp-kind{ font-weight:600; }
+
+  /* ---------- FOOTER ---------- */
+  .footer{
+    border-top:2px solid var(--ink);
+    background:var(--paper-2);
+  }
+  .footer__inner{
+    max-width:var(--maxw);
+    margin:0 auto;
+    padding:clamp(36px,5vw,56px) var(--gutter);
+    display:flex;
+    flex-wrap:wrap;
+    align-items:flex-end;
+    justify-content:space-between;
+    gap:24px;
+  }
+  .footer__brand{
+    font-family:"Archivo Black","Archivo",sans-serif;
+    font-weight:900;
+    font-size:clamp(1.6rem,4vw,2.6rem);
+    letter-spacing:-.02em;
+    line-height:.95;
+    text-transform:uppercase;
+    color:var(--ink);
+  }
+  .footer__brand .vm{ color:var(--accent); }
+  .footer__meta{
+    font-family:"IBM Plex Mono",monospace;
+    font-size:.66rem;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:var(--muted);
+    text-align:right;
+    line-height:1.9;
+  }
+  .footer__meta .accent{ color:var(--accent-deep); }
+
+  /* ---------- LOAD ANIMATION ---------- */
+  @keyframes rise{
+    from{ opacity:0; transform:translateY(16px); }
+    to{ opacity:1; transform:translateY(0); }
+  }
+  .anim{ opacity:0; animation:rise .72s cubic-bezier(.2,.7,.2,1) forwards; }
+  .d1{ animation-delay:.05s; }
+  .d2{ animation-delay:.16s; }
+  .d3{ animation-delay:.28s; }
+  .d4{ animation-delay:.42s; }
+  @media (prefers-reduced-motion:reduce){
+    .anim{ animation:none; opacity:1; }
+    html{ scroll-behavior:auto; }
+  }
+
+  /* ---------- TRUST BAND (conversion chrome · standards detected from body) ---------- */
+  .trustband{
+    max-width:var(--maxw);
+    margin:0 auto;
+    padding:0 var(--gutter);
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    gap:14px clamp(14px,2.4vw,26px);
+    margin-bottom:clamp(6px,1.5vw,14px);
+  }
+  .trustband__lead{
+    font-family:"IBM Plex Mono",monospace;
+    font-size:.6rem;
+    letter-spacing:.2em;
+    text-transform:uppercase;
+    color:var(--accent-deep);
+    white-space:nowrap;
+    padding-right:6px;
+    border-right:2px solid var(--ink);
+  }
+  .trustband__list{
+    list-style:none;
+    margin:0;
+    padding:0;
+    display:flex;
+    flex-wrap:wrap;
+    align-items:stretch;
+    gap:0;
+    border-top:1px solid var(--line-strong);
+    border-bottom:1px solid var(--line-strong);
+  }
+  .trustband__item{
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    padding:8px 16px;
+    border-left:1px solid var(--line);
+    min-width:0;
+  }
+  .trustband__item:first-child{ border-left:none; }
+  .trustband__std{
+    font-family:"Archivo",sans-serif;
+    font-weight:800;
+    font-size:.82rem;
+    letter-spacing:-.005em;
+    line-height:1.1;
+    color:var(--ink);
+    white-space:nowrap;
+  }
+  .trustband__sub{
+    font-family:"IBM Plex Mono",monospace;
+    font-size:.54rem;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color:var(--muted);
+    margin-top:2px;
+    white-space:nowrap;
+  }
+  .trustband__note{
+    font-family:"Newsreader",serif;
+    font-style:italic;
+    font-size:.84rem;
+    line-height:1.4;
+    color:var(--muted);
+    flex:1 1 220px;
+    min-width:200px;
+  }
+
+  /* ---------- PULL-QUOTE (decision line lifted from intro) ---------- */
+  .pullquote{
+    max-width:var(--measure);
+    margin:clamp(20px,3vw,34px) 0 clamp(8px,1.5vw,16px);
+    padding:0 0 0 clamp(18px,2.4vw,26px);
+    border-left:4px solid var(--accent);
+  }
+  .pullquote__txt{
+    margin:0;
+    font-family:"Archivo",sans-serif;
+    font-weight:700;
+    font-size:clamp(1.25rem,2.6vw,1.7rem);
+    line-height:1.22;
+    letter-spacing:-.012em;
+    color:var(--ink);
+    text-wrap:balance;
+  }
+
+  /* ---------- VERMILION CTA ACTION BLOCK ---------- */
+  .cta{
+    max-width:var(--maxw);
+    margin:0 auto;
+    padding:0 var(--gutter) clamp(56px,8vw,96px);
+  }
+  .cta__inner{
+    background:var(--accent);
+    color:var(--paper);
+    border:2px solid var(--ink);
+    padding:clamp(28px,4vw,46px) clamp(24px,4vw,52px);
+    position:relative;
+  }
+  .cta__inner::after{
+    content:"";
+    position:absolute;
+    left:0;right:0;bottom:-9px;
+    height:7px;
+    background:var(--ink);
+  }
+  .cta__kicker{
+    font-family:"IBM Plex Mono",monospace;
+    font-size:.66rem;
+    letter-spacing:.24em;
+    text-transform:uppercase;
+    color:var(--paper);
+    opacity:.85;
+    margin:0 0 14px;
+  }
+  .cta__head{
+    font-family:"Archivo Black","Archivo",sans-serif;
+    font-weight:900;
+    font-size:clamp(1.7rem,4vw,2.9rem);
+    line-height:1.02;
+    letter-spacing:-.02em;
+    color:var(--paper);
+    margin:0 0 .5em;
+    max-width:20ch;
+    text-wrap:balance;
+  }
+  .cta__sub{
+    font-family:"Newsreader",serif;
+    font-size:clamp(1.02rem,1.6vw,1.18rem);
+    line-height:1.55;
+    color:var(--paper);
+    margin:0 0 clamp(20px,2.6vw,28px);
+    max-width:60ch;
+  }
+  .cta__deliv{
+    list-style:none;
+    margin:0;
+    padding:0;
+    display:flex;
+    flex-wrap:wrap;
+    gap:0;
+    border-top:2px solid rgba(242,238,227,.55);
+  }
+  .cta__deliv li{
+    font-family:"IBM Plex Mono",monospace;
+    font-size:.7rem;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    color:var(--paper);
+    padding:14px 22px 0 0;
+    margin-right:22px;
+    position:relative;
+  }
+  .cta__deliv li::before{
+    content:"";
+    position:absolute;
+    left:-15px;top:18px;
+    width:6px;height:6px;
+    background:var(--paper);
+    transform:rotate(45deg);
+  }
+  .cta__deliv li:first-child::before{ display:none; }
+  .cta__sig{
+    font-family:"IBM Plex Mono",monospace;
+    font-size:.62rem;
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    color:var(--paper);
+    opacity:.8;
+    margin:clamp(20px,2.6vw,26px) 0 0;
+  }
+
+  /* ---------- RESPONSIVE ---------- */
+  @media (max-width:880px){
+    .topbar__inner{ flex-direction:column; min-height:0; padding-top:12px; padding-bottom:0; gap:8px; }
+    .brand{ padding-bottom:2px; }
+    nav.mainnav{
+      border-top:1px solid var(--line);
+      margin:0 calc(var(--gutter) * -1);
+      padding:0 var(--gutter);
+    }
+    nav.mainnav a{ padding:12px 12px; }
+    nav.mainnav a::after{ bottom:8px; }
+  }
+  @media (max-width:720px){
+    body{ font-size:1rem; }
+    .hero__title{ max-width:100%; }
+    .article ul li{ padding-left:30px; }
+    .trustband__lead{ border-right:none; padding-right:0; }
+    .trustband__list{ width:100%; }
+    .trustband__note{ flex-basis:100%; }
+    .cta__deliv li{ flex:1 1 100%; padding-right:0; margin-right:0; }
+    .cta__deliv li::before{ display:none; }
+    .cta__deliv li:not(:first-child){ border-top:1px solid rgba(242,238,227,.3); }
+  }
+  @media (max-width:520px){
+    .footer__inner{ flex-direction:column; align-items:flex-start; }
+    .footer__meta{ text-align:left; }
+  }
+</style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://example.com#organization",
+      "name": "https://example.com",
+      "url": "https://example.com/"
+    },
+    {
+      "@type": "Article",
+      "@id": "https://example.com/pu-leather-for-automotive/#article",
+      "headline": "PU Leather for Car Seats – Automotive-Grade Specs & Standards",
+      "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "https://example.com/pu-leather-for-automotive/"
+      },
+      "url": "https://example.com/pu-leather-for-automotive/",
+      "author": {
+        "@id": "https://example.com#organization"
+      },
+      "publisher": {
+        "@id": "https://example.com#organization"
+      },
+      "datePublished": "2026-06-20T14:12:29+08:00",
+      "dateModified": "2026-06-20T14:12:29+08:00",
+      "inLanguage": "en",
+      "description": "Automotive PU leather with 80k–150k Martindale, 50k flex at −30°C, and hydrolysis resistance tested to ISO 1419. FOB Wenzhou. Full test reports available.",
+      "keywords": "PU leather for car seats"
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "https://example.com/pu-leather-for-automotive/#breadcrumb",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://example.com/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "PU Leather for Automotive Seats and Interiors",
+          "item": "https://example.com/pu-leather-for-automotive/"
+        }
+      ]
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<header class="topbar"><div class="topbar__inner"><a class="brand" href="./index.html" aria-label="example.com home"><span class="brand__mark"><span>E</span></span><span class="brand__txt"><span class="brand__name">example.com</span><span class="brand__est">Specification-grade documentation</span></span></a><nav class="mainnav" aria-label="Primary"><a href="./pu-leather-guide.html">Sourcing Guide</a><a href="./pu-leather-vs-genuine-leather.html">vs Genuine</a><a href="./pu-leather-vs-pvc-leather.html">vs PVC</a><a href="./types-of-synthetic-leather.html">Material Types</a><a href="./pu-leather-for-furniture.html">Furniture</a><a href="./pu-leather-for-automotive.html" class="active" aria-current="page">Automotive</a><a href="./is-pu-leather-durable-waterproof.html">Durable &amp; Waterproof</a><a href="./microfiber-pu-leather-bags.html">Microfiber Bags</a></nav></div></header><nav class="crumb" aria-label="Breadcrumb"><a href="./index.html">Home</a><span class="sep">›</span><a href="./pu-leather-guide.html">Guides</a><span class="sep">›</span><span class="here">PU Leather for Automotive Seats and Interiors</span></nav><section class="hero" aria-labelledby="hero-title"><p class="hero__kicker anim d1"><span class="tick"></span><span>Application &middot; DOC</span><span class="doc">/ SPEC SHEET &middot; REV.A</span></p><div class="hero__title anim d2" id="hero-title" role="heading" aria-level="1">PU Leather for Car Seats – Automotive-Grade Specs &amp; Standards</div><p class="hero__lede anim d3">Automotive PU leather with 80k–150k Martindale, 50k flex at −30°C, and hydrolysis resistance tested to ISO 1419. FOB Wenzhou. Full test reports available.</p><div class="chips anim d4" role="list" aria-label="Key specifications"><span class="chip" role="listitem">FMVSS 302</span><span class="chip" role="listitem">100K+ Martindale</span><span class="chip" role="listitem">Low-fogging</span></div></section><aside class="trustband anim d3" aria-label="Standards and certifications cited"><span class="trustband__lead">Verified against</span><ul class="trustband__list"><li class="trustband__item"><span class="trustband__std">ISO</span><span class="trustband__sub">Test methods</span></li><li class="trustband__item"><span class="trustband__std">REACH</span><span class="trustband__sub">EU SVHC</span></li><li class="trustband__item"><span class="trustband__std">RoHS</span><span class="trustband__sub">Restricted subst.</span></li><li class="trustband__item"><span class="trustband__std">OEKO-TEX</span><span class="trustband__sub">Skin-safe</span></li><li class="trustband__item"><span class="trustband__std">Martindale</span><span class="trustband__sub">Abrasion</span></li><li class="trustband__item"><span class="trustband__std">Prop 65</span><span class="trustband__sub">CA exposure</span></li><li class="trustband__item"><span class="trustband__std">GRS</span><span class="trustband__sub">Recycled</span></li><li class="trustband__item"><span class="trustband__std">SAE J</span><span class="trustband__sub">Light-fastness</span></li><li class="trustband__item"><span class="trustband__std">SGS</span><span class="trustband__sub">Lab report</span></li><li class="trustband__item"><span class="trustband__std">Intertek</span><span class="trustband__sub">Lab report</span></li></ul><span class="trustband__note">Test reports tied to the production batch &mdash; re-validated per lot.</span></aside><main class="sheet"><article class="article"><h1>PU Leather for Automotive Seats and Interiors</h1>
+
+<p>For automotive seating and interior applications, the minimum performance floor is clear: <strong>Martindale abrasion ≥80,000 cycles (ISO 5470-2)</strong>, <strong>flex resistance ≥50,000 cycles at −30 °C to +80 °C (ISO 5402)</strong>, and <strong>hydrolysis resistance passing ISO 1419 Method C</strong>. Below those numbers, the material will crack, delaminate, or hydrolyze inside a vehicle within 24–36 months. We ship automotive-grade PU leather that meets or exceeds these thresholds, backed by <strong>SGS and Intertek test reports on every lot</strong>.</p>
+
+<p>By Allen Zhu, Materials Engineer — 12 yrs synthetic-leather QC<br>
+Data last updated: 2026-06-20</p>
+
+<h2>What thickness and weight do automotive specifiers call for?</h2>
+
+<p>Automotive interior PU leather runs <strong>1.0–1.4 mm thick at 600–900 g/m²</strong>. Seat bolsters and high-wear zones take the heavier end; door panels and dashboards can use the lighter range.</p>
+
+<table>
+<thead>
+<tr><th>Application Zone</th><th>Thickness</th><th>Weight</th><th>Martindale Min.</th></tr>
+</thead>
+<tbody>
+<tr><td>Seat cushion / bolster</td><td>1.2–1.4 mm</td><td>800–900 g/m²</td><td>120k cycles</td></tr>
+<tr><td>Seat back / headrest</td><td>1.0–1.2 mm</td><td>700–800 g/m²</td><td>100k cycles</td></tr>
+<tr><td>Door panel / armrest</td><td>1.0–1.2 mm</td><td>600–750 g/m²</td><td>80k cycles</td></tr>
+<tr><td>Dashboard (sun-exposed)</td><td>1.0–1.2 mm</td><td>600–700 g/m²</td><td>80k cycles + UV 1,000 h</td></tr>
+</tbody>
+</table>
+
+<p>These are our standard ship specs. If your requirement falls between rows, we adjust the PU coating weight. Tell us the trim level — economy, mid, or luxury — and we match the build sheet.</p>
+
+<h2>How does automotive PU leather handle extreme heat and cold?</h2>
+
+<p>Vehicle interiors see <strong>−30 °C in winter to +85 °C cabin soak in summer</strong>. Standard PU leather fails this range — the coating stiffens and cracks at low temperature, and accelerates hydrolysis at high temperature. Automotive-grade PU uses a <strong>polycarbonate or polyether PU topcoat</strong>, not polyester, paired with anti-hydrolysis additives.</p>
+
+<p>In our QC lab we run the <strong>ISO 5402 flex test at −30 °C and +80 °C</strong>. A passing material shows no surface cracks after 50,000 cycles at either extreme. We also measure the coating's glass transition temperature (Tg) via DSC — target is ≤ −25 °C. If the Tg creeps above −20 °C, we reject the batch.</p>
+
+<h3>The 4-Grade Durability Ladder for Automotive PU</h3>
+
+<p>We classify our automotive PU into four tiers so buyers compare apples to apples:</p>
+
+<ol>
+<li><strong>Entry (Grade A1)</strong> – 1.0 mm, 80k Martindale, polyester PU, 2–3 yr hydrolysis life. Suitable for taxi fleets or short-lease vehicles.</li>
+<li><strong>Mid (Grade A2)</strong> – 1.2 mm, 100k Martindale, polyether PU, 5–7 yr hydrolysis life. Used by aftermarket seat cover brands.</li>
+<li><strong>Premium (Grade A3)</strong> – 1.2–1.4 mm, 120k Martindale, polycarbonate PU, 7–10 yr hydrolysis life. OE-quality for Japanese and European OEMs.</li>
+<li><strong>Flagship (Grade A4)</strong> – 1.4 mm, 150k Martindale, polycarbonate PU + self-healing topcoat, 10+ yr hydrolysis life. Spec'd for luxury SUVs and high-series sedans.</li>
+</ol>
+
+<p>Most automotive buyers land on <strong>Grade A2 or A3</strong>. Grade A1 is suitable only where the vehicle lifecycle is under 4 years. We do not sell A1 for OEM programs — only for budget retrofit kits with a disclosed lifespan.</p>
+
+<h2>What hydrolysis test standards apply to car-seat PU leather?</h2>
+
+<p>The global benchmark is <strong>ISO 1419 Method C</strong>: 70 °C / 95% relative humidity for 168 hours, then inspect for coating separation, cracking, or powdering. Our premium grades hold >90% of initial peel adhesion after the test. We also supplement with <strong>SAE J2412 (accelerated weathering)</strong> for sun-exposed dashboards.</p>
+
+<p>We hydro-test every production lot for Grade A3 and A4. For A2 we test quarterly unless you request lot-level. The test report shows before-and-after peel adhesion (ISO 2411) and visual rating per ISO 1419 Annex A. <strong>Full report provided on every shipment — FOB Wenzhou.</strong></p>
+
+<h2>UV stability and color fastness — what do automakers require?</h2>
+
+<p>Automotive light fastness is <strong>≥6.0 on the ISO 11640 blue wool scale</strong>, with <strong>ΔE &lt; 1.5 after 1,000 hours (SAE J2527)</strong>. We achieve this with <strong>UV absorbers and hindered amine light stabilizers (HALS)</strong> compounded directly into the PU topcoat, not applied as a post-finish that wears off.</p>
+
+<table>
+<thead>
+<tr><th>Property</th><th>Test Standard</th><th>Our Typical Result</th></tr>
+</thead>
+<tbody>
+<tr><td>Light fastness</td><td>ISO 11640</td><td>6.0–7.0</td></tr>
+<tr><td>ΔE after 1,000 h</td><td>SAE J2527</td><td>&lt;1.2</td></tr>
+<tr><td>Color change after 5 yr Florida exposure (est.)</td><td>SAE J1976</td><td>Grade 4–5</td></tr>
+<tr><td>Crocking (dry/wet)</td><td>AATCC 8</td><td>4.5 / 4.0</td></tr>
+</tbody>
+</table>
+
+<p>If your program targets a specific OEM standard — VW TL 52277, Ford WSS-M2P180-A, or Tesla TS-S-0020 — we formulate the topcoat to that spec and submit pre-production samples for approval before mass lamination.</p>
+
+<h2>Is PU leather breathable enough for seat climate systems?</h2>
+
+<p>Perforated automotive PU leather achieves <strong>air permeability of 2–10 L/m²/s at 200 Pa (ISO 9237)</strong>, which is sufficient for ventilated-seat fans. The microporous PU coating itself has some inherent breathability (0.3–0.5 L/m²/s unperforated), but for active climate seats you need mechanical perforation.</p>
+
+<p>Our standard perforation patterns: <strong>1.0 mm, 1.5 mm, or 2.0 mm diameter holes at 8–12% open area</strong>. We also offer laser-perforated micro-holes (0.3–0.5 mm) for a near-solid appearance that still passes air. Confirm the hole pattern with your seat foam supplier — the foam's air-channel layout must match our perforation grid or airflow drops by 40–60%.</p>
+
+<h2>What grains and finishes do automotive buyers choose?</h2>
+
+<p>The most requested automotive grains from our order history:</p>
+
+<ul>
+<li><strong>Saffiano</strong> – cross-hatch emboss, low gloss (~2.0–3.5 @ 60°), hides daily wear. Dominates dash and door applications.</li>
+<li><strong>Nappa</strong> – fine grain, soft hand, 4.0–5.0 gloss. Used on luxury seat centers.</li>
+<li><strong>Litchi</strong> – pebbled texture, high durability. Spec'd for taxi and ride-share fleets.</li>
+<li><strong>Perforated (any grain)</strong> – for ventilated seats. Typically paired with nappa or smooth grain.</li>
+</ul>
+
+<p>We carry <strong>42 stock colors</strong> across these grains. Custom color matching takes 7–10 days with a 300 m MOQ per color per thickness. The most common buyer mistake: selecting a dark grain for a vehicle that spends 8+ hours in equatorial sun. Dark colors absorb more IR, raising the PU surface temperature 15–20 °C above the cabin air — and accelerating hydrolysis by 2–3×. If your target market is <strong>Southeast Asia, Middle East, or the US Sun Belt</strong>, we recommend light-to-mid tones with IR-reflective pigments in the PU topcoat.</p>
+
+<h2>How does automotive PU compare to PVC and microfiber for seats?</h2>
+
+<p>Each material has a distinct cost-performance position. Here is the honest comparison:</p>
+
+<table>
+<thead>
+<tr><th>Property</th><th>Automotive PU</th><th>PVC (vinyl)</th><th>Microfiber (超纤)</th></tr>
+</thead>
+<tbody>
+<tr><td>Abrasion (Martindale)</td><td>80k–150k</td><td>50k–100k</td><td>150k–250k</td></tr>
+<tr><td>Cold flex (−30 °C)</td><td>Pass (50k cycles)</td><td>Fail (cracks at −10 °C)</td><td>Pass (100k+ cycles)</td></tr>
+<tr><td>Hydrolysis life</td><td>5–10 yr (A2–A4)</td><td>10–15 yr (plasticizer migration)</td><td>10+ yr</td></tr>
+<tr><td>Breathability</td><td>Moderate (perforated)</td><td>None</td><td>High</td></tr>
+<tr><td>Cost index (PU = 1.0)</td><td>1.0</td><td>0.5–0.7</td><td>1.5–2.2</td></tr>
+<tr><td>Hand feel</td><td>Soft, warm</td><td>Cold, rubbery</td><td>Closest to leather</td></tr>
+</tbody>
+</table>
+
+<p><strong>PVC is cheaper but fails cold flex and has no breathability</strong> — it is rare in modern OEM seat programs. <strong>Microfiber is the premium tier</strong> (sea-island ≤0.3 denier, ~200k flex) but costs 1.5–2.2× more than PU, making it viable only for luxury marques or electric-vehicle brands that brand "vegan leather" as a selling point. <strong>Automotive PU sits in the value center</strong>: it passes OEM cold-flex and hydrolysis requirements at a cost that works for mid-volume programs (50k–200k units/yr).</p>
+
+<h2>What are the sourcing details — MOQ, lead time, width?</h2>
+
+<p>Standard production parameters for automotive PU leather:</p>
+
+<ul>
+<li><strong>MOQ:</strong> 1,000 m per color per thickness (stock color); 1,500 m for custom color</li>
+<li><strong>Width:</strong> 54" (1,370 mm) standard; 58" available for wide-seat programs</li>
+<li><strong>Roll length:</strong> 30–50 m per roll</li>
+<li><strong>Lead time:</strong> 15–20 days from stock color; 20–25 days for custom color including certified test reports</li>
+<li><strong>Incoterm:</strong> FOB Wenzhou or CIF to your port</li>
+<li><strong>Certifications:</strong> REACH, RoHS, California Prop 65, OEKO-TEX 100, GRS (on request)</li>
+<li><strong>Third-party lab:</strong> SGS, Intertek, or BV — we book and pay; you receive the report directly</li>
+</ul>
+
+<p>Sample rolls (A4 size or 1 linear meter) shipped within 5 days. We ask you to run your own flex and hydrolysis test on the sample before committing to production. This saves both sides from costly rework.</p>
+
+<h2>Can I get a warranty on automotive PU leather?</h2>
+
+<p>Yes — we offer a <strong>5-year warranty on Grade A3 and A4 against coating delamination and hydrolysis cracking</strong> under normal automotive use (defined per ISO 1419 Method C pass criteria). Grade A2 carries a 3-year warranty. Exclusions: physical cuts, cigarette burns, improper cleaning with solvents, and UV exposure beyond 1,000 h SAE J2527 equivalence.</p>
+
+<p>For high-volume OEM programs (>50,000 m/yr), we negotiate a joint quality agreement (JQA) with agreed AQL levels (normally AQL 1.0 per ISO 2859-1) and on-site QC at our Wenzhou factory before container loading.</p>
+
+<h2>Related resources</h2>
+<ul>
+<li><a href="https://demoleather.com/pu-leather/">PU leather: construction, grades, and sourcing guide</a> — the pillar guide covering the full product family</li>
+<li><a href="https://demoleather.com/pu-leather-vs-pvc/">PU leather vs PVC — which synthetic leather fits your product?</a></li>
+<li><a href="https://demoleather.com/microfiber-leather/">Microfiber (超纤) leather — the premium synthetic alternative</a></li>
+</ul></article><aside class="cta" aria-labelledby="cta-h"><div class="cta__inner"><p class="cta__kicker">Request a quote</p><p class="cta__head" id="cta-h">Tell us the application, market and order quantity.</p><p class="cta__sub">Send the end use, the abrasion and compliance standards your buyer enforces, and your volume. We return a construction spec, current third-party test reports, and an FOB lead time priced against your real MOQ &mdash; not a catalog number.</p><ul class="cta__deliv" aria-label="What you receive"><li>Construction spec sheet</li><li>Current test reports</li><li>FOB quote &amp; lead time</li></ul><p class="cta__sig">example.com</p></div></aside></main><footer class="footer"><div class="footer__inner"><div class="footer__brand">example.com<span class="vm">.</span></div><div class="footer__meta">&copy; 2026 example.com<br><span class="accent">Specification-grade sourcing</span><br>Demo build</div></div></footer>
+</body>
+</html>

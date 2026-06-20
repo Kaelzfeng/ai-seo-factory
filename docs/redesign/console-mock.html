@@ -1,0 +1,454 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>内容工厂 · 操作台(重做 mockup)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   操作台重做 mockup —— 参考 Linear(三栏控制台)/ Vercel(网格+黑pill)/
+   Stripe(靛蓝+精致数据)/ Ahrefs(SEO域)。
+   一套结构,两种气质:浅色精工(默认) / 深色控制台(body.dark)。
+   ============================================================ */
+:root{
+  --bg:#F6F7F9;            /* app 画布 */
+  --panel:#FFFFFF;         /* 卡片/侧栏 */
+  --panel2:#FBFBFC;        /* 次级面 */
+  --rail:#FFFFFF;          /* 侧栏 */
+  --ink:#1A1D21;           /* 主文字 */
+  --ink2:#52585F;          /* 次文字 */
+  --faint:#8A9099;         /* 弱文字 */
+  --line:#EBECEF;          /* 边框 */
+  --line2:#E0E2E6;         /* 重边框 */
+  --acc:#4E63E6;           /* 品牌靛蓝 */
+  --acc2:#3C4FCB;          /* 靛蓝深 */
+  --acc-wash:#EEF0FD;      /* 靛蓝洗 */
+  --acc-ring:rgba(78,99,230,.18);
+  --ok:#1F9D6B; --ok-wash:#E7F6EF;
+  --warn:#B5820B; --warn-wash:#FBF3DE;
+  --amber:#C2691A; --blue:#2F6FB0; --green:#2E8B57; --slate:#5A6470;
+  --shadow-sm:0 1px 2px rgba(16,20,30,.05);
+  --shadow:0 1px 2px rgba(16,20,30,.05), 0 6px 16px rgba(16,20,30,.06);
+  --shadow-lg:0 1px 2px rgba(16,20,30,.06), 0 18px 44px rgba(16,20,30,.12);
+  --sans:"Inter","Microsoft YaHei","PingFang SC","Noto Sans SC",system-ui,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --serif:"Source Serif 4",Georgia,"Songti SC",serif;
+  --r:12px;
+}
+/* P1 · 暖中性(Claude-grade · editorial)—— 实地抠自 Claude Console */
+body.warm{
+  --bg:#F7F7F5; --panel:#FFFFFF; --panel2:#F5F4F0; --rail:#FBFAF7;
+  --ink:#1A1916; --ink2:#46443E; --faint:#827E76;
+  --line:#ECEAE4; --line2:#DFDCD4;
+  --acc:#6E72E8; --acc2:#4F53C9; --acc-wash:#EEEEFB; --acc-ring:rgba(110,114,232,.18);
+  --ok:#2E8B6B; --ok-wash:#E7F4EE; --warn:#A8791A; --warn-wash:#F7F0DC;
+  --amber:#B5701C; --blue:#2F6FB0; --green:#2E8B57; --slate:#6B655B;
+}
+body.warm .brand .bt{font-family:var(--serif); font-weight:600; letter-spacing:0; font-size:16px}
+body.warm .h1{font-family:var(--serif); font-weight:600; letter-spacing:-.01em}
+body.dark{
+  --bg:#0B0D10; --panel:#15181D; --panel2:#101317; --rail:#0E1014;
+  --ink:#ECEDEF; --ink2:#A4ABB4; --faint:#6B7280;
+  --line:#21252B; --line2:#2A2F36;
+  --acc:#7C8DF6; --acc2:#94A2FF; --acc-wash:#1A1F33; --acc-ring:rgba(124,141,246,.28);
+  --ok:#3DCB8B; --ok-wash:#10231B;
+  --warn:#D9AE4B; --warn-wash:#241D0D;
+  --amber:#E0995A; --blue:#7FB2E6; --green:#6FCB98; --slate:#9AA6B3;
+  --shadow-sm:0 1px 2px rgba(0,0,0,.4);
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 22px rgba(0,0,0,.36);
+  --shadow-lg:0 1px 2px rgba(0,0,0,.5), 0 22px 50px rgba(0,0,0,.5);
+}
+*{box-sizing:border-box}
+html,body{margin:0; height:100%}
+body{background:var(--bg); color:var(--ink); font-family:var(--sans); font-size:15px;
+  line-height:1.55; -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility}
+a{color:inherit; text-decoration:none}
+.mono{font-family:var(--mono); font-feature-settings:"tnum" 1,"zero" 1}
+button{font-family:inherit; cursor:pointer}
+::selection{background:var(--acc); color:#fff}
+
+/* ===== 布局:侧栏 + 主区 ===== */
+.app{display:grid; grid-template-columns:248px minmax(0,1fr); min-height:100vh}
+
+/* ---- 侧栏 ---- */
+.rail{background:var(--rail); border-right:1px solid var(--line); display:flex; flex-direction:column;
+  position:sticky; top:0; height:100vh}
+.brand{display:flex; align-items:center; gap:11px; padding:18px 18px 16px}
+.logo{width:34px; height:34px; border-radius:9px; background:linear-gradient(150deg,var(--acc),var(--acc2));
+  display:grid; place-items:center; color:#fff; font-weight:800; font-size:15px; box-shadow:0 2px 8px var(--acc-ring)}
+.brand .bt{font-weight:700; font-size:15px; letter-spacing:-.01em}
+.brand .bs{font-family:var(--mono); font-size:9.5px; letter-spacing:.14em; color:var(--faint); text-transform:uppercase; margin-top:2px}
+.navgroup{padding:6px 12px}
+.navgroup .gl{font-size:10.5px; font-weight:600; letter-spacing:.09em; text-transform:uppercase; color:var(--faint);
+  padding:10px 10px 6px}
+.nav{display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:9px; color:var(--ink2);
+  font-size:14px; font-weight:500; margin:1px 0}
+.nav svg{width:17px; height:17px; flex:none; opacity:.85}
+.nav:hover{background:var(--panel2); color:var(--ink)}
+.nav.on{background:var(--acc-wash); color:var(--acc2); font-weight:600}
+body.dark .nav.on{color:var(--acc)}
+.nav.on svg{opacity:1}
+.nav .ct{margin-left:auto; font-family:var(--mono); font-size:10.5px; color:var(--faint);
+  background:var(--panel2); border:1px solid var(--line); border-radius:20px; padding:0 7px; line-height:17px}
+.nav.on .ct{color:var(--acc2); background:var(--panel); border-color:var(--acc-ring)}
+/* 顶部工作区/项目切换器(Claude/OpenAI/Coze/Dify 无一例外都在侧栏顶部) */
+.wsswitch{display:flex; align-items:center; gap:9px; margin:0 12px 8px; padding:9px 11px; border:1px solid var(--line2);
+  border-radius:9px; background:var(--panel2); cursor:pointer; width:calc(100% - 24px)}
+.wsswitch:hover{border-color:var(--acc-ring); background:var(--panel)}
+.wsswitch .wdot{width:8px; height:8px; border-radius:50%; background:var(--acc); box-shadow:0 0 0 3px var(--acc-wash); flex:none}
+.wsswitch .wn{font-weight:600; font-size:13px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; flex:1; text-align:left; color:var(--ink)}
+.wsswitch .wc{margin-left:auto; color:var(--faint); flex:none}
+.rail .spacer{flex:1}
+/* 项目 + 账户 + 计量 卡(侧栏底) */
+.railfoot{padding:12px; border-top:1px solid var(--line)}
+.projcard{border:1px solid var(--line); border-radius:10px; background:var(--panel2); padding:10px 11px; margin-bottom:10px}
+.projcard .pl{font-size:10px; letter-spacing:.08em; text-transform:uppercase; color:var(--faint); font-weight:600}
+.projcard .pn{display:flex; align-items:center; gap:7px; margin-top:4px; font-weight:600; font-size:13.5px}
+.projcard .pdot{width:7px; height:7px; border-radius:50%; background:var(--acc); flex:none; box-shadow:0 0 0 3px var(--acc-wash)}
+.projcard .pswitch{margin-top:8px; font-family:var(--mono); font-size:10.5px; color:var(--acc2); display:inline-flex; align-items:center; gap:5px}
+.meter{margin-bottom:10px}
+.meter .mh{display:flex; justify-content:space-between; font-size:11px; color:var(--ink2); margin-bottom:5px}
+.meter .mh b{font-family:var(--mono); color:var(--ink); font-weight:600}
+.meter .track{height:6px; border-radius:6px; background:var(--line); overflow:hidden}
+.meter .fill{height:100%; width:18%; border-radius:6px; background:linear-gradient(90deg,var(--acc),var(--acc2))}
+.meter .ms{font-family:var(--mono); font-size:10px; color:var(--faint); margin-top:5px}
+.acct{display:flex; align-items:center; gap:9px}
+.avatar{width:28px; height:28px; border-radius:50%; background:var(--acc-wash); color:var(--acc2); display:grid;
+  place-items:center; font-weight:700; font-size:12px; flex:none; border:1px solid var(--acc-ring)}
+.acct .ae{font-size:12px; color:var(--ink2); overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.acct .alo{margin-left:auto; color:var(--faint)}
+.acct .alo:hover{color:var(--acc2)}
+
+/* ---- 主区 ---- */
+.main{min-width:0; display:flex; flex-direction:column}
+.topbar{position:sticky; top:0; z-index:20; display:flex; align-items:center; gap:14px;
+  padding:0 26px; height:56px; background:color-mix(in srgb, var(--bg) 78%, transparent);
+  backdrop-filter:saturate(140%) blur(8px); border-bottom:1px solid var(--line)}
+.crumb{display:flex; align-items:center; gap:8px; font-size:13px; color:var(--ink2)}
+.crumb .sep{color:var(--faint)}
+.crumb b{color:var(--ink); font-weight:600}
+.topbar .grow{flex:1}
+.tbtn{display:inline-flex; align-items:center; gap:7px; height:32px; padding:0 13px; border-radius:8px;
+  border:1px solid var(--line2); background:var(--panel); color:var(--ink); font-size:13px; font-weight:500; box-shadow:var(--shadow-sm)}
+.tbtn:hover{border-color:var(--acc-ring)}
+.tbtn svg{width:15px; height:15px; opacity:.8}
+.tbtn.pri{background:linear-gradient(180deg,var(--acc),var(--acc2)); color:#fff; border:0; box-shadow:0 1px 2px rgba(0,0,0,.1),0 4px 12px var(--acc-ring)}
+.tpill{display:inline-flex; align-items:center; gap:6px; height:28px; padding:0 10px; border-radius:20px;
+  border:1px solid var(--line2); background:var(--panel); font-family:var(--mono); font-size:11px; color:var(--ink2)}
+.tpill .d{width:6px; height:6px; border-radius:50%; background:var(--ok)}
+.tpill b{color:var(--ink)}
+
+.canvas{padding:26px 26px 60px; max-width:1180px; width:100%; margin:0 auto}
+
+/* hero-lite */
+.head{margin:6px 0 22px}
+.eyebrow{display:inline-flex; align-items:center; gap:8px; font-family:var(--mono); font-size:11px; letter-spacing:.12em;
+  text-transform:uppercase; color:var(--acc2); background:var(--acc-wash); border:1px solid var(--acc-ring);
+  border-radius:20px; padding:4px 11px}
+.h1{font-size:30px; line-height:1.12; font-weight:800; letter-spacing:-.02em; margin:14px 0 0}
+.sub{color:var(--ink2); font-size:15px; max-width:64ch; margin:11px 0 0}
+.sub b{color:var(--ink); font-weight:600}
+
+/* KPI 数据条(大厂控制台通法:Stripe/Linear/GSC 都有) */
+.kpis{display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-top:20px}
+.kpi{background:var(--panel); border:1px solid var(--line); border-radius:var(--r); padding:15px 16px; box-shadow:var(--shadow-sm); position:relative; overflow:hidden}
+.kpi .kl{font-family:var(--mono); font-size:10.5px; letter-spacing:.07em; text-transform:uppercase; color:var(--faint); display:flex; align-items:center; gap:7px}
+.kpi .kl svg{width:14px; height:14px; opacity:.7}
+.kpi .kv{font-family:var(--mono); font-weight:600; font-size:27px; letter-spacing:-.02em; margin-top:9px; line-height:1; display:flex; align-items:baseline; gap:5px}
+.kpi .kv small{font-size:13px; font-weight:500; color:var(--faint)}
+.kpi .kd{font-size:11.5px; color:var(--ink2); margin-top:7px; display:flex; align-items:center; gap:6px}
+.kpi .trend{display:inline-flex; align-items:center; gap:3px; font-family:var(--mono); font-size:11px; font-weight:600; padding:1px 6px; border-radius:20px}
+.kpi .trend.up{color:var(--ok); background:var(--ok-wash)}
+.kpi .trend.flat{color:var(--slate); background:var(--panel2)}
+.kpi.accent::before{content:""; position:absolute; left:0; top:0; bottom:0; width:3px; background:linear-gradient(var(--acc),var(--acc2))}
+.kpi .ring{position:absolute; right:14px; top:14px; width:34px; height:34px}
+
+/* 横向管线步骤条 */
+.stepper{display:flex; align-items:center; gap:0; margin:22px 0 24px; padding:14px 16px;
+  background:var(--panel); border:1px solid var(--line); border-radius:var(--r); box-shadow:var(--shadow-sm); overflow-x:auto}
+.step{display:flex; align-items:center; gap:10px; flex:none}
+.step .si{width:26px; height:26px; border-radius:50%; display:grid; place-items:center; flex:none;
+  font-family:var(--mono); font-size:12px; font-weight:600; border:1.5px solid var(--line2); color:var(--faint); background:var(--panel)}
+.step .sl{font-size:13px; font-weight:500; color:var(--ink2); white-space:nowrap}
+.step.done .si{background:var(--ok); border-color:var(--ok); color:#fff}
+.step.done .sl{color:var(--ink)}
+.step.now .si{background:var(--acc); border-color:var(--acc); color:#fff; box-shadow:0 0 0 4px var(--acc-ring)}
+.step.now .sl{color:var(--acc2); font-weight:600}
+body.dark .step.now .sl{color:var(--acc)}
+.step .bar{width:46px; height:2px; background:var(--line2); margin:0 12px; flex:none; border-radius:2px}
+.step.done + .step .bar, .step.done .bar{background:var(--ok)}
+
+/* 卡片通用 */
+.card{background:var(--panel); border:1px solid var(--line); border-radius:var(--r); box-shadow:var(--shadow-sm)}
+.card-h{display:flex; align-items:center; gap:10px; padding:14px 16px; border-bottom:1px solid var(--line)}
+.card-h .ci{width:28px; height:28px; border-radius:8px; background:var(--acc-wash); color:var(--acc2);
+  display:grid; place-items:center; flex:none}
+.card-h .ci svg{width:16px; height:16px}
+.card-h .ct{font-weight:600; font-size:14.5px}
+.card-h .cs{font-size:12.5px; color:var(--faint)}
+.card-h .cr{margin-left:auto; display:flex; align-items:center; gap:9px}
+.card-b{padding:16px}
+
+/* 演示横幅 */
+.demo{display:flex; align-items:center; gap:18px; flex-wrap:wrap; background:
+  linear-gradient(110deg, var(--acc-wash), transparent 60%); border:1px solid var(--acc-ring);
+  border-radius:var(--r); padding:16px 18px; box-shadow:var(--shadow-sm)}
+.demo .di{width:38px; height:38px; border-radius:10px; background:linear-gradient(150deg,var(--acc),var(--acc2));
+  color:#fff; display:grid; place-items:center; flex:none; box-shadow:0 3px 10px var(--acc-ring)}
+.demo .dc{flex:1; min-width:280px}
+.demo .dc h4{margin:0; font-size:14.5px; font-weight:600}
+.demo .dc p{margin:3px 0 0; font-size:13px; color:var(--ink2)}
+.demo .dc .mk{font-family:var(--mono); font-size:12px; color:var(--acc2)}
+.demo .dctl{display:flex; align-items:center; gap:10px; flex-wrap:wrap}
+
+/* 表单网格 */
+.grid2{display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:16px}
+.opt{display:flex; align-items:flex-start; gap:11px; padding:12px; border:1px solid var(--line); border-radius:10px;
+  margin-bottom:10px; cursor:pointer; transition:border-color .15s, background .15s}
+.opt:hover{background:var(--panel2)}
+.opt.sel{border-color:var(--acc); background:var(--acc-wash)}
+.opt .rd{width:18px; height:18px; border-radius:50%; border:2px solid var(--line2); flex:none; margin-top:1px; position:relative}
+.opt.sel .rd{border-color:var(--acc)}
+.opt.sel .rd::after{content:""; position:absolute; inset:3px; border-radius:50%; background:var(--acc)}
+.opt .ol{font-weight:600; font-size:14px}
+.opt .od{font-size:12.5px; color:var(--ink2); margin-top:2px}
+.opt .od code{font-family:var(--mono); font-size:11.5px; background:var(--panel2); border:1px solid var(--line);
+  border-radius:5px; padding:1px 5px; color:var(--ink2)}
+.field{margin:10px 0 0 29px}
+.field select,.field input{width:100%; height:38px; padding:0 12px; border:1px solid var(--line2); border-radius:8px;
+  background:var(--panel); color:var(--ink); font-family:var(--mono); font-size:13px}
+.field select:focus,.field input:focus{outline:none; border-color:var(--acc); box-shadow:0 0 0 3px var(--acc-ring)}
+.field .hint{font-family:var(--mono); font-size:11px; color:var(--faint); margin-top:6px}
+
+/* 按钮 */
+.btn{display:inline-flex; align-items:center; justify-content:center; gap:8px; height:38px; padding:0 16px;
+  border-radius:9px; font-size:13.5px; font-weight:600; border:1px solid var(--line2); background:var(--panel); color:var(--ink)}
+.btn:hover{border-color:var(--acc-ring)}
+.btn svg{width:16px; height:16px}
+.btn.acc{background:linear-gradient(180deg,var(--acc),var(--acc2)); color:#fff; border:0;
+  box-shadow:0 1px 2px rgba(0,0,0,.12), 0 6px 16px var(--acc-ring)}
+.btn.acc:hover{filter:brightness(1.05)}
+.btn.run{width:100%; height:48px; font-size:15px; font-weight:700; margin-top:14px}
+.btn.dark{background:var(--ink); color:var(--bg); border:0}
+body.dark .btn.dark{background:#fff; color:#0B0D10}
+.selmini{height:32px; padding:0 11px; border:1px solid var(--line2); border-radius:8px; background:var(--panel);
+  color:var(--ink); font-family:var(--mono); font-size:12.5px}
+
+/* 关键词库表 */
+.kwbar{display:flex; align-items:center; gap:10px}
+.kwbar .kn{font-family:var(--mono); font-size:11.5px; color:var(--faint)}
+.kwbar .kn b{color:var(--acc2)}
+.tablewrap{border:1px solid var(--line); border-radius:10px; overflow:hidden}
+table{width:100%; border-collapse:collapse; font-size:13.5px}
+thead th{text-align:left; font-family:var(--mono); font-size:10px; letter-spacing:.08em; text-transform:uppercase;
+  color:var(--faint); font-weight:600; padding:9px 14px; background:var(--panel2); border-bottom:1px solid var(--line)}
+tbody td{padding:11px 14px; border-bottom:1px solid var(--line); vertical-align:middle}
+tbody tr:last-child td{border-bottom:0}
+tbody tr:hover td{background:var(--panel2)}
+.kterm{font-weight:600}
+.ksrc{font-family:var(--mono); font-size:11.5px; color:var(--faint)}
+.kpages{font-family:var(--mono); text-align:center; color:var(--ink2)}
+.chip{display:inline-flex; align-items:center; gap:5px; font-size:11.5px; font-weight:600; padding:2px 9px; border-radius:20px;
+  border:1px solid; background:var(--panel)}
+.chip::before{content:""; width:6px; height:6px; border-radius:50%; background:currentColor}
+.chip.pillar{color:var(--acc2); border-color:var(--acc-ring); background:var(--acc-wash)}
+.chip.commercial{color:var(--amber); border-color:color-mix(in srgb,var(--amber) 35%,transparent)}
+.chip.comparison{color:var(--blue); border-color:color-mix(in srgb,var(--blue) 35%,transparent)}
+.chip.application{color:var(--green); border-color:color-mix(in srgb,var(--green) 35%,transparent)}
+.chip.informational{color:var(--slate); border-color:color-mix(in srgb,var(--slate) 35%,transparent)}
+
+/* 主题切换浮钮(仅 mockup 用) */
+.themetoggle{position:fixed; right:18px; bottom:18px; z-index:99; height:40px; padding:0 16px; border-radius:22px;
+  border:1px solid var(--line2); background:var(--panel); color:var(--ink); font-size:13px; font-weight:600;
+  box-shadow:var(--shadow-lg); display:flex; align-items:center; gap:8px}
+
+.cols{display:grid; grid-template-columns:1fr 1fr; gap:16px; align-items:start}
+@media(max-width:920px){ .app{grid-template-columns:1fr} .rail{display:none} .grid2,.cols{grid-template-columns:1fr} }
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- ===== 侧栏 ===== -->
+  <aside class="rail">
+    <div class="brand">
+      <div class="logo">内</div>
+      <div><div class="bt">内容工厂</div><div class="bs">SEO Content Factory</div></div>
+    </div>
+    <button class="wsswitch" title="切换项目">
+      <span class="wdot"></span>
+      <span class="wn">PU Leather Demo Site</span>
+      <svg class="wc" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+    </button>
+    <div class="navgroup">
+      <div class="gl">工作区</div>
+      <a class="nav"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 12l9-9 9 9"/><path d="M5 10v10h14V10"/></svg>概览</a>
+      <a class="nav"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 7h6l2 2h10v10H3z"/></svg>项目</a>
+      <a class="nav"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>关键词库 <span class="ct">210</span></a>
+      <a class="nav on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l1.8 4.6L18 9l-4.2 1.4L12 15l-1.8-4.6L6 9l4.2-1.4z"/><path d="M5 18l.9 2.1L8 21l-2.1.9L5 24"/></svg>生成内容</a>
+      <a class="nav"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>确定性质检</a>
+      <a class="nav"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 16V4"/><path d="M7 9l5-5 5 5"/><path d="M5 20h14"/></svg>发布到 WordPress</a>
+    </div>
+    <div class="navgroup">
+      <div class="gl">系统</div>
+      <a class="nav"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.1-1l2-1.5-2-3.5-2.3 1a7 7 0 0 0-1.7-1L14.5 2h-5l-.4 2.5a7 7 0 0 0-1.7 1l-2.3-1-2 3.5L3.1 11a7 7 0 0 0 0 2l-2 1.5 2 3.5 2.3-1a7 7 0 0 0 1.7 1l.4 2.5h5l.4-2.5a7 7 0 0 0 1.7-1l2.3 1 2-3.5-2-1.5a7 7 0 0 0 .1-1z"/></svg>设置</a>
+    </div>
+    <div class="spacer"></div>
+    <div class="railfoot">
+      <div class="meter">
+        <div class="mh"><span>免费版 token</span><span><b>18k</b> / 100k</span></div>
+        <div class="track"><span class="fill"></span></div>
+        <div class="ms">本月剩余 82k · 6/30 重置</div>
+      </div>
+      <div class="acct">
+        <div class="avatar">D</div>
+        <span class="ae">demo@leather.com</span>
+        <a class="alo" title="登出"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 21H5V3h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg></a>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ===== 主区 ===== -->
+  <div class="main">
+    <div class="topbar">
+      <div class="crumb"><span>生成内容</span><span class="sep">/</span><b>透明操作台</b></div>
+      <div class="grow"></div>
+      <span class="tpill"><span class="d"></span>确定性质检 <b>就绪</b></span>
+      <button class="tbtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>帮助</button>
+      <button class="tbtn pri"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>新建生成</button>
+    </div>
+
+    <div class="canvas">
+      <div class="head">
+        <span class="eyebrow">▶ WordPress 页面制作 · 透明操作台</span>
+        <h1 class="h1">生成不黑箱,每页看得见。</h1>
+        <p class="sub">种子词 → 主题簇 → 逐页生成 → 确定性质检 → 预览 / 发布。生成时分两屏:
+          <b>左屏=数据·给搜索引擎</b>(关键词落位 + 规则打分),
+          <b>右屏=网页·给人</b>(去 AI 味的真页面)。两层权重,同步推进。</p>
+      </div>
+
+      <!-- KPI 数据条 -->
+      <div class="kpis">
+        <div class="kpi accent">
+          <div class="kl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4h16v14H4z"/><path d="M4 9h16M9 9v9"/></svg>已生成页面</div>
+          <div class="kv">12 <small>/ 18 计划</small></div>
+          <div class="kd"><span class="trend up">▲ +4</span> 本次运行</div>
+        </div>
+        <div class="kpi">
+          <div class="kl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>平均确定性质检</div>
+          <svg class="ring" viewBox="0 0 36 36"><circle cx="18" cy="18" r="15.5" fill="none" stroke="var(--line)" stroke-width="3.4"/><circle cx="18" cy="18" r="15.5" fill="none" stroke="var(--ok)" stroke-width="3.4" stroke-linecap="round" stroke-dasharray="84.7 97.4" transform="rotate(-90 18 18)"/></svg>
+          <div class="kv">87 <small>/ 100</small></div>
+          <div class="kd">11 页过线 · 1 页待修</div>
+        </div>
+        <div class="kpi">
+          <div class="kl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>关键词覆盖</div>
+          <div class="kv">210 <small>词</small></div>
+          <div class="kd"><span class="trend up">▲ 接地真抓</span> google / bing</div>
+        </div>
+        <div class="kpi">
+          <div class="kl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7z"/><path d="M9 12l2 2 4-4"/></svg>去重 · unique 化</div>
+          <div class="kv" style="color:var(--ok)">0 <small style="color:var(--faint)">撞稿</small></div>
+          <div class="kd"><span class="trend flat">MinHash/LSH</span> 全站互检通过</div>
+        </div>
+      </div>
+
+      <!-- 横向管线 -->
+      <div class="stepper">
+        <div class="step done"><span class="si">✓</span><span class="sl">种子词</span></div>
+        <span class="bar"></span>
+        <div class="step done"><span class="si">✓</span><span class="sl">主题簇</span></div>
+        <span class="bar"></span>
+        <div class="step now"><span class="si">3</span><span class="sl">逐页生成</span></div>
+        <span class="bar"></span>
+        <div class="step"><span class="si">4</span><span class="sl">确定性质检</span></div>
+        <span class="bar"></span>
+        <div class="step"><span class="si">5</span><span class="sl">预览 / 发布</span></div>
+      </div>
+
+      <!-- 00 演示横幅 -->
+      <div class="demo">
+        <div class="di"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 3l14 9-14 9z"/></svg></div>
+        <div class="dc">
+          <h4>样板演示 · 零依赖 · 看着生成</h4>
+          <p>用已生成样例(<span class="mk">output_src</span>)流式渲染整组互链样板站 —— 每渲染完一页就在右屏亮起真页面、左屏结算真分。无需 API key / 无需 WordPress。</p>
+        </div>
+        <div class="dctl">
+          <select class="selmini"><option>Datasheet Editorial(默认)</option></select>
+          <button class="btn acc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 3l14 9-14 9z"/></svg>看着生成</button>
+        </div>
+      </div>
+
+      <!-- 01 + 02 -->
+      <div class="grid2">
+        <div class="card">
+          <div class="card-h">
+            <span class="ci"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h16M4 12h16M4 17h10"/></svg></span>
+            <span><div class="ct">内容来源</div></span>
+          </div>
+          <div class="card-b">
+            <div class="opt sel">
+              <span class="rd"></span>
+              <span><div class="ol">行业配置(预设结构)</div><div class="od">从 <code>industries/*.yaml</code> 取已调好的站点架构</div>
+                <div class="field"><select><option>PU Leather (Synthetic Leather) — B2B Export Supplier</option></select></div>
+              </span>
+            </div>
+            <div class="opt">
+              <span class="rd"></span>
+              <span><div class="ol">现场种子关键词</div><div class="od">结构由 keyword-cluster / 接地规划现场生成</div></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-h">
+            <span class="ci"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="0.6" fill="currentColor"/></svg></span>
+            <span><div class="ct">目标</div></span>
+          </div>
+          <div class="card-b">
+            <div class="opt sel">
+              <span class="rd"></span>
+              <span><div class="ol">仅预览(不连 WordPress)</div><div class="od"><code>output/&lt;slug&gt;.html</code> + index.html · 需 writer 模型 key</div></span>
+            </div>
+            <div class="opt">
+              <span class="rd"></span>
+              <span><div class="ol">发布到 WordPress</div><div class="od">需 .env:<code>WP_SITE</code> / <code>WP_USER</code> / <code>WP_APP_PASSWORD</code></div></span>
+            </div>
+            <button class="btn acc run"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 3l14 9-14 9z"/></svg>运行管线</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 03 关键词库 -->
+      <div class="card" style="margin-top:16px">
+        <div class="card-h">
+          <span class="ci"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg></span>
+          <span><div class="ct">关键词库</div><div class="cs">接地真抓 · 词 + 买家意图 + 覆盖页数 + 来源,零 LLM 脑补、可复算</div></span>
+          <span class="cr">
+            <span class="kwbar"><span class="kn">共 <b>210</b> 个真实词</span></span>
+            <button class="btn" style="height:32px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg>刷新</button>
+          </span>
+        </div>
+        <div class="card-b">
+          <div class="tablewrap">
+            <table>
+              <thead><tr><th>关键词</th><th>意图</th><th style="text-align:center">覆盖页数</th><th>来源</th></tr></thead>
+              <tbody>
+                <tr><td class="kterm">pu leather supplier</td><td><span class="chip pillar">支柱页</span></td><td class="kpages">4</td><td class="ksrc">google·autocomplete</td></tr>
+                <tr><td class="kterm">pu leather vs genuine leather</td><td><span class="chip comparison">对比</span></td><td class="kpages">2</td><td class="ksrc">google·paa</td></tr>
+                <tr><td class="kterm">wholesale synthetic leather rolls</td><td><span class="chip commercial">商业意图</span></td><td class="kpages">3</td><td class="ksrc">bing·suggest</td></tr>
+                <tr><td class="kterm">pu leather for car seats</td><td><span class="chip application">应用场景</span></td><td class="kpages">2</td><td class="ksrc">google·autocomplete</td></tr>
+                <tr><td class="kterm">is pu leather waterproof</td><td><span class="chip informational">信息查询</span></td><td class="kpages">1</td><td class="ksrc">google·paa</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<button class="themetoggle" onclick="document.body.classList.toggle('dark')">◐ 切换 浅/深</button>
+</body>
+</html>

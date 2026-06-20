@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>我的项目 · 内容工厂</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&family=Roboto+Mono:wght@400;500;600&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..0" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='console.css') }}">
+<!--
+  项目列表 + 新建项目 —— Gemini 融合(近白底 + 动作蓝 #1A73E8 + Lexend + Material Symbols + 大圆角柔影 pill)。
+  配色/字体/按钮/输入/卡片复用 static/console.css 的 token 与基元;本页只留页面专属布局。
+  功能/逻辑/Jinja 与原版一字不差。零外部 JS。
+-->
+<style>
+  /* ---- 页面专属布局(配色/字体/组件复用 console.css)---- */
+  html,body{height:100%}
+  body{display:flex;flex-direction:column;min-height:100%}
+
+  /* 顶栏:Gemini sparkle 品牌 + 项目 pill 语气 */
+  .topbar{position:relative;z-index:1;justify-content:flex-start;
+    padding:0 clamp(18px,4vw,40px);background:var(--surface)}
+  .brand{display:flex;align-items:center;gap:11px}
+  .brand .spark{width:36px;height:36px}
+  .brand .spark .ms{font-size:21px}
+  .brand__txt b{display:block;font-weight:700;font-size:14.5px;letter-spacing:.2px;line-height:1.1;color:var(--ink)}
+  .brand__txt span{display:block;margin-top:2px;font-family:var(--mono);font-size:9px;letter-spacing:.24em;
+    text-transform:uppercase;color:var(--faint)}
+  .who{display:flex;align-items:center;gap:12px;font-size:13px;color:var(--ink2);margin-left:auto}
+  .who .email{font-family:var(--mono);font-size:12px;color:var(--gray)}
+  .who a.logout{display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 14px;border-radius:9999px;
+    color:var(--ink2);font-size:13px;font-weight:500;transition:background .2s var(--ease),color .2s var(--ease)}
+  .who a.logout:hover{background:var(--surface2);color:var(--danger);text-decoration:none}
+  .who a.logout .ms{font-size:18px;color:var(--gray)}
+
+  /* 主区 */
+  .wrap{position:relative;z-index:1;flex:1;width:100%;max-width:1040px;
+    margin:0 auto;padding:clamp(26px,5vw,48px) clamp(18px,4vw,40px)}
+  .headline{font-weight:700;font-size:clamp(28px,6vw,38px);line-height:1.08;letter-spacing:-.5px;
+    margin:0 0 8px;color:var(--ink)}
+  .headline .ms{font-size:.85em;background:var(--gem);background-size:300% 100%;
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    animation:animateGradient 6s linear infinite;vertical-align:-.06em;margin-right:6px}
+  .sub{color:var(--ink2);font-size:14px;margin:0 0 30px;max-width:62ch}
+
+  .columns{display:flex;gap:26px;align-items:flex-start;flex-wrap:wrap}
+  .col-new{flex:1 1 340px}
+  .col-list{flex:1 1 420px}
+
+  /* 面板 = console.css .card 的大圆角柔影 */
+  .panel{background:var(--surface);border:1px solid var(--line);border-radius:18px;
+    box-shadow:var(--shadow);padding:24px clamp(18px,3vw,26px)}
+  .panel__h{display:flex;align-items:center;gap:11px;margin:0 0 14px}
+  .panel__h .ci{width:32px;height:32px;border-radius:10px;background:var(--blue-wash);color:var(--blue);
+    display:grid;place-items:center;flex:none}
+  .panel__h .ci .ms{font-size:19px}
+  .panel__h h2{font-size:15px;font-weight:600;margin:0;color:var(--ink)}
+  .panel__h .count{margin-left:8px;font-family:var(--mono);font-size:11px;font-weight:600;
+    color:var(--blue);background:var(--blue-wash);padding:2px 9px;border-radius:9999px}
+  .panel .desc{font-size:12.5px;color:var(--gray);margin:0 0 18px;line-height:1.55}
+
+  /* 「或」分隔 */
+  .or{display:flex;align-items:center;gap:10px;margin:16px 0;color:var(--faint);
+    font-family:var(--mono);font-size:11px;letter-spacing:.1em}
+  .or::before,.or::after{content:"";flex:1;height:1px;background:var(--line)}
+
+  /* 项目列表项:蓝点 + 名称 + 进入 pill 按钮 */
+  .proj{display:flex;align-items:center;justify-content:space-between;gap:12px;
+    padding:14px 16px;border:1px solid var(--line);border-radius:14px;margin-bottom:10px;
+    background:var(--surface);transition:border-color .2s var(--ease),box-shadow .2s var(--ease),background .2s var(--ease)}
+  .proj:hover{border-color:var(--line2);background:var(--surface3);box-shadow:var(--shadow-sm)}
+  .proj__main{display:flex;align-items:center;gap:12px;min-width:0}
+  .proj__dot{width:9px;height:9px;border-radius:50%;background:var(--blue);flex:none}
+  .proj__txt{min-width:0}
+  .proj__txt b{display:block;font-size:14.5px;font-weight:600;color:var(--ink);
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .proj__txt .meta{font-family:var(--mono);font-size:11px;color:var(--gray);margin-top:3px}
+  .proj__go{flex:none}
+  .proj__go .ms{font-size:18px}
+  .empty{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--gray);
+    padding:18px 16px;line-height:1.6;background:var(--surface2);border-radius:14px}
+  .empty .ms{font-size:20px;color:var(--blue);flex:none;margin-top:1px}
+
+  .foot{position:relative;z-index:1;text-align:center;padding:0 20px 30px;
+    font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;color:var(--faint)}
+
+  @media (max-width:720px){.columns{flex-direction:column}}
+</style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="spark"><span class="ms">auto_awesome</span></div>
+      <div class="brand__txt">
+        <b>内容工厂</b>
+        <span>SEO Content Factory</span>
+      </div>
+    </div>
+    <div class="who">
+      {% if user %}<span class="email mono">{{ user.email }}</span>{% endif %}
+      <a class="logout" href="{{ url_for('auth.logout') }}"><span class="ms">logout</span>登出</a>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <h1 class="headline"><span class="ms">folder</span>我的项目</h1>
+    <p class="sub">每个项目是一组关键词/行业配置 + 它生成出来的 SEO 网页(按项目隔离,互不串户)。</p>
+
+    {% if error %}
+    <div class="alert"><span class="ms">error</span><span>{{ error }}</span></div>
+    {% endif %}
+
+    <div class="columns">
+      <!-- 新建项目 -->
+      <section class="col-new">
+        <div class="panel">
+          <div class="panel__h">
+            <div class="ci"><span class="ms">add</span></div>
+            <h2>新建项目</h2>
+          </div>
+          <p class="desc">选一个行业配置(稳妥好看的预设),或填一个种子关键词(现场真抓词聚簇)。</p>
+          <form method="post" action="{{ url_for('projects') }}" autocomplete="off">
+            <div class="field">
+              <label for="name">项目名(可选)</label>
+              <input type="text" id="name" name="name" placeholder="例如:皮革出口站">
+            </div>
+            <div class="field">
+              <label for="config">行业配置</label>
+              <select id="config" name="config">
+                <option value="">—— 不用预设,改填种子词 ——</option>
+                {% for c in configs %}
+                <option value="{{ c.file }}">{{ c.name }}（{{ c.file }}）</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="or">或</div>
+            <div class="field">
+              <label for="seed">种子关键词</label>
+              <input type="text" id="seed" name="seed" placeholder="例如:pu leather wholesale">
+            </div>
+            <button type="submit" class="btn pri block"><span class="ms">auto_awesome</span>创建并进操作台</button>
+          </form>
+        </div>
+      </section>
+
+      <!-- 项目列表 -->
+      <section class="col-list">
+        <div class="panel">
+          <div class="panel__h">
+            <div class="ci"><span class="ms">folder</span></div>
+            <h2>已有项目</h2>
+            <span class="count">{{ projects|length }}</span>
+          </div>
+          <p class="desc">点「进操作台」即可在该项目里跑管线、看双屏实时生成。</p>
+          {% if projects %}
+            {% for p in projects %}
+            <div class="proj">
+              <div class="proj__main">
+                <span class="proj__dot"></span>
+                <div class="proj__txt">
+                  <b>{{ p.name }}</b>
+                  <div class="meta">
+                    {% if p.config_path %}{{ p.config_path }}{% elif p.seed %}seed: {{ p.seed }}{% else %}—{% endif %}
+                    · 建于 {{ p.created }}
+                  </div>
+                </div>
+              </div>
+              <a class="btn pri proj__go" href="{{ url_for('index', project=p.id) }}">进操作台<span class="ms">arrow_forward</span></a>
+            </div>
+            {% endfor %}
+          {% else %}
+            <div class="empty"><span class="ms">lightbulb</span><span>还没有项目。左边新建一个,几秒后就能看到整组 SEO 网页生成出来。</span></div>
+          {% endif %}
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <div class="foot">© 内容工厂 · AI SEO CONTENT FACTORY</div>
+</body>
+</html>

@@ -1,0 +1,311 @@
+{% extends "admin/_shell.html" %}
+{% block title %}竞品拆解{% endblock %}
+
+{% block head %}
+<style>
+  /* competitors.html —— 只引用 console.css / admin.css 既有 token + adv-* 套件。
+     去 AI 味 v2:无糖果色 / 无亮底 chip / 单强调色(品牌蓝) / 实线分割。 */
+  .cmp-wrap{display:flex;flex-direction:column;gap:16px}
+
+  /* 顶部差异化注解条:去渐变背景 / 去彩虹动条 / 去红蓝高饱和染字,改实线左边框 */
+  .cmp-hook{border:1px solid var(--line);border-left:3px solid var(--blue);border-radius:var(--ad-r-lg);
+    background:var(--surface);padding:18px 20px}
+  .cmp-hook h1{margin:0 0 7px;font-size:18px;font-weight:600;color:var(--ink);display:flex;align-items:center;gap:9px}
+  .cmp-hook h1 .ms{font-size:20px;color:var(--gray)}
+  .cmp-hook p{margin:0;font-size:13.5px;line-height:1.7;color:var(--ink2);max-width:880px}
+  .cmp-hook .us{color:var(--ink);font-weight:600}
+  .cmp-hook .them{color:var(--ink2);font-weight:600}
+  .cmp-hook .moats{display:flex;flex-wrap:wrap;gap:8px;margin-top:13px}
+
+  .cmp-count{font-size:12.5px;color:var(--gray);display:flex;align-items:center;gap:8px;margin:2px 0 -2px}
+  .cmp-count .ms{font-size:16px;color:var(--gray)}
+  .cmp-count b{color:var(--ink);font-weight:600}
+
+  /* 竞品卡 */
+  .cmp-card{padding:0;overflow:hidden}
+  .cmp-card>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:14px;padding:14px 18px;
+    transition:background .16s var(--ease)}
+  .cmp-card>summary::-webkit-details-marker{display:none}
+  .cmp-card>summary:hover{background:var(--surface3)}
+  .cmp-card[open]>summary{border-bottom:1px solid var(--line);background:var(--surface3)}
+  .cmp-logo{width:38px;height:38px;border-radius:var(--ad-r-sm);flex:none;display:grid;place-items:center;
+    background:var(--surface2);color:var(--ink);font-weight:600;font-size:16px;font-family:var(--mono)}
+  .cmp-id{min-width:0;flex:1}
+  .cmp-id .nm{font-size:15px;font-weight:600;color:var(--ink);display:flex;align-items:center;gap:8px}
+  .cmp-id .nm a{font-size:13px}
+  .cmp-id .cat{margin-top:4px}
+  .cmp-stats{display:flex;align-items:center;gap:12px;flex:none}
+  .cmp-price{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:var(--ink2);font-family:var(--mono)}
+  .cmp-price .ms{font-size:15px;color:var(--gray)}
+  .cmp-chev{color:var(--gray);transition:transform .2s var(--ease)}
+  .cmp-card[open] .cmp-chev{transform:rotate(180deg)}
+
+  .cmp-body{padding:16px 18px 18px;display:flex;flex-direction:column;gap:16px}
+  .cmp-one{font-size:13px;line-height:1.7;color:var(--ink2);background:var(--surface3);border:1px solid var(--line);
+    border-radius:var(--ad-r);padding:12px 14px}
+
+  /* 四维摘要:一体化网格,1px 实线分割,去独立悬浮卡 */
+  .quad{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));border:1px solid var(--line);
+    border-radius:var(--ad-r);overflow:hidden;background:var(--surface)}
+  @media (max-width:880px){.quad{grid-template-columns:1fr}}
+  .quad .dim{padding:13px 14px;border-bottom:1px solid var(--line)}
+  .quad .dim:nth-child(odd){border-right:1px solid var(--line)}
+  .quad .dim:nth-last-child(-n+2){border-bottom:none}
+  @media (max-width:880px){.quad .dim:nth-child(odd){border-right:none}
+    .quad .dim:nth-last-child(2){border-bottom:1px solid var(--line)}}
+  .quad .dim .dh{display:flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;color:var(--ink);margin-bottom:7px}
+  .quad .dim .dh .ms{font-size:17px;color:var(--gray)}
+  .quad .dim p{margin:0;font-size:12px;line-height:1.65;color:var(--ink2)}
+  .quad .dim ul{margin:0;padding-left:16px;font-size:12px;line-height:1.65;color:var(--ink2)}
+  .quad .dim ul li{margin-bottom:3px}
+  /* 攻击面维度:仅靠左侧细边 + 状态字标注,不用红色染底块 */
+  .quad .dim.flag{background:var(--surface3)}
+  .quad .dim.flag .dh{justify-content:space-between}
+  .quad .dim.flag .dh .lt{display:flex;align-items:center;gap:7px}
+
+  .sec-h{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--ink);margin-bottom:2px}
+  .sec-h .ms{font-size:18px;color:var(--gray)}
+
+  /* 软肋逐条:中性边框 + 细灰左边,去红色强调左条 */
+  .wk{list-style:none;margin:0;padding:0;border:1px solid var(--line);border-radius:var(--ad-r);overflow:hidden;background:var(--surface)}
+  .wk li{padding:11px 14px;border-bottom:1px solid var(--line)}
+  .wk li:last-child{border-bottom:none}
+  .wk .wt{font-size:12.5px;font-weight:600;color:var(--ink);line-height:1.55}
+  .wk .we{font-size:12px;color:var(--gray);line-height:1.65;margin-top:5px}
+  .wk .we b{color:var(--ink2);font-weight:600}
+  .wk .ws{margin-top:7px}
+  .wk .ws a{display:inline-flex;align-items:center;gap:5px;max-width:100%;color:var(--blue);text-decoration:none}
+  .wk .ws a .ms{font-size:14px}
+  .wk .ws a span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+  /* 对抗核验:一体化列表,verdict 改 adv-status(圆点+文字,无亮底) */
+  .ver{border:1px solid var(--line);border-radius:var(--ad-r);overflow:hidden;background:var(--surface)}
+  .ver .vr{display:flex;align-items:flex-start;gap:12px;font-size:12px;line-height:1.65;color:var(--ink2);
+    padding:10px 14px;border-bottom:1px solid var(--line)}
+  .ver .vr:last-child{border-bottom:none}
+  .ver .vr .adv-status{flex:none;margin-top:1px;min-width:86px}
+
+  /* 功能 Gap 矩阵:业务绿 ✓ / 中性灰 ✗ / 低饱和琥珀弱,无满屏色块 */
+  .gap-tablewrap{overflow-x:auto}
+  table.gap{width:100%;border-collapse:collapse;font-size:13px;min-width:680px}
+  table.gap th,table.gap td{padding:11px 12px;text-align:center;border-bottom:1px solid var(--line)}
+  table.gap thead th{font-size:11.5px;font-weight:600;color:var(--gray);
+    border-bottom:1px solid var(--line2);position:sticky;top:0;background:var(--surface)}
+  table.gap th.who{text-align:left;font-weight:600;color:var(--ink);font-size:13px}
+  table.gap td.who{text-align:left;font-weight:600;color:var(--ink)}
+  table.gap td.who .sub{font-weight:400;font-size:11px;color:var(--faint);display:block;margin-top:1px}
+  /* 自家行:仅极淡品牌底 + 左侧 2px 蓝条,不抢眼 */
+  table.gap tr.ours{background:var(--blue-wash)}
+  table.gap tr.ours td.who{color:var(--blue-deep);box-shadow:inset 2px 0 0 var(--blue)}
+  table.gap tr.ours td.who .sub{color:var(--blue)}
+  /* 标记:文字符号 + 单色,无色块圆圈 */
+  .mk{display:inline-flex;align-items:center;justify-content:center;font-weight:600;font-size:14px;line-height:1}
+  .mk.y{color:#16A34A}
+  .mk.n{color:var(--faint)}
+  .mk.w{color:#D97706;font-size:11.5px;font-weight:600}
+  .gap-legend{display:flex;flex-wrap:wrap;gap:16px;padding:12px 16px 0;font-size:12px;color:var(--gray)}
+  .gap-legend span{display:inline-flex;align-items:center;gap:6px}
+</style>
+{% endblock %}
+
+{% block main %}
+<div class="cmp-wrap">
+
+  {# ① 顶部差异化注解 —— 演示杀招的钩子 #}
+  <section class="cmp-hook">
+    <h1><span class="ms">fact_check</span>竞品拆解 · 真档案与软肋</h1>
+    <p>
+      全场 <b>8</b> 家同类工具大多只给一个<span class="them">说不清依据的评分</span>,
+      靠「每个关键词各写一篇」当作差异化,既<span class="them">不去重</span>,也<span class="them">不做事实核查、不可解释、不透明</span>,
+      正撞 Google 批量低质内容处罚红线。我们反着来:<span class="us">可解释评分(每分有据)、去重与单页独特化、全程透明可追溯</span>。
+      这四样正是它们集体缺位的硬通货。下面每条结论都<b>可点开查看真实引用</b>。
+    </p>
+    <div class="moats">
+      <span class="adv-tag bd"><span class="ms" style="font-size:14px;margin-right:4px;color:var(--gray)">deduplication</span>去重与单页独特化</span>
+      <span class="adv-tag bd"><span class="ms" style="font-size:14px;margin-right:4px;color:var(--gray)">fact_check</span>事实核查</span>
+      <span class="adv-tag bd"><span class="ms" style="font-size:14px;margin-right:4px;color:var(--gray)">rule</span>可解释评分</span>
+      <span class="adv-tag bd"><span class="ms" style="font-size:14px;margin-right:4px;color:var(--gray)">visibility</span>全程透明</span>
+      <span class="adv-tag bd"><span class="ms" style="font-size:14px;margin-right:4px;color:var(--gray)">dns</span>端到端 WordPress 发布</span>
+    </div>
+  </section>
+
+  {# ② 竞品卡列表 #}
+  {% if competitors %}
+  <div class="cmp-count"><span class="ms">database</span>真竞品档案 <b>{{ competitors|length }}</b> 家 · 点开查看四维摘要、逐条软肋、对抗核验</div>
+
+  {% for c in competitors %}
+  {% set wcount = (c.weaknesses|length) if c.weaknesses else 0 %}
+  {% set tier0 = c.pricing.tiers[0] if (c.pricing and c.pricing.tiers) else None %}
+  <details class="card cmp-card">
+    <summary>
+      <span class="cmp-logo">{{ c.competitor[0]|upper }}</span>
+      <span class="cmp-id">
+        <span class="nm">{{ c.competitor }}{% if c.url %} <a href="{{ c.url }}" target="_blank" rel="noopener">官网</a>{% endif %}</span>
+        {% if c.category %}<span class="cat"><span class="adv-tag">{{ c.category }}</span></span>{% endif %}
+      </span>
+      <span class="cmp-stats">
+        <span class="adv-status warn" title="已采集软肋条数"><span class="dot"></span>软肋 {{ wcount }}</span>
+        {% if tier0 %}<span class="cmp-price" title="定价锚点(首档)"><span class="ms">sell</span>{{ tier0.name }} · {{ tier0.priceUSD }}</span>{% endif %}
+        <span class="ms cmp-chev">expand_more</span>
+      </span>
+    </summary>
+
+    <div class="cmp-body">
+      {% if c.oneLiner %}<div class="cmp-one">{{ c.oneLiner }}</div>{% endif %}
+
+      {# 四维摘要:核心能力 · 发布 · 质检/去重(软肋面) · 集成 #}
+      <div>
+        <div class="sec-h"><span class="ms">grid_view</span>四维摘要</div>
+        <div class="quad" style="margin-top:9px">
+          <div class="dim">
+            <div class="dh"><span class="ms">category</span>核心能力与差异化</div>
+            {% if c.differentiators %}
+            <ul>{% for d in c.differentiators[:4] %}<li>{{ d }}</li>{% endfor %}</ul>
+            {% elif c.features and c.features.core %}
+            <ul>{% for f in c.features.core[:4] %}<li>{{ f }}</li>{% endfor %}</ul>
+            {% else %}<p>暂无采集。</p>{% endif %}
+          </div>
+          <div class="dim">
+            <div class="dh"><span class="ms">dns</span>发布能力</div>
+            {% if c.features and c.features.publishing %}<p>{{ c.features.publishing }}</p>
+            {% else %}<p>暂无采集。</p>{% endif %}
+          </div>
+          <div class="dim flag">
+            <div class="dh">
+              <span class="lt"><span class="ms">fact_check</span>质检与去重(攻击面)</span>
+              <span class="adv-status warn"><span class="dot"></span>软肋面</span>
+            </div>
+            {% if c.features and c.features.qualityControls %}<p>{{ c.features.qualityControls }}</p>
+            {% else %}<p>未见独立去重、事实核查或可解释质检模块。</p>{% endif %}
+          </div>
+          <div class="dim">
+            <div class="dh"><span class="ms">account_tree</span>集成与生态</div>
+            {% if c.features and c.features.integrations %}
+            <p>{{ c.features.integrations[:8]|join(" · ") }}{% if c.features.integrations|length > 8 %} 等 {{ c.features.integrations|length }} 项{% endif %}</p>
+            {% else %}<p>暂无采集。</p>{% endif %}
+          </div>
+        </div>
+      </div>
+
+      {# 软肋逐条:weakness + evidence + sourceUrl #}
+      {% if c.weaknesses %}
+      <div>
+        <div class="sec-h"><span class="ms">flag</span>软肋逐条<span class="adv-code" style="margin-left:auto">{{ wcount }} 条</span></div>
+        <ul class="wk" style="margin-top:9px">
+          {% for w in c.weaknesses %}
+          <li>
+            <div class="wt">{{ loop.index }}. {{ w.weakness }}</div>
+            {% if w.evidence %}<div class="we"><b>证据:</b>{{ w.evidence }}</div>{% endif %}
+            {% if w.sourceUrl %}
+            <div class="ws"><a href="{{ w.sourceUrl }}" target="_blank" rel="noopener"><span class="ms">link</span><span>{{ w.sourceUrl }}</span></a></div>
+            {% endif %}
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+
+      {# 对抗核验 verdict 用 adv-status(去亮底):confirmed→ok / refuted→warn / uncertain→plan #}
+      {% if c.verifications %}
+      <div>
+        <div class="sec-h"><span class="ms">fact_check</span>对抗核验<span class="adv-code" style="margin-left:auto">{{ c.verifications|length }} 项</span></div>
+        <div class="ver" style="margin-top:9px">
+          {% for v in c.verifications %}
+          <div class="vr">
+            {% if v.verdict == 'confirmed' %}<span class="adv-status ok"><span class="dot"></span>已证实</span>
+            {% elif v.verdict == 'refuted' %}<span class="adv-status warn"><span class="dot"></span>已推翻</span>
+            {% else %}<span class="adv-status plan"><span class="dot"></span>待定</span>{% endif %}
+            <span>{{ v.claim }}</span>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </details>
+  {% endfor %}
+
+  {% else %}
+  <div class="card" style="padding:22px;text-align:center;color:var(--faint)">
+    暂无竞品档案数据(research/competitor-dossiers.json 未读到)。
+  </div>
+  {% endif %}
+
+  {# ③ 功能 Gap 矩阵 —— 8 家 + 我们;数据按竞品歼灭报告硬编 #}
+  <section class="card">
+    <div class="card-h">
+      <span class="ci"><span class="ms">grid_view</span></span>
+      <span class="ct">功能差距矩阵</span>
+      <span class="cs">行为 8 家竞品与我们;列为四样硬通货与 WordPress 发布。具备、弱、缺位三档</span>
+    </div>
+    <div class="gap-legend">
+      <span><span class="mk y">✓</span> 真具备</span>
+      <span><span class="mk w">弱</span> 仅话术、半成品或需人工补</span>
+      <span><span class="mk n">✗</span> 缺位</span>
+    </div>
+    <div class="card-b gap-tablewrap">
+      <table class="gap">
+        <thead>
+          <tr>
+            <th class="who">产品</th>
+            <th>去重独特化</th>
+            <th>事实核查</th>
+            <th>可解释评分</th>
+            <th>全程透明</th>
+            <th>WordPress 发布</th>
+          </tr>
+        </thead>
+        <tbody>
+          {# 数据取自竞品歼灭报告结论:8 家全缺去重/事实核查/可解释/透明 #}
+          <tr>
+            <td class="who">Byword<span class="sub">批量生成与自动发布</span></td>
+            <td><span class="mk n">✗</span></td><td><span class="mk n">✗</span></td><td><span class="mk n">✗</span></td><td><span class="mk n">✗</span></td>
+            <td><span class="mk w">弱</span></td>
+          </tr>
+          <tr>
+            <td class="who">KoalaWriter<span class="sub">实时检索数据与一键发布</span></td>
+            <td><span class="mk n">✗</span></td><td><span class="mk w">弱</span></td><td><span class="mk n">✗</span></td><td><span class="mk n">✗</span></td>
+            <td><span class="mk y">✓</span></td>
+          </tr>
+          <tr>
+            <td class="who">SEO.ai<span class="sub">SEO 写作与关键词</span></td>
+            <td><span class="mk n">✗</span></td><td><span class="mk n">✗</span></td><td><span class="mk w">弱</span></td><td><span class="mk n">✗</span></td>
+            <td><span class="mk w">弱</span></td>
+          </tr>
+          <tr>
+            <td class="who">Surfer SEO<span class="sub">Content Score 优化</span></td>
+            <td><span class="mk n">✗</span></td><td><span class="mk n">✗</span></td><td><span class="mk w">弱</span></td><td><span class="mk n">✗</span></td>
+            <td><span class="mk w">弱</span></td>
+          </tr>
+          <tr>
+            <td class="who">Frase<span class="sub">先取 SERP 再生成简报与写作</span></td>
+            <td><span class="mk n">✗</span></td><td><span class="mk n">✗</span></td><td><span class="mk n">✗</span></td><td><span class="mk n">✗</span></td>
+            <td><span class="mk n">✗</span></td>
+          </tr>
+          <tr>
+            <td class="who">Jasper<span class="sub">企业级AI内容平台</span></td>
+            <td><span class="mk n">✗</span></td><td><span class="mk n">✗</span></td><td><span class="mk n">✗</span></td><td><span class="mk n">✗</span></td>
+            <td><span class="mk n">✗</span></td>
+          </tr>
+          <tr>
+            <td class="who">Semrush ContentShake<span class="sub">SEO 套件 AI 模块</span></td>
+            <td><span class="mk n">✗</span></td><td><span class="mk n">✗</span></td><td><span class="mk w">弱</span></td><td><span class="mk n">✗</span></td>
+            <td><span class="mk w">弱</span></td>
+          </tr>
+          <tr>
+            <td class="who">SEOmatic<span class="sub">程序化批量建页</span></td>
+            <td><span class="mk w">弱</span></td><td><span class="mk n">✗</span></td><td><span class="mk w">弱</span></td><td><span class="mk n">✗</span></td>
+            <td><span class="mk y">✓</span></td>
+          </tr>
+          <tr class="ours">
+            <td class="who">AI SEO 内容工厂<span class="sub">我们 · 本平台</span></td>
+            <td><span class="mk y">✓</span></td><td><span class="mk y">✓</span></td><td><span class="mk y">✓</span></td><td><span class="mk y">✓</span></td>
+            <td><span class="mk y">✓</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+</div>
+{% endblock %}

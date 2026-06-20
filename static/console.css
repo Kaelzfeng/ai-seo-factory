@@ -1,0 +1,142 @@
+/* ============================================================
+   内容工厂 · 共享设计系统(Gemini 融合)
+   实地抠自 gemini.google.com 的 token / 渐变 / 缓动 / keyframes。
+   字体 Lexend(≈Google Sans·OFL)+ Roboto Mono(数字·OFL)+
+   Material Symbols Rounded(Gemini 同款图标字·Apache)+ Noto Sans SC(中文·OFL)。
+   三页(index/login/projects)统一引用。页面专属布局留在各自 <style>。
+   字体 <link> 放在各模板 <head>(见模板)。
+   ============================================================ */
+:root{
+  --bg:#FDFCFC; --surface:#FFFFFF; --surface2:#F0F4F9; --surface3:#F8FAFD;
+  --ink:#1F1F1F; --ink2:#444746; --gray:#5F6368; --faint:#9AA0A6;
+  --line:#E8E8E5; --line2:#DADCE0;
+  --blue:#1A73E8; --blue-bright:#3C90FF; --blue-deep:#004A77; --blue-wash:#E8F0FE; --blue-surf:#C2E7FF;
+  --ok:#1E8E3E; --ok-wash:#E6F4EA; --warn:#E37400; --warn-wash:#FEF7E0; --danger:#D93025; --danger-wash:#FCE8E6;
+  /* 招牌 Gemini 渐变:蓝→紫→粉(完整 sweep 续 红/橙/黄/绿) */
+  --gem:linear-gradient(90deg,#3C90FF,#AD72FF,#F96BD6,#FF5A59,#FF9238,#FFCF03,#88DE42,#3C90FF);
+  --sans:"Lexend","Noto Sans SC","Microsoft YaHei","PingFang SC",system-ui,sans-serif;
+  /* 数字/拉丁走 Roboto Mono;中文字形 Roboto Mono 没有 → 逐字回退 Noto Sans SC,
+     不再掉进系统默认等宽 CJK(那个「没字体」的丑样)。per-glyph fallback。 */
+  --mono:"Roboto Mono","Noto Sans SC",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --ease:cubic-bezier(.2,0,0,1);
+  --shadow-sm:0 1px 2px rgba(0,0,0,.05);
+  --shadow:0 1px 3px rgba(0,0,0,.05),0 8px 24px rgba(0,0,0,.05);
+  --shadow-lg:0 1px 3px rgba(0,0,0,.06),0 18px 44px rgba(0,0,0,.12);
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14px;line-height:1.55;
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+a{color:var(--blue);text-decoration:none}
+a:hover{text-decoration:underline}
+button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit}
+.mono{font-family:var(--mono);font-feature-settings:"tnum" 1}
+::selection{background:var(--blue-wash)}
+
+/* Material Symbols Rounded —— Gemini 同款图标字 */
+.ms{font-family:'Material Symbols Rounded';font-weight:400;font-style:normal;line-height:1;letter-spacing:normal;
+  display:inline-block;white-space:nowrap;-webkit-font-smoothing:antialiased;vertical-align:middle;
+  font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24;font-size:22px}
+.ms.fill{font-variation-settings:'FILL' 1,'wght' 500}
+
+/* ---------- 按钮 ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:40px;padding:0 18px;
+  border-radius:9999px;font-size:14px;font-weight:600;color:var(--ink2);border:1px solid var(--line2);
+  background:var(--surface);transition:background .2s var(--ease),box-shadow .2s var(--ease),filter .2s var(--ease)}
+.btn:hover{background:var(--surface2);text-decoration:none}
+.btn .ms{font-size:19px}
+.btn.pri{background:var(--blue);color:#fff;border:0;box-shadow:0 1px 2px rgba(0,0,0,.12)}
+.btn.pri:hover{filter:brightness(1.06);background:var(--blue)}
+.btn.pri .ms{color:#fff}
+.btn.ghost{background:transparent;border-color:transparent;color:var(--blue)}
+.btn.block{width:100%}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.iconbtn{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;color:var(--gray);
+  transition:background .2s var(--ease)}
+.iconbtn:hover{background:var(--surface2)}
+
+/* ---------- 表单 ---------- */
+.field{margin-bottom:15px}
+.field label{display:block;font-size:12.5px;font-weight:600;color:var(--ink2);margin-bottom:6px}
+.field input,.field select{width:100%;height:44px;padding:0 14px;font-size:14.5px;font-family:var(--sans);
+  color:var(--ink);background:var(--surface);border:1px solid var(--line2);border-radius:12px;
+  transition:border-color .2s var(--ease),box-shadow .2s var(--ease)}
+.field input::placeholder{color:var(--faint)}
+.field input:focus,.field select:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px var(--blue-wash)}
+.field .hint{font-family:var(--mono);font-size:11px;color:var(--faint);margin-top:6px}
+
+/* ---------- 卡片 ---------- */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow-sm)}
+.card-h{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--line)}
+.card-h .ci{width:28px;height:28px;border-radius:9px;background:var(--blue-wash);color:var(--blue);
+  display:grid;place-items:center;flex:none}
+.card-h .ci .ms{font-size:18px}
+.card-h .ct{font-weight:600;font-size:14.5px}
+.card-h .cs{font-size:12.5px;color:var(--faint)}
+.card-b{padding:16px}
+
+/* ---------- chip / 意图标签 ---------- */
+.chip{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 12px;border-radius:9999px;
+  background:var(--surface2);font-size:12.5px;font-weight:500;color:var(--ink2)}
+.chip .ms{font-size:16px;color:var(--gray)}
+.kchip{font-family:var(--mono);font-size:11px;font-weight:600;padding:2px 9px;border-radius:9999px}
+.kchip.pillar{color:var(--blue);background:var(--blue-wash)}
+.kchip.comparison,.kchip.cmp{color:#9334E6;background:#F3E8FD}
+.kchip.commercial,.kchip.com{color:var(--warn);background:var(--warn-wash)}
+.kchip.application,.kchip.app{color:var(--ok);background:var(--ok-wash)}
+.kchip.informational,.kchip.info{color:var(--gray);background:var(--surface2)}
+
+/* ---------- 品牌 / sparkle ---------- */
+.spark{border-radius:50%;background:var(--gem);background-size:300% 100%;
+  animation:animateGradient 6s linear infinite;display:grid;place-items:center}
+.spark .ms{color:#fff}
+.brandmark{width:36px;height:36px;border-radius:10px;background:linear-gradient(150deg,var(--blue-bright),var(--blue));
+  display:grid;place-items:center;color:#fff;font-weight:700}
+
+/* ---------- 计量条 ---------- */
+.meter{display:inline-flex;align-items:center;gap:9px;height:34px;padding:0 13px;border-radius:9999px;
+  border:1px solid var(--line2);font-family:var(--mono);font-size:12px;color:var(--gray)}
+.meter b{color:var(--ink);font-weight:600}
+.meter .bar{width:48px;height:5px;border-radius:5px;background:var(--line2);overflow:hidden}
+.meter .bar i{display:block;height:100%;width:18%;background:var(--blue)}
+.meter.low .bar i{background:var(--warn)} .meter.over{border-color:var(--danger)} .meter.over .bar i{background:var(--danger)}
+
+/* ---------- 项目 pill / 切换器 ---------- */
+.projpill{display:inline-flex;align-items:center;gap:8px;height:38px;padding:0 14px;border-radius:9999px;
+  background:var(--surface2);color:var(--ink);font-weight:500;font-size:13.5px;transition:background .2s var(--ease)}
+.projpill:hover{background:var(--blue-wash);text-decoration:none}
+.projpill .dot{width:8px;height:8px;border-radius:50%;background:var(--blue);flex:none}
+.projpill .ms{font-size:18px;color:var(--gray)}
+
+/* ---------- 图标导航条(index 用) ---------- */
+.rail{background:var(--surface);border-right:1px solid var(--line);display:flex;flex-direction:column;
+  align-items:center;padding:14px 0;gap:6px}
+.rail .rnav{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;color:var(--gray);
+  transition:background .2s var(--ease),color .2s var(--ease)}
+.rail .rnav .ms{font-size:24px}
+.rail .rnav:hover{background:var(--surface2);color:var(--ink)}
+.rail .rnav.on{background:var(--blue-wash);color:var(--blue)}
+.rail .rnav.on .ms{font-variation-settings:'FILL' 1,'wght' 500}
+.rail .grow{flex:1}
+.ravatar{width:34px;height:34px;border-radius:50%;background:#7B5EA7;color:#fff;display:grid;place-items:center;
+  font-weight:600;font-size:14px}
+
+/* ---------- 顶栏 ---------- */
+.topbar{height:60px;display:flex;align-items:center;gap:14px;padding:0 22px;border-bottom:1px solid var(--line)}
+.topbar .ttl{font-weight:600;font-size:15px}
+.topbar .grow{flex:1}
+
+/* ---------- alert ---------- */
+.alert{display:flex;align-items:flex-start;gap:9px;background:var(--danger-wash);border:1px solid #F3C0BC;
+  color:var(--danger);font-size:13px;line-height:1.5;padding:11px 13px;border-radius:12px;margin-bottom:18px}
+.alert .ms{font-size:18px;flex:none}
+
+/* ---------- Gemini 关键 keyframes(实地抠自 gemini.google.com) ---------- */
+@keyframes animateGradient{0%{background-position:200% center}100%{background-position:0 center}}
+@keyframes gemShimmer{0%{background-position:100% 0}70%,100%{background-position:0 0}}
+@keyframes entry{0%{opacity:0;transform:translateY(8px)}100%{opacity:1;transform:none}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes sweepBG{0%{translate:-40px 0}50%{translate:40px 0}100%{translate:-40px 0}}
+@keyframes morphBG{0%{border-radius:54% 46% 50% 50%/50% 54% 46% 50%}
+  50%{border-radius:44% 56% 54% 46%/56% 44% 56% 44%}
+  100%{border-radius:54% 46% 50% 50%/50% 54% 46% 50%}}

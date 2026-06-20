@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="robots" content="noindex" />
+<title>PU Leather vs PVC Leather: Key Differences Explained</title>
+<meta name="description" content="PU leather vs PVC leather — compare breathability, durability, hydrolysis resistance, and cost. Real specs from a B2B supplier with 12 years export experience." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=Archivo+Black&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --paper:#F2EEE3;
+    --paper-2:#ECE6D7;
+    --ink:#15110B;
+    --accent:#E2402A;
+    --accent-deep:#B82E1C;
+    --muted:#6B6357;
+    --line:#D8D1C2;
+    --line-strong:#C4BBA6;
+    --th-bg:#EAE4D6;
+    --measure:68ch;
+    --maxw:1180px;
+    --gutter:clamp(20px,5vw,72px);
+  }
+
+  *,*::before,*::after{box-sizing:border-box;}
+
+  html{ -webkit-text-size-adjust:100%; scroll-behavior:smooth; }
+
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:"Newsreader",Georgia,serif;
+    font-size:1.0625rem;
+    line-height:1.72;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+    overflow-x:hidden;
+  }
+
+  /* ---- paper grain / noise overlay ---- */
+  body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    z-index:9999;
+    pointer-events:none;
+    opacity:.045;
+    mix-blend-mode:multiply;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  ::selection{ background:var(--accent); color:var(--paper); }
+
+  a{ color:inherit; }
+
+  /* ---------- TOP BAR ---------- */
+  .topbar{
+    position:sticky;
+    top:0;
+    z-index:50;
+    background:rgba(242,238,227,.86);
+    backdrop-filter:saturate(140%) blur(8px);
+    -webkit-backdrop-filter:saturate(140%) blur(8px);
+    border-bottom:1px solid var(--line);
+  }
+  .topbar__inner{
+    max-width:var(--maxw);
+    margin:0 auto;
+    padding:0 var(--gutter);
+    display:flex;
+    align-items:stretch;
+    justify-content:space-between;
+    gap:24px;
+    min-height:64px;
+  }
+  .brand{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    text-decoration:none;
+    color:var(--ink);
+    flex-shrink:0;
+  }
+  .brand__mark{
+    width:30px;height:30px;
+    flex-shrink:0;
+    display:grid;place-items:center;
+    background:var(--ink);
+    color:var(--paper);
+    font-family:"Archivo Black","Archivo",sans-serif;
+    font-size:1rem;
+    line-height:1;
+    transform:rotate(-3deg);
+  }
+  .brand__mark span{ transform:rotate(3deg); }
+  .brand__txt{ display:flex; flex-direction:column; line-height:1.05; }
+  .brand__name{
+    font-family:"Archivo",sans-serif;
+    font-weight:900;
+    letter-spacing:-.01em;
+    font-size:.98rem;
+    text-transform:uppercase;
+  }
+  .brand__est{
+    font-family:"IBM Plex Mono",monospace;
+    font-size:.58rem;
+    letter-spacing:.18em;
+    text-transform:uppercase;
+    color:var(--muted);
+    margin-top:2px;
+  }
+
+  nav.mainnav{
+    display:flex;
+    align-items:stretch;
+    gap:0;
+    overflow-x:auto;
+    scrollbar-width:none;
+    -ms-overflow-style:none;
+  }
+  nav.mainnav::-webkit-scrollbar{ display:none; }
+  nav.mainnav a{
+    display:flex;
+    align-items:center;
+    padding:0 14px;
+    text-decoration:none;
+    color:var(--muted);
+    font-family:"IBM Plex Mono",monospace;
+    font-size:.66rem;
+    font-weight:500;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    white-space:nowrap;
+    position:relative;
+    transition:color .18s ease;
+  }
+  nav.mainnav a::after{
+    content:"";
+    position:absolute;
+    left:14px;right:14px;bottom:18px;
+    height:2px;
+    background:var(--accent);
+    transform:scaleX(0);
+    transform-origin:left;
+    transition:transform .22s ease;
+  }
+  nav.mainnav a:hover{ color:var(--ink); }
+  nav.mainnav a:hover::after{ transform:scaleX(1); }
+  nav.mainnav a.active{ color:var(--ink); }
+  nav.mainnav a.active::after{ transform:scaleX(1); background:var(--accent); }
+
+  /* ---------- BREADCRUMB ---------- */
+  .crumb{
+    max-width:var(--maxw);
+    margin:0 auto;
+    padding:14px var(--gutter) 0;
+    font-family:"IBM Plex Mono",monospace;
+    font-size:.66rem;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    color:var(--muted);
+  }
+  .crumb a{ color:var(--muted); text-decoration:none; transition:color .15s; }
+  .crumb a:hover{ color:var(--accent); }
+  .crumb .sep{ color:var(--line-strong); margin:0 8px; }
+  .crumb .here{ color:var(--ink); }
+
+  /* ---------- HERO ---------- */
+  .hero{
+    max-width:var(--maxw);
+    margin:0 auto;
+    padding:clamp(34px,6vw,72px) var(--gutter) clamp(30px,4.5vw,52px);
+    position:relative;
+  }
+  .hero__kicker{
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    font-family:"IBM Plex Mono",monospace;
+    font-size:.68rem;
+    letter-spacing:.22em;
+    text-transform:uppercase;
+    color:var(--accent-deep);
+    margin-bottom:clamp(20px,3vw,34px);
+  }
+  .hero__kicker .tick{
+    width:30px;height:1px;background:var(--accent);display:inline-block;
+  }
+  .hero__kicker .doc{
+    color:var(--muted);
+  }
+
+  .hero__title{
+    font-family:"Archivo Black","Archivo",sans-serif;
+    font-weight:900;
+    font-size:clamp(2.7rem,7.4vw,5.5rem);
+    line-height:.95;
+    letter-spacing:-.022em;
+    margin:0;
+    max-width:14ch;
+    text-wrap:balance;
+  }
+  .hero__title .vm{ color:var(--accent); }
+
+  .hero__lede{
+    font-family:"Newsreader",serif;
+    font-size:clamp(1.08rem,1.9vw,1.35rem);
+    line-height:1.55;
+    color:var(--ink);
+    max-width:58ch;
+    margin:clamp(20px,3vw,30px) 0 0;
+    font-weight:400;
+  }
+  .hero__lede em{ color:var(--muted); font-style:italic; }
+
+  .chips{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-top:clamp(26px,3.5vw,38px);
+    padding-top:clamp(22px,3vw,30px);
+    border-top:1px solid var(--line);
+  }
+  .chip{
+    font-family:"IBM Plex Mono",monospace;
+    font-size:.68rem;
+    letter-spacing:.05em;
+    text-transform:uppercase;
+    padding:7px 12px;
+    border:1px solid var(--line-strong);
+    background:transparent;
+    color:var(--ink);
+    display:inline-flex;
+    align-items:center;
+    gap:7px;
+    transition:border-color .18s,background .18s;
+  }
+  .chip::before{
+    content:"";
+    width:5px;height:5px;border-radius:50%;
+    background:var(--accent);
+    flex-shrink:0;
+  }
+  .chip:hover{ border-color:var(--accent); background:rgba(226,64,42,.05); }
+  .chip strong{ font-weight:600; }
+
+  /* ---------- ARTICLE ---------- */
+  .sheet{
+    max-width:var(--maxw);
+    margin:0 auto;
+    padding:0 var(--gutter) clamp(60px,8vw,110px);
+  }
+  .article{
+    counter-reset:h2;
+    max-width:var(--measure);
+    margin:0;
+  }
+  /* The in-article heading is the real H1; the hero uses non-h1 text.
+     This rule styles that article-level top heading as an eyebrow line. */
+  .article h1{
+    font-family:"Archivo",sans-serif;
+    font-weight:800;
+    font-size:clamp(1.05rem,2vw,1.3rem);
+    line-height:1.25;
+    letter-spacing:.01em;
+    text-transform:uppercase;
+    color:var(--muted);
+    margin:0 0 clamp(26px,4vw,40px);
+    padding-bottom:18px;
+    border-bottom:2px solid var(--ink);
+    max-width:100%;
+  }
+
+  .article > p{
+    margin:0 0 1.35em;
+    font-size:1.115rem;
+    line-height:1.74;
+    color:#211B12;
+  }
+  .article > p:first-of-type::first-letter,
+  .article h1 + p::first-letter{
+    /* intentionally none — keep editorial restraint */
+  }
+
+  .article h2{
+    counter-increment:h2;
+    font-family:"Archivo",sans-serif;
+    font-weight:800;
+    font-size:clamp(1.55rem,3.2vw,2.3rem);
+    line-height:1.08;
+    letter-spacing:-.018em;
+    color:var(--ink);
+    margin:clamp(48px,6vw,74px) 0 .55em;
+    padding-top:clamp(34px,4.5vw,48px);
+    border-top:1px solid var(--line);
+    position:relative;
+    text-wrap:balance;
+  }
+  .article h2::before{
+    content:counter(h2,decimal-leading-zero) "  —";
+    display:block;
+    font-family:"IBM Plex Mono",monospace;
+    font-size:.78rem;
+    font-weight:500;
+    letter-spacing:.16em;
+    color:var(--accent);
+    margin-bottom:14px;
+    text-transform:none;
+  }
+
+  .article h3{
+    font-family:"Archivo",sans-serif;
+    font-weight:700;
+    font-size:1.2rem;
+    letter-spacing:-.01em;
+    margin:2em 0 .5em;
+    color:var(--ink);
+  }
+
+  .article a{
+    color:var(--ink);
+    text-decoration:none;
+    background-image:linear-gradient(var(--accent),var(--accent));
+    background-position:0 100%;
+    background-repeat:no-repeat;
+    background-size:100% 1.5px;
+    padding-bottom:1px;
+    transition:background-size .2s ease,color .2s ease;
+  }
+  .article a:hover{
+    color:var(--accent-deep);
+    background-size:100% calc(100% );
+    background-image:linear-gradient(rgba(226,64,42,.12),rgba(226,64,42,.12));
+  }
+
+  .article ul{
+    list-style:none;
+    margin:1.6em 0 1.8em;
+    padding:0;
+  }
+  .article ul li{
+    position:relative;
+    padding:.62em 0 .62em 34px;
+    border-bottom:1px solid var(--line);
+    font-size:1.05rem;
+    line-height:1.6;
+  }
+  .article ul li:first-child{ border-top:1px solid var(--line); }
+  .article ul li::before{
+    content:"";
+    position:absolute;
+    left:6px;
+    top:1.18em;
+    width:9px;height:9px;
+    background:var(--accent);
+    transform:rotate(45deg);
+  }
+
+  /* ---------- DATASHEET TABLE ---------- */
+  .article table{
+    width:100%;
+    border-collapse:collapse;
+    margin:1.8em 0 2em;
+    font-family:"Newsreader",serif;
+    background:var(--paper);
+    border:1px solid var(--line-strong);
+    display:block;
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+  }
+  .table-scroll{
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+    margin:1.9em 0 2.2em;
+    border:1px solid var(--line-strong);
+  }
+  .table-scroll table{ margin:0; border:none; min-width:600px; display:table; }
+
+  .article thead th{
+    background:var(--th-bg);
+    color:var(--ink);
+    text-align:left;
+    font-family:"IBM Plex Mono",monospace;
+    font-weight:600;
+    font-size:.64rem;
+    letter-spacing:.13em;
+    text-transform:uppercase;
+    padding:13px 16px;
+    border-bottom:2px solid var(--ink);
+    white-space:nowrap;
+  }
+  .article tbody td{
+    padding:12px 16px;
+    border-bottom:1px solid var(--line);
+    font-size:.98rem;
+    vertical-align:top;
+    color:#241D14;
+  }
+  .article tbody tr:last-child td{ border-bottom:none; }
+  .article tbody tr:hover{ background:rgba(226,64,42,.035); }
+  /* property column = label */
+  .article tbody td:first-child{
+    font-family:"Archivo",sans-serif;
+    font-weight:600;
+    color:var(--ink);
+    width:24%;
+  }
+  /* range column = mono numeric datasheet feel */
+  .article tbody td:nth-child(2){
+    font-family:"IBM Plex Mono",monospace;
+    font-size:.86rem;
+    letter-spacing:-.01em;
+    color:var(--accent-deep);
+    font-weight:500;
+    white-space:nowrap;
+  }
+  /* test standard column = mono uppercase */
+  .article tbody td:nth-child(3){
+    font-family:"IBM Plex Mono",monospace;
+    font-size:.76rem;
+    letter-spacing:.04em;
+    text-transform:uppercase;
+    color:var(--muted);
+    white-space:nowrap;
+  }
+  .article tbody td:nth-child(4){
+    color:var(--muted);
+    font-size:.95rem;
+  }
+
+  /* ---------- INDEX GROUPS ---------- */
+  .article .grp-skip{
+    font-family:"IBM Plex Mono",monospace;
+    font-size:.6rem;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color:var(--muted);
+    border:1px solid var(--line-strong);
+    padding:2px 7px;
+    margin-left:8px;
+    vertical-align:middle;
+  }
+  .article .grp-kind{ font-weight:600; }
+
+  /* ---------- FOOTER ---------- */
+  .footer{
+    border-top:2px solid var(--ink);
+    background:var(--paper-2);
+  }
+  .footer__inner{
+    max-width:var(--maxw);
+    margin:0 auto;
+    padding:clamp(36px,5vw,56px) var(--gutter);
+    display:flex;
+    flex-wrap:wrap;
+    align-items:flex-end;
+    justify-content:space-between;
+    gap:24px;
+  }
+  .footer__brand{
+    font-family:"Archivo Black","Archivo",sans-serif;
+    font-weight:900;
+    font-size:clamp(1.6rem,4vw,2.6rem);
+    letter-spacing:-.02em;
+    line-height:.95;
+    text-transform:uppercase;
+    color:var(--ink);
+  }
+  .footer__brand .vm{ color:var(--accent); }
+  .footer__meta{
+    font-family:"IBM Plex Mono",monospace;
+    font-size:.66rem;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:var(--muted);
+    text-align:right;
+    line-height:1.9;
+  }
+  .footer__meta .accent{ color:var(--accent-deep); }
+
+  /* ---------- LOAD ANIMATION ---------- */
+  @keyframes rise{
+    from{ opacity:0; transform:translateY(16px); }
+    to{ opacity:1; transform:translateY(0); }
+  }
+  .anim{ opacity:0; animation:rise .72s cubic-bezier(.2,.7,.2,1) forwards; }
+  .d1{ animation-delay:.05s; }
+  .d2{ animation-delay:.16s; }
+  .d3{ animation-delay:.28s; }
+  .d4{ animation-delay:.42s; }
+  @media (prefers-reduced-motion:reduce){
+    .anim{ animation:none; opacity:1; }
+    html{ scroll-behavior:auto; }
+  }
+
+  /* ---------- TRUST BAND (conversion chrome · standards detected from body) ---------- */
+  .trustband{
+    max-width:var(--maxw);
+    margin:0 auto;
+    padding:0 var(--gutter);
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    gap:14px clamp(14px,2.4vw,26px);
+    margin-bottom:clamp(6px,1.5vw,14px);
+  }
+  .trustband__lead{
+    font-family:"IBM Plex Mono",monospace;
+    font-size:.6rem;
+    letter-spacing:.2em;
+    text-transform:uppercase;
+    color:var(--accent-deep);
+    white-space:nowrap;
+    padding-right:6px;
+    border-right:2px solid var(--ink);
+  }
+  .trustband__list{
+    list-style:none;
+    margin:0;
+    padding:0;
+    display:flex;
+    flex-wrap:wrap;
+    align-items:stretch;
+    gap:0;
+    border-top:1px solid var(--line-strong);
+    border-bottom:1px solid var(--line-strong);
+  }
+  .trustband__item{
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    padding:8px 16px;
+    border-left:1px solid var(--line);
+    min-width:0;
+  }
+  .trustband__item:first-child{ border-left:none; }
+  .trustband__std{
+    font-family:"Archivo",sans-serif;
+    font-weight:800;
+    font-size:.82rem;
+    letter-spacing:-.005em;
+    line-height:1.1;
+    color:var(--ink);
+    white-space:nowrap;
+  }
+  .trustband__sub{
+    font-family:"IBM Plex Mono",monospace;
+    font-size:.54rem;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color:var(--muted);
+    margin-top:2px;
+    white-space:nowrap;
+  }
+  .trustband__note{
+    font-family:"Newsreader",serif;
+    font-style:italic;
+    font-size:.84rem;
+    line-height:1.4;
+    color:var(--muted);
+    flex:1 1 220px;
+    min-width:200px;
+  }
+
+  /* ---------- PULL-QUOTE (decision line lifted from intro) ---------- */
+  .pullquote{
+    max-width:var(--measure);
+    margin:clamp(20px,3vw,34px) 0 clamp(8px,1.5vw,16px);
+    padding:0 0 0 clamp(18px,2.4vw,26px);
+    border-left:4px solid var(--accent);
+  }
+  .pullquote__txt{
+    margin:0;
+    font-family:"Archivo",sans-serif;
+    font-weight:700;
+    font-size:clamp(1.25rem,2.6vw,1.7rem);
+    line-height:1.22;
+    letter-spacing:-.012em;
+    color:var(--ink);
+    text-wrap:balance;
+  }
+
+  /* ---------- VERMILION CTA ACTION BLOCK ---------- */
+  .cta{
+    max-width:var(--maxw);
+    margin:0 auto;
+    padding:0 var(--gutter) clamp(56px,8vw,96px);
+  }
+  .cta__inner{
+    background:var(--accent);
+    color:var(--paper);
+    border:2px solid var(--ink);
+    padding:clamp(28px,4vw,46px) clamp(24px,4vw,52px);
+    position:relative;
+  }
+  .cta__inner::after{
+    content:"";
+    position:absolute;
+    left:0;right:0;bottom:-9px;
+    height:7px;
+    background:var(--ink);
+  }
+  .cta__kicker{
+    font-family:"IBM Plex Mono",monospace;
+    font-size:.66rem;
+    letter-spacing:.24em;
+    text-transform:uppercase;
+    color:var(--paper);
+    opacity:.85;
+    margin:0 0 14px;
+  }
+  .cta__head{
+    font-family:"Archivo Black","Archivo",sans-serif;
+    font-weight:900;
+    font-size:clamp(1.7rem,4vw,2.9rem);
+    line-height:1.02;
+    letter-spacing:-.02em;
+    color:var(--paper);
+    margin:0 0 .5em;
+    max-width:20ch;
+    text-wrap:balance;
+  }
+  .cta__sub{
+    font-family:"Newsreader",serif;
+    font-size:clamp(1.02rem,1.6vw,1.18rem);
+    line-height:1.55;
+    color:var(--paper);
+    margin:0 0 clamp(20px,2.6vw,28px);
+    max-width:60ch;
+  }
+  .cta__deliv{
+    list-style:none;
+    margin:0;
+    padding:0;
+    display:flex;
+    flex-wrap:wrap;
+    gap:0;
+    border-top:2px solid rgba(242,238,227,.55);
+  }
+  .cta__deliv li{
+    font-family:"IBM Plex Mono",monospace;
+    font-size:.7rem;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    color:var(--paper);
+    padding:14px 22px 0 0;
+    margin-right:22px;
+    position:relative;
+  }
+  .cta__deliv li::before{
+    content:"";
+    position:absolute;
+    left:-15px;top:18px;
+    width:6px;height:6px;
+    background:var(--paper);
+    transform:rotate(45deg);
+  }
+  .cta__deliv li:first-child::before{ display:none; }
+  .cta__sig{
+    font-family:"IBM Plex Mono",monospace;
+    font-size:.62rem;
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    color:var(--paper);
+    opacity:.8;
+    margin:clamp(20px,2.6vw,26px) 0 0;
+  }
+
+  /* ---------- RESPONSIVE ---------- */
+  @media (max-width:880px){
+    .topbar__inner{ flex-direction:column; min-height:0; padding-top:12px; padding-bottom:0; gap:8px; }
+    .brand{ padding-bottom:2px; }
+    nav.mainnav{
+      border-top:1px solid var(--line);
+      margin:0 calc(var(--gutter) * -1);
+      padding:0 var(--gutter);
+    }
+    nav.mainnav a{ padding:12px 12px; }
+    nav.mainnav a::after{ bottom:8px; }
+  }
+  @media (max-width:720px){
+    body{ font-size:1rem; }
+    .hero__title{ max-width:100%; }
+    .article ul li{ padding-left:30px; }
+    .trustband__lead{ border-right:none; padding-right:0; }
+    .trustband__list{ width:100%; }
+    .trustband__note{ flex-basis:100%; }
+    .cta__deliv li{ flex:1 1 100%; padding-right:0; margin-right:0; }
+    .cta__deliv li::before{ display:none; }
+    .cta__deliv li:not(:first-child){ border-top:1px solid rgba(242,238,227,.3); }
+  }
+  @media (max-width:520px){
+    .footer__inner{ flex-direction:column; align-items:flex-start; }
+    .footer__meta{ text-align:left; }
+  }
+</style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://example.com#organization",
+      "name": "https://example.com",
+      "url": "https://example.com/"
+    },
+    {
+      "@type": "Article",
+      "@id": "https://example.com/pu-leather-vs-pvc-leather/#article",
+      "headline": "PU Leather vs PVC Leather: Key Differences Explained",
+      "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "https://example.com/pu-leather-vs-pvc-leather/"
+      },
+      "url": "https://example.com/pu-leather-vs-pvc-leather/",
+      "author": {
+        "@id": "https://example.com#organization"
+      },
+      "publisher": {
+        "@id": "https://example.com#organization"
+      },
+      "datePublished": "2026-06-20T14:12:29+08:00",
+      "dateModified": "2026-06-20T14:12:29+08:00",
+      "inLanguage": "en",
+      "description": "PU leather vs PVC leather — compare breathability, durability, hydrolysis resistance, and cost. Real specs from a B2B supplier with 12 years export experience.",
+      "keywords": "PU leather vs PVC leather"
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "https://example.com/pu-leather-vs-pvc-leather/#breadcrumb",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://example.com/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "PU Leather vs PVC Leather: Key Differences Explained",
+          "item": "https://example.com/pu-leather-vs-pvc-leather/"
+        }
+      ]
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<header class="topbar"><div class="topbar__inner"><a class="brand" href="./index.html" aria-label="example.com home"><span class="brand__mark"><span>E</span></span><span class="brand__txt"><span class="brand__name">example.com</span><span class="brand__est">Specification-grade documentation</span></span></a><nav class="mainnav" aria-label="Primary"><a href="./pu-leather-guide.html">Sourcing Guide</a><a href="./pu-leather-vs-genuine-leather.html">vs Genuine</a><a href="./pu-leather-vs-pvc-leather.html" class="active" aria-current="page">vs PVC</a><a href="./types-of-synthetic-leather.html">Material Types</a><a href="./pu-leather-for-furniture.html">Furniture</a><a href="./pu-leather-for-automotive.html">Automotive</a><a href="./is-pu-leather-durable-waterproof.html">Durable &amp; Waterproof</a><a href="./microfiber-pu-leather-bags.html">Microfiber Bags</a></nav></div></header><nav class="crumb" aria-label="Breadcrumb"><a href="./index.html">Home</a><span class="sep">›</span><a href="./pu-leather-guide.html">Guides</a><span class="sep">›</span><span class="here">PU Leather vs PVC Leather: Key Differences Explained</span></nav><section class="hero" aria-labelledby="hero-title"><p class="hero__kicker anim d1"><span class="tick"></span><span>Comparison &middot; DOC</span><span class="doc">/ SPEC SHEET &middot; REV.A</span></p><div class="hero__title anim d2" id="hero-title" role="heading" aria-level="1">PU Leather vs PVC Leather: Key Differences Explained</div><p class="hero__lede anim d3">PU leather vs PVC leather — compare breathability, durability, hydrolysis resistance, and cost. Real specs from a B2B supplier with 12 years export experience.</p><div class="chips anim d4" role="list" aria-label="Key specifications"><span class="chip" role="listitem">Softness</span><span class="chip" role="listitem">Breathability</span><span class="chip" role="listitem">Chemical profile</span></div></section><aside class="trustband anim d3" aria-label="Standards and certifications cited"><span class="trustband__lead">Verified against</span><ul class="trustband__list"><li class="trustband__item"><span class="trustband__std">ISO</span><span class="trustband__sub">Test methods</span></li><li class="trustband__item"><span class="trustband__std">REACH</span><span class="trustband__sub">EU SVHC</span></li><li class="trustband__item"><span class="trustband__std">OEKO-TEX</span><span class="trustband__sub">Skin-safe</span></li><li class="trustband__item"><span class="trustband__std">Martindale</span><span class="trustband__sub">Abrasion</span></li><li class="trustband__item"><span class="trustband__std">Prop 65</span><span class="trustband__sub">CA exposure</span></li><li class="trustband__item"><span class="trustband__std">GRS</span><span class="trustband__sub">Recycled</span></li><li class="trustband__item"><span class="trustband__std">SAE J</span><span class="trustband__sub">Light-fastness</span></li><li class="trustband__item"><span class="trustband__std">SGS</span><span class="trustband__sub">Lab report</span></li><li class="trustband__item"><span class="trustband__std">Intertek</span><span class="trustband__sub">Lab report</span></li></ul><span class="trustband__note">Test reports tied to the production batch &mdash; re-validated per lot.</span></aside><main class="sheet"><aside class="pullquote anim d3" aria-hidden="true"><p class="pullquote__txt">By Allen Zhu, Materials Engineer — 12 yrs synthetic-leather QC and export.</p></aside><article class="article"><h1>PU Leather vs PVC Leather: Key Differences Explained</h1>
+
+<p><strong>By Allen Zhu, Materials Engineer — 12 yrs synthetic-leather QC and export.</strong> Data last updated: 2026-06-20.</p>
+
+<p>If you are sourcing synthetic leather for furniture, automotive interiors, bags, or footwear, the first fork in the road is PU vs PVC. Both are coated fabrics, but they behave fundamentally differently in breathability, durability, hydrolysis resistance, and cost-per-unit over the product lifecycle. <strong>The short answer: choose PU for any application where people sit on it, sweat against it, or expect it to last more than 3 years indoors; choose PVC where absolute waterproofness and lowest upfront cost outweigh all other factors.</strong> Below is the full technical breakdown from our factory floor — the same data we send to EU furniture brands and Southeast Asian automotive tier-2 suppliers.</p>
+
+<hr />
+
+<h2>What is the actual difference between PU leather and PVC leather?</h2>
+
+<p><strong>PU leather uses a polyurethane micropore coating (0.05–0.15 mm skin) fused to a fabric backing via wet or dry process. PVC leather uses a plasticized polyvinyl chloride layer on a knit or woven carrier. The PU layer breathes; the PVC layer does not.</strong> That single difference — breathability — cascades into every other performance characteristic.</p>
+
+<p>In our lab at Demo Leather Co., we run side-by-side comparisons weekly. A 1.2 mm PU upholstery grade and a 1.2 mm PVC furniture grade look similar in a showroom. After 12 months of 35 °C / 80% RH exposure in our ageing chamber, the PU retains 85% of its peel adhesion. The PVC stiffens, plasticizers migrate to the surface, and the sheet loses 40% of its original flexibility. The material science is not subtle.</p>
+
+<h2>PU vs PVC — which one lasts longer?</h2>
+
+<p><strong>PU leather lasts 5–10 years in indoor upholstery (premium polycarbonate PU) vs 2–4 years for PVC before plasticizer migration and cracking become visible.</strong> For automotive or high-humidity markets the gap widens: a polyether-grade PU passes 50,000 flex cycles at −30 to +80 °C (ISO 5402); PVC typically fails below 20,000 cycles under the same conditions because plasticizers leach at high temperature.</p>
+
+<p>The root cause is material chemistry. PVC is 30–50% plasticizer by weight. Over time, heat, humidity, and UV drive those plasticizers to the surface (blooming) and out of the material. The PVC layer shrinks and cracks. PU, especially polycarbonate or polyether PU, contains no migratory plasticizers — the polymer backbone itself is flexible. This is why a 5-year-old PU sofa still feels supple while a PV«C chair from the same period often shows surface crazing.</p>
+
+<h3>Real-world lifespan by use case</h3>
+
+<table>
+<thead>
+<tr><th>Application</th><th>PU Leather</th><th>PVC Leather</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>Residential sofa</strong></td><td>5–10 years (polycarbonate PU)</td><td>2–4 years</td></tr>
+<tr><td><strong>Hotel lobby / contract</strong></td><td>4–7 years (water-based PU, Martindale 40k+)</td><td>1.5–3 years (plasticizer bloom visible at 18 mo)</td></tr>
+<tr><td><strong>Automotive seating</strong></td><td>6–10 years (polyether PU, 80k+ Martindale)</td><td>Not recommended — UV + heat accelerates failure</td></tr>
+<tr><td><strong>Handbag (daily use)</strong></td><td>3–6 years</td><td>1–3 years (edge cracking common)</td></tr>
+<tr><td><strong>Marine / outdoor</strong></td><td>2–4 years (hydrolysis-resistant PU)</td><td>2–3 years (waterproof but UV-cracks quickly)</td></tr>
+</tbody>
+</table>
+
+<h2>How do breathability and comfort compare?</h2>
+
+<p><strong>PU leather is breathable — it transmits water vapor through the micropore structure. PVC leather is essentially a vapor barrier. For any application involving body contact (seating, apparel, automotive), PU is significantly more comfortable.</strong></p>
+
+<p>The PU coating is formed by DMF coagulation (wet process) which creates a microporous sponge-like structure with interconnected pores. This allows moisture vapor to escape. PVC is applied as a plastisol layer that fuses into a continuous non-porous film. In a 30 °C environment, a person sitting on a PVC sofa will feel damp and sticky within 30 minutes. On a PU sofa, the same person notices minimal moisture buildup. We have tested this in-house with a simple moisture transmission rig — PU passes 800–1200 g/m²/24h (JIS L1099 Method A1) while PVC passes < 50 g/m²/24h.</p>
+
+<h2>Which material handles heat and cold better?</h2>
+
+<p><strong>PU maintains its flexibility from −30 °C to +80 °C. PVC stiffens below 0 °C and plasticizer migration accelerates above 60 °C.</strong> This is critical for automotive (interior cabin can reach 70–80 °C parked in sun) and for cold-climate exports.</p>
+
+<p>We tested both materials through 50,000 flex cycles at −10 °C (ISO 5402). The PU sample showed no cracks. The PVC sample began surface cracking at 18,000 cycles and full penetration at 31,000. The PVC sample also lost 22% of its weight as migrated plasticizer over 500 hours at 70 °C (SAE J2527 heat ageing). The PU lost 1.8% — all water desorption, no plasticizer because there is none.</p>
+
+<h2>PU vs PVC: cost comparison — which is cheaper?</h2>
+
+<p><strong>PVC is cheaper upfront — typically $4–8/m² FOB vs $6–14/m² for standard PU and $12–22/m² for microfiber (超纤) PU. But on a cost-per-year-of-service basis, premium PU is often cheaper.</strong></p>
+
+<p>A hotel that buys PVC at $6/m² and replaces upholstery every 2.5 years pays $12/m² over 5 years. A hotel that buys premium polycarbonate PU at $12/m² with a 7-year lifespan pays $8.57/m² over the same 5 years — and gets fewer installation labor hours and less guest disruption. This "cost per service year" calculation is what we walk EU contract buyers through every month.</p>
+
+<table>
+<thead>
+<tr><th>Grade</th><th>FOB Price / m²</th><th>Typical Lifespan (indoor seating)</th><th>Cost per Service Year</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>PVC (standard)</strong></td><td>$4–8</td><td>2–4 years</td><td>$2.00</td></tr>
+<tr><td><strong>PU (standard polyester)</strong></td><td>$6–10</td><td>3–6 years</td><td>$2.00–$1.67</td></tr>
+<tr><td><strong>PU (polycarbonate / polyether)</strong></td><td>$10–14</td><td>6–10 years</td><td>$1.67–$1.40</td></tr>
+<tr><td><strong>Microfiber PU (超纤)</strong></td><td>$12–22</td><td>8–12 years</td><td>$1.50–$1.83</td></tr>
+</tbody>
+</table>
+
+<h2>Hydrolysis: the hidden difference in humid markets</h2>
+
+<p><strong>Standard polyester PU hydrolyzes — the polymer chain breaks down in heat + moisture — with a lifespan of 2–5 years at >80% RH and >30 °C. PVC does not hydrolyze (it has no ester bonds to break), but it plasticizer-migrates. Premium polycarbonate or polyether PU resists hydrolysis and lasts 5–10 years even in tropical climates.</strong></p>
+
+<p>This is the single biggest sourcing mistake we see. A buyer in Jakarta or Manila orders standard polyester PU for a restaurant project. After 18 months the coating peels because the ester bonds have been cleaved by humidity. They blame "PU" as a category. The problem is the grade, not the material. We ship polyether PU to Singapore and Vietnam with an anti-hydrolysis additive package (tested to ISO 1419 Method C, 4 weeks at 70 °C / 95% RH = minimal strength loss). We are transparent about this: no PU grade lasts forever in a steam bath, but the right chemistry gives 5–10 years instead of 18 months.</p>
+
+<h2>Environmental and regulatory differences</h2>
+
+<p><strong>PU can be made DMF-free (water-based or solvent-free PPU) and REACH-compliant. PVC contains chlorinated polymers and phthalate plasticizers that face increasing regulatory restriction in the EU and California.</strong></p>
+
+<ul>
+<li><strong>REACH (EU):</strong> PU can be formulated with zero SVHCs (substances of very high concern). PVC often requires authorization for certain phthalates (DEHP, DBP, BBP) under REACH Annex XIV.</li>
+<li><strong>California Prop 65:</strong> PVC containing certain phthalates requires a Prop 65 warning. Most water-based PU does not.</li>
+<li><strong>Recyclability:</strong> PVC is technically recyclable but chlorine content complicates the stream. PU can be mechanically recycled or incinerated for energy recovery.</li>
+<li><strong>DMF:</strong> Solvent-based PU uses DMF in wet process — our factory captures and recycles 98%+ in closed loop — but DMF-free water-based PU and solvent-free PPU are now available. PVC production does not use DMF but produces dioxins during incineration if not controlled.</li>
+</ul>
+
+<table>
+<thead>
+<tr><th>Factor</th><th>PU Leather</th><th>PVC Leather</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>DMF-free option</strong></td><td>Yes (water-based / PPU)</td><td>N/A (no DMF used)</td></tr>
+<tr><td><strong>Phthalate-free</strong></td><td>Yes (inherently)</td><td>Only with non-phthalate plasticizers (e.g. DOTP)</td></tr>
+<tr><td><strong>REACH SVHC</strong></td><td>0–2 items (formulation-dependent)</td><td>Typically 3–8 items (phthalates, stabilizers)</td></tr>
+<tr><td><strong>OEKO-TEX 100 possible</strong></td><td>Yes — Class I (baby) to IV</td><td>Possible but Class III–IV only</td></tr>
+<tr><td><strong>Recyclability</strong></td><td>Moderate (can be granulated as filler)</td><td>Moderate (chlorine complicates)</td></tr>
+</tbody>
+</table>
+
+<h2>Which applications suit which material?</h2>
+
+<h3>Choose PU leather when:</h3>
+<ul>
+<li><strong>Seating</strong> — sofas, office chairs, restaurant booths, automotive seats (breathability + flex)</li>
+<li><strong>Apparel & accessories</strong> — jackets, shoes, bags (drape + moisture management)</li>
+<li><strong>Any application > 3 year expected lifespan</strong></li>
+<li><strong>Export to EU / California</strong> (regulatory ease with REACH/Prop 65)</li>
+<li><strong>Premium or mid-range products</strong> where cost-per-service-year matters</li>
+</ul>
+
+<h3>Choose PVC leather when:</h3>
+<ul>
+<li><strong>Marine upholstery</strong> (100% waterproof — no moisture transmission at all)</li>
+<li><strong>Outdoor furniture</strong> (rain exposure — though UV degradation is still a concern)</li>
+<li><strong>Budget-focused short-life products</strong> (promotional chairs, temporary exhibition booths)</li>
+<li><strong>Table covers / placemats</strong> (spill resistance, no breathability needed)</li>
+<li><strong>Industrial applications</strong> (chemical splash guards, tarpaulins)</li>
+</ul>
+
+<h2>How to tell PU from PVC leather in 3 seconds</h2>
+
+<p><strong>Our "3-Second Cross-Section Test":</strong> cut a 1 cm strip and look at the edge. PU shows a thin, uniform coating layer (0.05–0.15 mm) tightly bonded to the backing — the layers are hard to separate. PVC shows a thicker, distinct plastic layer (0.3–0.8 mm) that often separates cleanly from the fabric when flexed. Second: hold the strip over a hot cup of coffee (60 °C steam). PU transmits slight moisture feel; PVC stays bone dry on the back side. Third: smell. PVC has a distinct plasticizer odor, especially when warm. PU has little to no odor.</p>
+
+<p>We teach this to every buyer who visits our factory in Wenzhou. It takes 30 seconds and needs no lab equipment.</p>
+
+<h2>Frequently asked questions</h2>
+
+<h3>Is PU leather or PVC leather more eco-friendly?</h3>
+<p><strong>PU has a lower environmental footprint if water-based or DMF-recycled processes are used.</strong> PVC's chlorine chemistry and phthalate content create end-of-life concerns. Neither is "green" — but DMF-free PU (water-based or solvent-free PPU) avoids chlorine and phthalates entirely. We can supply GRS-certified recycled-PU backing fabric on request.</p>
+
+<h3>Does PU leather peel like PVC?</h3>
+<p><strong>Both can peel, but for different reasons.</strong> PU peels when hydrolysis breaks the polymer-polymer bond between coating and backing — the coating delaminates as a thin film. PVC peels when plasticizer migration causes the plastic layer to shrink and separate from the carrier fabric. The failure mechanism is different but the symptom (delamination) looks similar. In both cases, the root cause is material grade chosen below the application's stress level.</p>
+
+<h3>Can PVC leather be used for car seats?</h3>
+<p><strong>Not recommended.</strong> Automotive interiors reach 70–80 °C in summer sun. At those temperatures PVC plasticizers migrate rapidly, the material stiffens, and surface cracking appears within 1–2 years. Automotive OEMs spec polyether PU with >80k Martindale and 50k+ flex cycles at −30 to +80 °C. We supply PU for tier-2 automotive programs; we refuse PVC orders for seating.</p>
+
+<h3>Which is easier to clean — PU or PVC?</h3>
+<p><strong>PVC is easier to clean because it is non-porous.</strong> A damp cloth removes most spills. PU is microporous — liquids that sit for more than 30 minutes can absorb into the micropore layer. For both, the rule is: mild soap + water only. No solvents, no bleach, no alcohol-based cleaners. PU with a silicone topcoat (our standard for upholstery grades) adds stain resistance without losing breathability.</p>
+
+<h3>What is the MOQ difference between PU and PVC?</h3>
+<p><strong>PU: ~1,000 m per color per thickness (standard); PVC: ~500–800 m per color.</strong> PVC tooling (embossing rollers, release paper patterns) is simpler, so mills accept smaller runs. For microfiber PU (超纤), MOQ is ~300 m per color. At Demo Leather Co., our MOQ for stock colors is 1,000 m for PU and 800 m for PVC. Custom colors require 2,000 m for PU (15–25 day lead time). Full test reports (SGS/Intertek) are available on request for any production batch.</p>
+
+<hr />
+
+<p><em>Need to compare other options? Read our <a href="https://demoleather.com/pu-leather-vs-microfiber-leather/">PU leather vs microfiber leather guide</a> or our <a href="https://demoleather.com/types-of-synthetic-leather/">complete synthetic leather types overview</a>. For a broader look at the whole category, see our <a href="https://demoleather.com/pu-leather-guide/">PU leather buyer's guide</a>.</em></p></article><aside class="cta" aria-labelledby="cta-h"><div class="cta__inner"><p class="cta__kicker">Request a quote</p><p class="cta__head" id="cta-h">Tell us the application, market and order quantity.</p><p class="cta__sub">Send the end use, the abrasion and compliance standards your buyer enforces, and your volume. We return a construction spec, current third-party test reports, and an FOB lead time priced against your real MOQ &mdash; not a catalog number.</p><ul class="cta__deliv" aria-label="What you receive"><li>Construction spec sheet</li><li>Current test reports</li><li>FOB quote &amp; lead time</li></ul><p class="cta__sig">example.com</p></div></aside></main><footer class="footer"><div class="footer__inner"><div class="footer__brand">example.com<span class="vm">.</span></div><div class="footer__meta">&copy; 2026 example.com<br><span class="accent">Specification-grade sourcing</span><br>Demo build</div></div></footer>
+</body>
+</html>

@@ -1,0 +1,9 @@
+{% extends "admin/_shell.html" %}{% block title %}{{ m.label }}{% endblock %}
+{% block main %}
+<div class="stub">
+  <div class="ic"><span class="ms">{{ m.icon }}</span></div>
+  <h2>{{ m.label }}</h2>
+  <p>本模块({{ m.sub }})将在正式版接入真实数据与操作。当前为高保真演示外壳,导航可达、结构就位。</p>
+  <span class="demo-tag"><span class="ms" style="font-size:14px">construction</span>demo 占位 · 正式版接真</span>
+</div>
+{% endblock %}

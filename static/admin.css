@@ -1,0 +1,110 @@
+/* admin.css —— 超管后台设计层。
+   扣 shadcn/ui 的「扁平描边 + zinc 中性」骨架,融 Gemini 蓝(#1A73E8)/ Lexend / Material Symbols。
+   手法:在 .admin 作用域内「影子覆盖」console.css 的中性 token + 关键组件样式,
+   绝不修改 console.css 本体(C 端 index/login/projects 不受影响)。 */
+
+/* —— 1. .admin 作用域内:把 console.css 中性 token 重映射成 shadcn zinc;蓝系保持 Gemini —— */
+.admin{
+  --bg:#FFFFFF; --surface:#FFFFFF; --surface2:#F4F4F5; --surface3:#FAFAFA;
+  --ink:#18181B; --ink2:#3F3F46; --gray:#52525B; --faint:#A1A1AA;
+  --line:#E4E4E7; --line2:#D4D4D8;
+  --blue:#1A73E8; --blue-bright:#3C90FF; --blue-wash:#E8F0FE; --blue-surf:#D3E3FD; --blue-deep:#1565D8;
+  --ok:#16A34A; --ok-wash:#DCFCE7; --warn:#D97706; --warn-wash:#FEF3C7; --danger:#DC2626; --danger-wash:#FEE2E2;
+  --ring:rgba(26,115,232,.20);
+  --ad-r:10px; --ad-r-lg:14px; --ad-r-sm:8px;
+}
+
+/* —— 2. 整体布局 —— */
+.admin{display:grid;grid-template-columns:256px minmax(0,1fr);grid-template-rows:minmax(0,1fr);height:100vh;overflow:hidden;background:var(--bg);color:var(--ink)}
+.admin.rail-min{grid-template-columns:64px minmax(0,1fr)}
+
+/* —— 3. 浅色侧栏(shadcn light sidebar)—— */
+.arail{background:var(--surface3);color:var(--ink);border-right:1px solid var(--line);display:flex;flex-direction:column;min-height:0;overflow:hidden}
+.arail__top{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--line)}
+.arail__brand b{font-size:13.5px;font-weight:600;line-height:1.15;color:var(--ink)}
+.arail__brand span{display:block;font-family:var(--mono);font-size:8.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint);margin-top:3px}
+.arail__list{flex:1;min-height:0;overflow:auto;padding:10px}
+.anav{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;color:var(--ink2);
+  transition:background .15s var(--ease),color .15s var(--ease);cursor:pointer;text-decoration:none}
+.anav:hover{background:var(--surface2);color:var(--ink);text-decoration:none}
+.anav.on{background:var(--blue-wash);color:var(--blue)}
+.anav__badge{width:24px;height:24px;border-radius:6px;display:grid;place-items:center;flex:none;font-size:11px;font-weight:600;
+  font-family:var(--mono);background:#fff;border:1px solid var(--line);color:var(--ink2)}
+.anav.on .anav__badge{background:var(--blue);color:#fff;border-color:var(--blue)}
+.anav__tx b{display:block;font-size:13px;font-weight:500;line-height:1.2}
+.anav__tx span{display:block;font-size:10.5px;color:var(--faint);margin-top:1px}
+.anav__sub{padding:2px 0 8px 30px;display:flex;flex-direction:column;gap:1px}
+.asub{padding:6px 10px;border-radius:7px;font-size:12.5px;color:var(--gray);text-decoration:none;transition:background .15s,color .15s}
+.asub:hover{background:var(--surface2);color:var(--ink);text-decoration:none}
+.asub.on{color:var(--blue);font-weight:600;background:var(--blue-wash)}
+
+/* —— 4. 主区 + 顶栏 —— */
+.amain{min-width:0;display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+.atop{height:56px;display:flex;align-items:center;gap:10px;padding:0 20px;border-bottom:1px solid var(--line);flex:none;background:#fff}
+.atop .grow{flex:1}
+.arole{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 11px;border-radius:8px;background:var(--blue-wash);color:var(--blue);font-size:12px;font-weight:600}
+.asearch{flex:1;max-width:420px;height:34px;border-radius:8px;border:1px solid var(--line2);background:var(--surface3);padding:0 12px;font-family:var(--sans);font-size:13px;color:var(--ink)}
+.asearch::placeholder{color:var(--faint)}
+.asearch:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px var(--ring);background:#fff}
+
+/* admin 内 projpill / chip / iconbtn 收敛成 shadcn 方圆角 */
+.admin .projpill{background:var(--surface2);border-radius:8px;height:32px;font-size:13px;color:var(--ink)}
+.admin .projpill:hover{background:var(--blue-wash);color:var(--blue)}
+.admin .projpill .dot{background:var(--blue)}
+.admin .chip{background:var(--surface2);border-radius:8px;color:var(--ink2);font-size:12px;height:28px}
+.admin .iconbtn{border-radius:8px;width:34px;height:34px;color:var(--gray)}
+.admin .iconbtn:hover{background:var(--surface2)}
+
+/* —— 5. 数据范围卡条 —— */
+.ascope{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:16px 20px}
+.ascope .card{padding:14px 16px}
+.ascope .lbl{font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--gray);margin-bottom:6px}
+.ascope .val{font-size:15px;font-weight:600;color:var(--ink)}
+.ascope .meta{font-size:12px;color:var(--faint);margin-top:2px}
+.abody{flex:1;overflow:auto;padding:6px 20px 28px}
+
+/* —— 6. 覆盖 console.css 组件 → shadcn 扁平描边(零阴影、描边卡、方圆角)—— */
+.admin .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--ad-r-lg);box-shadow:none}
+.admin .card-h{border-bottom:1px solid var(--line);padding:13px 18px;gap:10px}
+.admin .card-h .ci{border-radius:8px;background:var(--blue-wash);color:var(--blue)}
+.admin .card-b{padding:18px}
+.admin .btn{height:36px;border-radius:var(--ad-r-sm);border:1px solid var(--line2);background:#fff;color:var(--ink2);font-weight:500;box-shadow:none;padding:0 14px}
+.admin .btn:hover{background:var(--surface2);filter:none}
+.admin .btn .ms{font-size:18px}
+.admin .btn.pri{background:var(--blue);border-color:var(--blue);color:#fff}
+.admin .btn.pri:hover{background:var(--blue-deep);filter:none}
+.admin .btn.pri .ms{color:#fff}
+.admin .btn.ghost{border-color:transparent;background:transparent;color:var(--blue)}
+.admin .kchip{border-radius:6px;font-weight:600}
+.admin .meter{border-radius:8px;border-color:var(--line2)}
+.admin .field input,.admin .field select{border-radius:8px;border-color:var(--line2)}
+.admin .alert{border-radius:10px}
+/* 去 AI 味:品牌标用单色实底,不要彩虹渐变/动画(spark 来自 console.css) */
+.admin .spark{background:var(--blue);background-size:auto;animation:none}
+.admin .spark .ms{color:#fff}
+
+/* —— 去 AI 味组件套件(全 admin 复用,严格按 docs/design-de-ai-standards.md v2)—— */
+/* 属性标签:中性,无亮底 */
+.adv-tag{display:inline-flex;align-items:center;height:22px;padding:0 9px;border-radius:6px;
+  font-size:11.5px;font-weight:500;background:#F3F4F6;color:#4B5563}
+.adv-tag.bd{background:transparent;border:1px solid #E5E7EB;color:var(--ink2)}
+/* 状态:圆点 + 文字,无亮底;.ok=业务绿 #16A34A */
+.adv-status{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--gray);white-space:nowrap}
+.adv-status .dot{width:7px;height:7px;border-radius:50%;background:#9CA3AF;flex:none}
+.adv-status.ok .dot{background:#16A34A}
+.adv-status.warn .dot{background:#D97706}
+.adv-status.plan .dot{background:#9CA3AF}
+/* 技术标识码:11px 等宽、极淡、放角落/hover */
+.adv-code{font-family:var(--mono);font-size:11px;color:var(--faint)}
+
+/* —— 7. 浅壳空状态 —— */
+.stub{max-width:460px;margin:9vh auto;text-align:center;color:var(--ink2)}
+.stub .ic{width:60px;height:60px;border-radius:14px;background:var(--surface2);border:1px solid var(--line);display:grid;place-items:center;margin:0 auto 18px}
+.stub .ic .ms{font-size:28px;color:var(--gray)}
+.stub h2{font-size:18px;margin:0 0 8px;color:var(--ink)}
+.stub p{color:var(--faint);font-size:13px;line-height:1.7;margin:0 0 18px}
+.stub .demo-tag{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11px;color:var(--warn);background:var(--warn-wash);padding:4px 10px;border-radius:8px}
+
+/* —— 8. 折叠态 —— */
+.admin.rail-min .arail__brand,.admin.rail-min .anav__tx,.admin.rail-min .anav__sub{display:none}
+.admin.rail-min .anav{justify-content:center}

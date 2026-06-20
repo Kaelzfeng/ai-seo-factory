@@ -1,0 +1,119 @@
+# SEO Engine S2: 意图分类规则
+# 优先级从高到低排列,先匹配先返回
+
+intents:
+  comparison:
+    keyword_contains:
+      - vs
+      - versus
+      - compare
+      - comparison
+      - difference
+      - difference between
+      - better than
+      - or
+      - v.
+    keyword_regex:
+      - '\bvs\.?\b'
+      - '\bv\.\s'
+
+  faq:
+    keyword_contains:
+      - how
+      - what
+      - why
+      - when
+      - where
+      - which
+      - who
+      - is
+      - are
+      - does
+      - do
+      - can
+      - will
+      - should
+      - waterproof
+      - durable
+      - toxic
+      - safe
+      - eco friendly
+      - environmentally friendly
+
+  product:
+    keyword_contains:
+      - wholesale
+      - supplier
+      - manufacturer
+      - factory
+      - price
+      - cost
+      - buy
+      - for sale
+      - bulk
+      - export
+      - catalogue
+      - catalog
+      - specification
+      - spec
+
+  category:
+    keyword_contains:
+      - types of
+      - kinds of
+      - categories of
+      - classification
+      - grades of
+      - varieties of
+
+  guide:
+    keyword_contains:
+      - guide
+      - how to
+      - tutorial
+      - introduction
+      - overview
+      - explained
+      - complete
+      - ultimate
+      - definitive
+
+  commercial:
+    keyword_contains:
+      - best
+      - top
+      - review
+      - reviews
+      - rated
+      - quality
+      - premium
+      - professional
+      - benefits
+      - advantages
+      - features
+
+  transactional:
+    keyword_contains:
+      - buy
+      - purchase
+      - order
+      - quote
+      - quotation
+      - sample
+      - inquiry
+      - contact
+
+  informational:
+    keyword_contains:
+      - what is
+      - definition
+      - meaning
+      - properties
+      - characteristics
+      - uses of
+      - applications of
+      - process
+      - manufacturing
+      - production
+
+default_intent: informational

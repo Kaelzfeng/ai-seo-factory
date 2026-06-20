@@ -1,0 +1,141 @@
+{% extends "admin/_shell.html" %}{% block title %}内容流水线{% endblock %}
+{% block head %}
+<style>
+  /* 内容自动化流水线 —— 去 AI 味 v2:中性方块图标 / ≤1 强调色 / 一体化网格(实线分割,
+     无悬浮卡)/ 路线用标准表格。状态走 .adv-status,标签走 .adv-tag,技术码走 .adv-code。
+     仅引用 admin.css / console.css 既有 var(--…) 与 .adv-* 套件。 */
+  .agx{padding:18px 0 8px;animation:entry .35s var(--ease)}
+
+  /* ① 标题区(中性方块图标,无 spark/魔法符号) */
+  .agx-hero{display:flex;align-items:flex-start;gap:13px;margin-bottom:4px}
+  .agx-hero .mark{width:40px;height:40px;border-radius:10px;flex:none;display:grid;place-items:center;
+    background:#F3F4F6;color:var(--gray)}
+  .agx-hero .mark .ms{font-size:22px}
+  .agx-hero h1{margin:0;font-size:20px;font-weight:600;line-height:1.25;color:var(--ink)}
+  .agx-hero p{margin:6px 0 0;font-size:13px;line-height:1.6;color:var(--gray);max-width:760px}
+
+  /* 段标题 */
+  .agx-sec{display:flex;align-items:center;gap:10px;margin:26px 0 13px}
+  .agx-sec h2{margin:0;font-size:14px;font-weight:600;color:var(--ink)}
+  .agx-sec .cnt{font-family:var(--mono);font-size:11px;color:var(--gray);background:var(--surface2);padding:2px 9px;border-radius:6px}
+  .agx-sec .ln{flex:1;height:1px;background:var(--line)}
+
+  /* ② 在用组件 —— 一体化网格:外层一个 .card,内部 2 列,单元格用 1px 实线分割,
+        单元格本身无边框 / 无阴影 / 无圆角 / 无 gap。 */
+  .skgrid{display:grid;grid-template-columns:1fr 1fr;overflow:hidden}
+  .skcell{position:relative;display:flex;flex-direction:column;gap:11px;padding:18px 20px;
+    border-right:1px solid #E5E7EB;border-bottom:1px solid #E5E7EB}
+  /* 右列去右边线 / 末行去底边线 */
+  .skcell:nth-child(2n){border-right:0}
+  .skcell:nth-last-child(-n+2){border-bottom:0}
+  .skcell .top{display:flex;align-items:flex-start;gap:11px;min-width:0}
+  .skcell .ci{width:34px;height:34px;border-radius:8px;background:#F3F4F6;color:var(--gray);
+    display:grid;place-items:center;flex:none}
+  .skcell .ci .ms{font-size:18px}
+  .skcell .htx{min-width:0;flex:1}
+  .skcell .htx .ct{font-size:14px;font-weight:600;color:var(--ink);line-height:1.3}
+  .skcell .htx .nm{display:block;margin-top:3px}            /* 技术码:.adv-code(11px mono faint) */
+  .skcell .tags{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .skcell .note{font-size:12.5px;line-height:1.6;color:var(--ink2);margin:0}
+
+  /* ③ 建设路线:标准表格(执行阶段 / 核心策略 / 时效预估 / 状态),无带圈数字 / 无糖果 chip */
+  .rtable{width:100%;border-collapse:collapse;font-size:13px}
+  .rtable th{text-align:left;font-size:11px;font-weight:600;color:var(--gray);text-transform:uppercase;
+    letter-spacing:.04em;padding:2px 14px 10px;border-bottom:1px solid #E5E7EB}
+  .rtable td{padding:13px 14px;border-bottom:1px solid #E5E7EB;vertical-align:top}
+  .rtable tr:last-child td{border-bottom:0}
+  .rtable .ph{font-family:var(--mono);font-size:11.5px;color:var(--gray);white-space:nowrap}
+  .rtable .ti{font-weight:600;color:var(--ink)}
+  .rtable .de{margin-top:3px;font-size:11.5px;color:var(--faint);line-height:1.55}  /* 辅助文本:减淡 */
+  .rtable .et{font-family:var(--mono);font-size:12px;color:var(--gray);white-space:nowrap}
+
+  /* ④ 底部说明:无整块有色底,仅左侧一条品牌蓝边 */
+  .agx-foot{margin:22px 0 8px;padding:12px 16px;background:var(--surface3);
+    border-left:3px solid var(--blue);border-radius:0 8px 8px 0}
+  .agx-foot p{margin:0;font-size:12.5px;line-height:1.65;color:var(--ink2)}
+  .agx-foot b{font-weight:600;color:var(--ink)}
+
+  /* 窄屏:网格收 1 列,重排分割线 */
+  @media (max-width:760px){
+    .skgrid{grid-template-columns:1fr}
+    .skcell{border-right:0}
+    .skcell:nth-last-child(-n+2){border-bottom:1px solid #E5E7EB}
+    .skcell:last-child{border-bottom:0}
+  }
+</style>
+{% endblock %}
+{% block main %}
+<div class="agx">
+
+  <!-- ① 标题 + 副标(业务化口吻) -->
+  <div class="agx-hero">
+    <div class="mark"><span class="ms">widgets</span></div>
+    <div>
+      <h1>内容自动化流水线</h1>
+      <p>支持按需配置、自由组合的 SEO 自动化执行逻辑 —— 从关键词到发布全链路可追踪、可核验,每一步产出都留痕。</p>
+    </div>
+  </div>
+
+  <!-- ② 在用组件(一体化网格) -->
+  <div class="agx-sec">
+    <h2>在用组件</h2>
+    <span class="cnt">{{ skills|selectattr('status','equalto','已上线')|list|length }} / {{ skills|length }} 在用</span>
+    <span class="ln"></span>
+  </div>
+
+  <div class="card" style="padding:0">
+    <div class="skgrid">
+      {% for s in skills %}
+      <div class="skcell">
+        <div class="top">
+          <div class="ci"><span class="ms">{{ s.icon }}</span></div>
+          <div class="htx">
+            <div class="ct">{{ s.label }}</div>
+            <span class="nm adv-code">{{ s.name }}</span>
+          </div>
+        </div>
+        <div class="tags">
+          <span class="adv-tag">{{ s.role }}</span>
+          <span class="adv-status {{ 'ok' if s.status == '已上线' else 'plan' }}"><span class="dot"></span>{{ s.status }}</span>
+        </div>
+        <p class="note">{{ s.note }}</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- ③ 建设路线(标准表格:执行阶段 / 核心策略 / 时效预估 / 状态) -->
+  <div class="agx-sec">
+    <h2>建设路线</h2>
+    <span class="cnt">{{ roadmap|length }} 阶段</span>
+    <span class="ln"></span>
+  </div>
+
+  <div class="card" style="padding:6px 8px">
+    <table class="rtable">
+      <thead><tr>
+        <th style="width:96px">执行阶段</th>
+        <th>核心策略</th>
+        <th style="width:96px">时效预估</th>
+        <th style="width:104px">状态</th>
+      </tr></thead>
+      <tbody>
+        {% for r in roadmap %}
+        <tr>
+          <td class="ph">{{ r.phase }}</td>
+          <td><div class="ti">{{ r.title }}</div><div class="de">{{ r.detail }}</div></td>
+          <td class="et">{{ r.eta }}</td>
+          <td><span class="adv-status {{ 'ok' if r.status == '进行中' else 'plan' }}"><span class="dot"></span>{{ r.status }}</span></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ④ 底部说明(左侧蓝边,业务化措辞) -->
+  <div class="agx-foot">
+    <p>每个组件的产出都<b>可追溯、可核验</b> —— 逐页留痕,能说明每页为什么这样写、在哪一维扣了分。</p>
+  </div>
+
+</div>
+{% endblock %}

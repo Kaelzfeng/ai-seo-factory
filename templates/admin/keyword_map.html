@@ -1,0 +1,146 @@
+{% extends "admin/_shell.html" %}
+{% block title %}关键词地图{% endblock %}
+
+{% block head %}
+<style>
+  /* keyword_map —— 只引用 console.css token,不重定义任何变量 */
+  .km-head{display:flex;align-items:flex-start;gap:16px;margin:10px 0 6px}
+  .km-head .km-tx{flex:1;min-width:0}
+  .km-head h1{font-size:22px;font-weight:700;color:var(--ink);margin:0 0 6px;letter-spacing:-.01em}
+  .km-head p{font-size:13.5px;color:var(--gray);margin:0;line-height:1.6;max-width:720px}
+  .km-actions{display:flex;gap:10px;flex:none}
+
+  /* 意图图例 */
+  .km-legend{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:14px 16px;margin:18px 0 8px}
+  .km-legend .lg-lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--gray);margin-right:4px}
+  .km-legend .lg-item{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;color:var(--ink2)}
+  .km-legend .lg-item .lg-cn{color:var(--faint);font-size:12px}
+
+  /* pillar → cluster 拓扑示意 */
+  .km-topo{position:relative;padding:20px 16px 14px;margin:14px 0 8px;overflow:hidden}
+  .km-topo .topo-hd{display:flex;align-items:center;gap:9px;margin-bottom:16px}
+  .km-topo .topo-hd .ms{font-size:18px;color:var(--blue)}
+  .km-topo .topo-hd b{font-size:13.5px;font-weight:600;color:var(--ink)}
+  .km-topo .topo-hd span{font-size:12px;color:var(--faint)}
+  .topo-wrap{position:relative}
+  .topo-svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0}
+  .topo-pillar{position:relative;z-index:1;display:inline-flex;align-items:center;gap:9px;
+    padding:10px 16px;border-radius:14px;background:var(--blue-wash);border:1px solid var(--blue-surf);
+    color:var(--blue);font-weight:600;font-size:13.5px;margin:0 auto 26px;width:max-content}
+  .topo-pillar .ms{font-size:18px}
+  .topo-row{position:relative;z-index:1;display:flex;justify-content:center;flex-wrap:wrap;gap:14px}
+  .topo-leaf{display:inline-flex;flex-direction:column;align-items:center;gap:6px;
+    padding:10px 14px;border-radius:12px;background:var(--surface);border:1px solid var(--line2);min-width:118px;text-align:center}
+  .topo-leaf b{font-size:12.5px;font-weight:600;color:var(--ink);line-height:1.25}
+  .topo-leaf .lf-pg{font-family:var(--mono);font-size:10.5px;color:var(--faint)}
+
+  /* 簇卡网格 */
+  .km-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(296px,1fr));gap:14px;margin-top:8px}
+  .km-card .card-h{justify-content:space-between}
+  .km-card .ch-l{display:flex;align-items:center;gap:10px;min-width:0}
+  .km-card .ch-l .ct{font-weight:600;font-size:14.5px;color:var(--ink)}
+  .km-card .ch-r{display:flex;align-items:center;gap:8px;flex:none}
+  .km-kws{display:flex;flex-wrap:wrap;gap:7px;padding:14px 16px 16px}
+  .km-kws .kchip{cursor:default}
+  .km-foot{display:flex;align-items:center;justify-content:space-between;
+    padding:11px 16px;border-top:1px solid var(--line);font-size:12px;color:var(--faint)}
+  .km-foot .ms{font-size:15px;vertical-align:middle;margin-right:2px}
+  .km-foot a{font-weight:600}
+
+  /* 顶部总览条 */
+  .km-stats{display:flex;flex-wrap:wrap;gap:10px;margin:6px 0 2px}
+</style>
+{% endblock %}
+
+{% block main %}
+<div class="km-head">
+  <div class="km-tx">
+    <h1>关键词地图 · 意图分层</h1>
+    <p>从真实抓取的关键词到意图分层,再映射到簇与页型。每个簇对应一种搜索意图与一组页面配额,配色随意图统一,跨可行性报告与网站架构一致可追溯。</p>
+  </div>
+  <div class="km-actions">
+    <a class="btn" href="{{ url_for('admin.feasibility') }}"><span class="ms">arrow_back</span>可行性报告</a>
+    <button class="btn pri"><span class="ms">graph_3</span>重新聚类</button>
+  </div>
+</div>
+
+<!-- 总览统计 -->
+<div class="km-stats">
+  <span class="chip"><span class="ms">category</span>{{ kw.clusters|length }} 个意图簇</span>
+  <span class="chip"><span class="ms">description</span>{{ kw.clusters|sum(attribute='pages') }} 页覆盖</span>
+  {% set kwtotal = namespace(n=0) %}
+  {% for c in kw.clusters %}{% set kwtotal.n = kwtotal.n + c.keywords|length %}{% endfor %}
+  <span class="chip"><span class="ms">tag</span>{{ kwtotal.n }} 个关键词</span>
+</div>
+
+<!-- ① 意图图例(5 个 .kchip 变体) -->
+<div class="card km-legend">
+  <span class="lg-lbl">意图图例</span>
+  <span class="lg-item"><span class="kchip pillar">pillar</span><span class="lg-cn">支柱页</span></span>
+  <span class="lg-item"><span class="kchip comparison">comparison</span><span class="lg-cn">对比类</span></span>
+  <span class="lg-item"><span class="kchip commercial">commercial</span><span class="lg-cn">采购/商业</span></span>
+  <span class="lg-item"><span class="kchip application">application</span><span class="lg-cn">应用场景</span></span>
+  <span class="lg-item"><span class="kchip informational">informational</span><span class="lg-cn">知识问答</span></span>
+</div>
+
+<!-- ③ pillar → cluster 拓扑示意(简单 CSS/SVG 连线) -->
+<div class="card km-topo">
+  <div class="topo-hd">
+    <span class="ms">account_tree</span>
+    <b>站内拓扑</b>
+    <span>支柱页向下连接各意图簇(簇内链回 pillar,形成主题集群)</span>
+  </div>
+  <div class="topo-wrap">
+    <svg class="topo-svg" viewBox="0 0 1000 130" preserveAspectRatio="none" aria-hidden="true">
+      {% set leaves = kw.clusters|rejectattr('intent','equalto','pillar')|list %}
+      {% set n = leaves|length %}
+      {% for c in leaves %}
+        {% set cx = (1000 / (n + 1)) * (loop.index) %}
+        <path d="M500 18 C500 78, {{ cx }} 52, {{ cx }} 112"
+              fill="none" stroke="var(--line2)" stroke-width="1.5"/>
+      {% endfor %}
+    </svg>
+    {% set pillar = (kw.clusters|selectattr('intent','equalto','pillar')|list|first) %}
+    {% if pillar %}
+    <div class="topo-pillar"><span class="ms">hub</span>{{ pillar.name }} · pillar</div>
+    {% else %}
+    <div class="topo-pillar"><span class="ms">hub</span>支柱页 · pillar</div>
+    {% endif %}
+    <div class="topo-row">
+      {% for c in kw.clusters if c.intent != 'pillar' %}
+      <div class="topo-leaf">
+        <span class="kchip {{ c.intent }}">{{ c.intent }}</span>
+        <b>{{ c.name }}</b>
+        <span class="lf-pg">{{ c.pages }} 页</span>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<!-- ② 簇卡(遍历 kw.clusters) -->
+<div class="km-grid">
+  {% for c in kw.clusters %}
+  <div class="card km-card">
+    <div class="card-h">
+      <div class="ch-l">
+        <span class="ct">{{ c.name }}</span>
+        <span class="kchip {{ c.intent }}">{{ c.intent }}</span>
+      </div>
+      <div class="ch-r">
+        <span class="chip"><span class="ms">description</span>{{ c.pages }} 页</span>
+      </div>
+    </div>
+    <div class="km-kws">
+      {% for k in c.keywords %}
+      <span class="kchip {{ c.intent }}">{{ k }}</span>
+      {% endfor %}
+    </div>
+    <div class="km-foot">
+      <span><span class="ms">tag</span>{{ c.keywords|length }} 词 · {{ c.pages }} 页</span>
+      <a href="{{ url_for('admin.module', key='architecture') }}">查看页型映射</a>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

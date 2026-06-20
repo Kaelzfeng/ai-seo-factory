@@ -1,0 +1,223 @@
+{% extends "admin/_shell.html" %}
+{% set f = feasibility %}
+{% block title %}SEO 可行性报告{% endblock %}
+
+{% block head %}
+<style>
+  /* feasibility.html —— 仅本页布局;只引用 console.css 的 var()。
+     视觉与生成台同源:Gemini 蓝主动作、大圆角卡、Material Symbols。 */
+  .fz{display:flex;flex-direction:column;gap:18px;padding-top:6px;animation:entry .5s var(--ease) both}
+
+  /* ① 标题区 */
+  .fz-head{display:flex;align-items:flex-start;gap:18px;flex-wrap:wrap}
+  .fz-head .ht{flex:1;min-width:260px}
+  .fz-head h1{font-size:22px;font-weight:700;color:var(--ink);margin:0 0 6px;letter-spacing:-.01em}
+  .fz-head .sub{font-size:13.5px;color:var(--gray);line-height:1.6;max-width:640px}
+  .fz-head .acts{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+
+  /* 黑箱差异钩子条 */
+  .fz-hook{display:flex;align-items:center;gap:10px;padding:11px 15px;border-radius:0 8px 8px 0;
+    background:var(--surface3);border-left:3px solid var(--blue);color:var(--ink2);font-size:13px;line-height:1.5}
+  .fz-hook .ms{font-size:19px;color:var(--blue);flex:none}
+  .fz-hook b{color:var(--ink)}
+
+  /* ② KPI 6 卡 */
+  .fz-kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:14px}
+  .kpi{padding:16px 17px;position:relative;overflow:hidden}
+  .kpi .k-l{font-family:var(--mono);font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--gray)}
+  .kpi .k-v{font-size:30px;font-weight:700;color:var(--ink);line-height:1.05;margin:9px 0 4px;font-feature-settings:"tnum" 1}
+  .kpi .k-v.sm{font-size:21px;margin-top:11px}
+  .kpi .k-n{font-size:11.5px;color:var(--faint);line-height:1.4}
+  /* lead 卡:纯净中性底 + 1px 实线,不用渐变氛围饰色;主数字仍用品牌蓝(全局唯一强调色) */
+  .kpi.lead{background:var(--surface)}
+  .kpi.lead .k-v{color:var(--blue)}
+
+  /* ③+④ 中段三列:机会 / 风险 / 数据可信度 */
+  .fz-mid{display:grid;grid-template-columns:1fr 1fr 1.05fr;gap:14px;align-items:start}
+  .lst{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+  .lst li{display:flex;align-items:flex-start;gap:10px;padding:11px 16px;font-size:13px;line-height:1.5;color:var(--ink2)}
+  .lst li + li{border-top:1px solid var(--line)}
+  .lst li .ms{font-size:18px;flex:none;margin-top:1px}
+  .lst.op li .ms{color:var(--ok)}
+  .lst.rk li .ms{color:var(--warn)}
+  .src{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+  .src li{display:flex;align-items:flex-start;gap:11px;padding:11px 16px}
+  .src li + li{border-top:1px solid var(--line)}
+  .src .sdot{width:22px;height:22px;border-radius:7px;background:var(--blue-wash);color:var(--blue);
+    display:grid;place-items:center;flex:none;margin-top:1px}
+  .src .sdot .ms{font-size:14px}
+  .src .stx b{display:block;font-size:13px;font-weight:600;color:var(--ink)}
+  .src .stx span{display:block;font-size:11.5px;color:var(--faint);margin-top:1px;line-height:1.45}
+
+  /* ⑤ 可解释评分模型表 */
+  .fz-tbl{width:100%;border-collapse:collapse;font-size:13px}
+  .fz-tbl thead th{font-family:var(--mono);font-size:10.5px;letter-spacing:.04em;text-transform:uppercase;
+    color:var(--gray);font-weight:600;text-align:left;padding:10px 14px;border-bottom:1px solid var(--line)}
+  .fz-tbl tbody td{padding:13px 14px;border-bottom:1px solid var(--line);vertical-align:middle;color:var(--ink2)}
+  .fz-tbl tbody tr:last-child td{border-bottom:0}
+  .fz-tbl tbody tr:hover{background:var(--surface3)}
+  .fz-tbl .fac b{display:block;font-size:13.5px;font-weight:600;color:var(--ink)}
+  .fz-tbl .ev{color:var(--gray);font-size:12.5px;line-height:1.5;max-width:300px}
+  .fz-tbl .scwrap{display:flex;align-items:center;gap:10px;min-width:128px}
+  .fz-tbl .scnum{font-family:var(--mono);font-weight:600;color:var(--ink);font-feature-settings:"tnum" 1;width:24px}
+  .fz-tbl .track{flex:1;height:6px;background:var(--line2);border-radius:5px;overflow:hidden}
+  .fz-tbl .track i{display:block;height:100%;background:var(--blue);border-radius:5px}
+  .fz-tbl .wt{font-family:var(--mono);font-weight:600;color:var(--ink2);font-feature-settings:"tnum" 1}
+  .fz-tbl .ops{display:flex;align-items:center;gap:6px;white-space:nowrap}
+  .fz-tbl .ops .lk{font-size:12.5px;font-weight:600;color:var(--blue);cursor:pointer}
+  .fz-tbl .ops .sep{color:var(--line2)}
+
+  @media (max-width:1180px){
+    .fz-kpis{grid-template-columns:repeat(3,1fr)}
+    .fz-mid{grid-template-columns:1fr}
+  }
+</style>
+{% endblock %}
+
+{% block main %}
+<div class="fz">
+
+  {# ① 标题区 + 主操作 #}
+  <div class="fz-head">
+    <div class="ht">
+      <h1>SEO 可行性报告</h1>
+      <div class="sub">判断产品是否值得做 Google 全球 SEO,并明确数据来源、置信度与 AI 推断比例;每个结论都可追溯到原始数据来源。</div>
+    </div>
+    <div class="acts">
+      <button class="btn pri"><span class="ms">refresh</span>重新分析</button>
+      <a class="btn" href="{{ url_for('admin.competitors') }}"><span class="ms">category</span>生成竞品拆解</a>
+      <a class="btn" href="{{ url_for('admin.keyword_map') }}"><span class="ms">account_tree</span>生成关键词地图</a>
+    </div>
+  </div>
+
+  {# 可解释差异钩子(凸显可追溯) #}
+  <div class="fz-hook">
+    <span class="ms">fact_check</span>
+    <div>每个因子都附<b>权重、证据、置信度与数据来源</b>,可逐项核验、可生成任务 —— 评分依据完全透明,而非单一总分。</div>
+  </div>
+
+  {# ② 6 张 KPI 卡 #}
+  <div class="fz-kpis">
+    <div class="card kpi lead">
+      <div class="k-l">综合评分</div>
+      <div class="k-v">{{ f.score }}</div>
+      <div class="k-n">满分 100 · 加权汇总</div>
+    </div>
+    <div class="card kpi">
+      <div class="k-l">结论</div>
+      <div class="k-v">{{ f.verdict }}</div>
+      <div class="k-n">{{ f.verdict_note }}</div>
+    </div>
+    <div class="card kpi">
+      <div class="k-l">置信度</div>
+      <div class="k-v sm">{{ f.confidence }}</div>
+      <div class="k-n">AI 推断占比 {{ f.ai_infer }}</div>
+    </div>
+    <div class="card kpi">
+      <div class="k-l">预期见效</div>
+      <div class="k-v sm">{{ f.eta }}</div>
+      <div class="k-n">{{ f.eta_note }}</div>
+    </div>
+    <div class="card kpi">
+      <div class="k-l">数据源</div>
+      <div class="k-v">{{ f.sources }}</div>
+      <div class="k-n">{{ f.sources_note }}</div>
+    </div>
+    <div class="card kpi">
+      <div class="k-l">风险数</div>
+      <div class="k-v">{{ f.risks }}</div>
+      <div class="k-n">{{ f.risks_note }}</div>
+    </div>
+  </div>
+
+  {# ③ 机会 / 风险 + ④ 数据可信度 #}
+  <div class="fz-mid">
+    <div class="card">
+      <div class="card-h"><div class="ci"><span class="ms">trending_up</span></div>
+        <div><div class="ct">机会</div><div class="cs">值得切入的方向</div></div></div>
+      <ul class="lst op">
+        {% for o in f.opportunities %}
+        <li><span class="ms">check_circle</span><span>{{ o }}</span></li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <div class="card">
+      <div class="card-h"><div class="ci"><span class="ms">warning</span></div>
+        <div><div class="ct">风险</div><div class="cs">需运营确认</div></div></div>
+      <ul class="lst rk">
+        {% for r in f.risks_list %}
+        <li><span class="ms">error</span><span>{{ r }}</span></li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <div class="card">
+      <div class="card-h"><div class="ci"><span class="ms">database</span></div>
+        <div><div class="ct">数据可信度</div><div class="cs">每条结论都可追溯来源</div></div></div>
+      <ul class="src">
+        {% for s in f.data_sources %}
+        <li>
+          <span class="sdot"><span class="ms">link</span></span>
+          <span class="stx"><b>{{ s.name }}</b><span>{{ s.note }}</span></span>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+
+  {# ⑤ 可解释评分模型 #}
+  <div class="card">
+    <div class="card-h">
+      <div class="ci"><span class="ms">analytics</span></div>
+      <div><div class="ct">可解释评分模型</div><div class="cs">每个因子的分数、权重、证据与置信度都摊开,支持逐项核验与生成任务</div></div>
+    </div>
+    <div class="card-b" style="padding:0;overflow-x:auto">
+      <table class="fz-tbl">
+        <thead>
+          <tr>
+            <th style="width:170px">因子</th>
+            <th style="width:160px">分数</th>
+            <th style="width:64px">权重</th>
+            <th>证据</th>
+            <th style="width:80px">置信度</th>
+            <th style="width:96px">状态</th>
+            <th style="width:150px">操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for fa in f.factors %}
+          <tr>
+            <td class="fac"><b>{{ fa.name }}</b></td>
+            <td>
+              <div class="scwrap">
+                <span class="scnum">{{ fa.score }}</span>
+                <span class="track"><i style="width:{{ fa.score }}%"></i></span>
+              </div>
+            </td>
+            <td class="wt">{{ fa.weight }}</td>
+            <td class="ev">{{ fa.evidence }}</td>
+            <td>
+              <span class="adv-tag">{{ fa.confidence }}</span>
+            </td>
+            <td>
+              {% if fa.status == '通过' %}
+              <span class="adv-status ok"><span class="dot"></span>{{ fa.status }}</span>
+              {% else %}
+              <span class="adv-status warn"><span class="dot"></span>{{ fa.status }}</span>
+              {% endif %}
+            </td>
+            <td>
+              <div class="ops">
+                <span class="lk">查看证据</span><span class="sep">·</span><span class="lk">生成任务</span>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

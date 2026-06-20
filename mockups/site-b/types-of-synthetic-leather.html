@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Types of Synthetic Leather and How to Choose — Meridian Leather Co.</title>
+<meta name="description" content="Compare the main types of synthetic leather (PU, PVC, microfiber, silicone) by thickness, abrasion, peel strength and certification to choose the right roll.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;1,9..144,300;1,9..144,400&family=Hanken+Grotesk:wght@400;500;600&family=Spline+Sans+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#121013;          /* warm charcoal */
+    --panel:#1A1715;
+    --panel-2:#15120F;
+    --ink:#ECE6DC;         /* warm white */
+    --accent:#C9A36B;      /* aged copper */
+    --accent-soft:#A88A5C;
+    --muted:#9A9187;
+    --line:rgba(236,230,220,.12);
+    --line-strong:rgba(201,163,107,.34);
+    --serif:"Fraunces", Georgia, serif;
+    --sans:"Hanken Grotesk", system-ui, sans-serif;
+    --mono:"Spline Sans Mono", ui-monospace, monospace;
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--sans);
+    font-weight:400;
+    line-height:1.8;
+    font-size:17px;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+    position:relative;
+    overflow-x:hidden;
+  }
+
+  /* very faint film grain overlay */
+  body::after{
+    content:"";
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    z-index:9999;
+    opacity:.04;
+    mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  ::selection{background:rgba(201,163,107,.28);color:var(--ink);}
+
+  a{color:var(--accent);text-decoration:none;}
+
+  .wrap{max-width:1180px;margin:0 auto;padding:0 40px;}
+
+  /* ============ STICKY TOP BAR ============ */
+  header.top{
+    position:sticky;top:0;z-index:100;
+    background:rgba(18,16,19,.72);
+    backdrop-filter:blur(14px) saturate(140%);
+    -webkit-backdrop-filter:blur(14px) saturate(140%);
+    border-bottom:1px solid var(--line);
+  }
+  .top-inner{
+    display:flex;align-items:center;justify-content:space-between;
+    gap:24px;height:74px;
+  }
+  .brand{display:flex;align-items:baseline;gap:14px;white-space:nowrap;}
+  .brand .mark{
+    font-family:var(--serif);
+    font-weight:500;
+    font-size:21px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--ink);
+  }
+  .brand .mark b{color:var(--accent);font-weight:500;}
+  .brand .est{
+    font-family:var(--mono);
+    font-size:10.5px;
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    color:var(--muted);
+  }
+  nav.main{display:flex;gap:0;align-items:center;flex-wrap:nowrap;}
+  nav.main a{
+    font-size:12.5px;
+    letter-spacing:.04em;
+    color:var(--muted);
+    padding:8px 13px;
+    position:relative;
+    transition:color .25s ease;
+    white-space:nowrap;
+  }
+  nav.main a:hover{color:var(--ink);}
+  nav.main a.active{color:var(--ink);}
+  nav.main a.active::after{
+    content:"";
+    position:absolute;left:13px;right:13px;bottom:0;
+    height:1px;background:var(--accent);
+  }
+
+  /* ============ BREADCRUMB ============ */
+  .breadcrumb{
+    border-bottom:1px solid var(--line);
+  }
+  .breadcrumb .wrap{
+    padding-top:16px;padding-bottom:16px;
+    font-family:var(--mono);
+    font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--muted);
+  }
+  .breadcrumb a{color:var(--muted);}
+  .breadcrumb a:hover{color:var(--accent);}
+  .breadcrumb .sep{color:var(--accent-soft);margin:0 8px;opacity:.6;}
+  .breadcrumb .here{color:var(--ink);}
+
+  /* ============ HERO ============ */
+  .hero{
+    position:relative;
+    padding:96px 0 84px;
+    border-bottom:1px solid var(--line);
+    background:
+      radial-gradient(120% 80% at 88% -10%, rgba(201,163,107,.10), transparent 55%),
+      linear-gradient(180deg, var(--panel-2) 0%, var(--bg) 100%);
+    overflow:hidden;
+  }
+  /* faint vertical grid lines */
+  .hero::before{
+    content:"";
+    position:absolute;inset:0;
+    background-image:linear-gradient(90deg,var(--line) 1px,transparent 1px);
+    background-size:calc((100% - 0px)/6) 100%;
+    opacity:.5;
+    pointer-events:none;
+    mask-image:linear-gradient(180deg,transparent,#000 18%,#000 82%,transparent);
+    -webkit-mask-image:linear-gradient(180deg,transparent,#000 18%,#000 82%,transparent);
+  }
+  .hero .wrap{position:relative;z-index:1;}
+
+  .hero-grid{
+    display:grid;
+    grid-template-columns:1fr auto;
+    gap:48px;
+    align-items:end;
+  }
+
+  .kicker{
+    display:inline-flex;align-items:center;gap:12px;
+    font-family:var(--mono);
+    font-size:11px;letter-spacing:.22em;text-transform:uppercase;
+    color:var(--accent);
+    margin-bottom:34px;
+  }
+  .kicker .num{
+    color:var(--muted);
+    border:1px solid var(--line-strong);
+    border-radius:2px;
+    padding:3px 8px;
+    font-size:10px;
+    letter-spacing:.1em;
+  }
+  .kicker .dash{width:46px;height:1px;background:var(--accent-soft);opacity:.7;}
+
+  .hero h2.display{
+    font-family:var(--serif);
+    font-weight:300;
+    font-optical-sizing:auto;
+    font-size:clamp(2.7rem, 6.4vw, 5.5rem);
+    line-height:1.02;
+    letter-spacing:-.01em;
+    margin:0 0 30px;
+    color:var(--ink);
+    max-width:14ch;
+  }
+  .hero h2.display em{
+    font-style:italic;
+    font-weight:400;
+    color:var(--accent);
+  }
+  .hero .lede{
+    font-size:clamp(1rem, 1.5vw, 1.18rem);
+    line-height:1.7;
+    color:var(--muted);
+    max-width:54ch;
+    margin:0 0 40px;
+    font-weight:400;
+  }
+
+  .chips{display:flex;flex-wrap:wrap;gap:10px;}
+  .chip{
+    font-family:var(--mono);
+    font-size:11.5px;letter-spacing:.06em;
+    color:var(--ink);
+    padding:7px 14px;
+    border:1px solid var(--line-strong);
+    border-radius:100px;
+    background:rgba(201,163,107,.05);
+    white-space:nowrap;
+  }
+  .chip b{color:var(--accent);font-weight:500;}
+
+  /* right rail meta block */
+  .hero-meta{
+    border-left:1px solid var(--line);
+    padding-left:30px;
+    min-width:200px;
+    text-align:left;
+  }
+  .hero-meta .row{margin-bottom:24px;}
+  .hero-meta .row:last-child{margin-bottom:0;}
+  .hero-meta .k{
+    font-family:var(--mono);
+    font-size:10px;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--muted);
+    display:block;margin-bottom:6px;
+  }
+  .hero-meta .v{
+    font-family:var(--serif);
+    font-size:1.35rem;
+    font-weight:400;
+    color:var(--ink);
+    line-height:1.2;
+  }
+  .hero-meta .v small{
+    font-family:var(--sans);
+    font-size:.7rem;color:var(--muted);
+    letter-spacing:.04em;display:block;margin-top:3px;
+  }
+
+  /* hero load animation */
+  .anim{opacity:0;transform:translateY(16px);animation:rise .9s cubic-bezier(.2,.7,.2,1) forwards;}
+  .d1{animation-delay:.05s;} .d2{animation-delay:.16s;} .d3{animation-delay:.28s;}
+  .d4{animation-delay:.40s;} .d5{animation-delay:.52s;} .d6{animation-delay:.62s;}
+  @keyframes rise{to{opacity:1;transform:translateY(0);}}
+  @media (prefers-reduced-motion:reduce){
+    .anim{animation:none;opacity:1;transform:none;}
+  }
+
+  /* ============ ARTICLE ============ */
+  .article-shell{
+    background:linear-gradient(180deg, var(--bg), var(--panel-2) 140%);
+    padding:84px 0 40px;
+  }
+  article{
+    max-width:760px;
+    margin:0 auto;
+  }
+
+  article h1{
+    font-family:var(--serif);
+    font-weight:300;
+    font-size:clamp(2rem,3.6vw,2.9rem);
+    line-height:1.1;
+    letter-spacing:-.01em;
+    color:var(--ink);
+    margin:0 0 36px;
+    padding-bottom:30px;
+    border-bottom:1px solid var(--line);
+  }
+
+  article h2{
+    font-family:var(--serif);
+    font-weight:400;
+    font-size:clamp(1.5rem,2.6vw,2rem);
+    line-height:1.18;
+    letter-spacing:-.005em;
+    color:var(--ink);
+    margin:72px 0 22px;
+    position:relative;
+    padding-top:26px;
+    counter-increment:sec;
+  }
+  article h2::before{
+    content:"0" counter(sec);
+    position:absolute;top:0;left:0;
+    font-family:var(--mono);
+    font-size:11px;letter-spacing:.16em;
+    color:var(--accent);
+    font-weight:400;
+  }
+  article{counter-reset:sec;}
+
+  article h3{
+    font-family:var(--serif);
+    font-weight:500;
+    font-size:1.3rem;
+    color:var(--ink);
+    margin:40px 0 14px;
+  }
+
+  article p{
+    margin:0 0 24px;
+    color:#D9D2C7;
+    font-size:17px;
+    line-height:1.82;
+  }
+
+  /* drop-cap on first paragraph */
+  article > p:first-of-type::first-letter{
+    font-family:var(--serif);
+    font-weight:300;
+    float:left;
+    font-size:4.6rem;
+    line-height:.78;
+    padding:8px 14px 0 0;
+    color:var(--accent);
+  }
+
+  article a{
+    color:var(--accent);
+    border-bottom:1px solid var(--line-strong);
+    padding-bottom:1px;
+    transition:color .2s ease, border-color .2s ease;
+  }
+  article a:hover{color:var(--ink);border-bottom-color:var(--accent);}
+
+  article ul{
+    list-style:none;
+    margin:0 0 30px;
+    padding:0;
+  }
+  article ul li{
+    position:relative;
+    padding:14px 0 14px 34px;
+    border-bottom:1px solid var(--line);
+    color:#D9D2C7;
+    line-height:1.65;
+  }
+  article ul li:first-child{border-top:1px solid var(--line);}
+  article ul li::before{
+    content:"";
+    position:absolute;left:6px;top:24px;
+    width:7px;height:7px;
+    border:1px solid var(--accent);
+    transform:rotate(45deg);
+  }
+
+  /* ============ DATASHEET TABLE ============ */
+  .table-scroll{
+    overflow-x:auto;
+    margin:36px 0 40px;
+    border:1px solid var(--line);
+    border-radius:4px;
+    background:var(--panel);
+    -webkit-overflow-scrolling:touch;
+  }
+  article table{
+    width:100%;
+    border-collapse:collapse;
+    min-width:560px;
+    font-size:14.5px;
+  }
+  article thead th{
+    font-family:var(--mono);
+    font-weight:500;
+    font-size:10.5px;
+    letter-spacing:.13em;
+    text-transform:uppercase;
+    color:var(--accent);
+    text-align:left;
+    padding:18px 20px;
+    background:var(--panel-2);
+    border-bottom:1px solid var(--line-strong);
+    white-space:nowrap;
+  }
+  article tbody td{
+    padding:15px 20px;
+    border-bottom:1px solid var(--line);
+    color:#D9D2C7;
+    vertical-align:top;
+    line-height:1.5;
+  }
+  article tbody tr:last-child td{border-bottom:none;}
+  article tbody tr:hover td{background:rgba(201,163,107,.045);}
+  /* first col = property name, serif; second col = numeric, mono */
+  article tbody td:first-child{
+    font-family:var(--serif);
+    font-weight:500;
+    color:var(--ink);
+    font-size:15px;
+    white-space:nowrap;
+  }
+  article tbody td:nth-child(2){
+    font-family:var(--mono);
+    font-size:13px;
+    color:var(--accent);
+    white-space:nowrap;
+  }
+  article tbody td:nth-child(3){
+    font-family:var(--mono);
+    font-size:12px;
+    color:var(--muted);
+    letter-spacing:.02em;
+    white-space:nowrap;
+  }
+
+  article blockquote{
+    margin:36px 0;
+    padding:6px 0 6px 28px;
+    border-left:2px solid var(--accent);
+    font-family:var(--serif);
+    font-style:italic;
+    font-weight:300;
+    font-size:1.3rem;
+    line-height:1.5;
+    color:var(--ink);
+  }
+
+  /* ============ FOOTER ============ */
+  footer.site{
+    border-top:1px solid var(--line);
+    background:var(--panel-2);
+    padding:54px 0 60px;
+  }
+  footer.site .wrap{
+    display:flex;align-items:flex-start;justify-content:space-between;
+    gap:40px;flex-wrap:wrap;
+  }
+  footer .f-brand .mark{
+    font-family:var(--serif);
+    font-weight:500;
+    font-size:18px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--ink);
+  }
+  footer .f-brand .mark b{color:var(--accent);font-weight:500;}
+  footer .f-brand .est{
+    font-family:var(--mono);
+    font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--muted);margin-top:8px;
+  }
+  footer .f-meta{
+    font-family:var(--mono);
+    font-size:11px;letter-spacing:.06em;
+    color:var(--muted);
+    line-height:2;
+    text-align:right;
+  }
+  footer .f-meta .sep{color:var(--accent-soft);opacity:.5;margin:0 6px;}
+
+  /* ============ RESPONSIVE ============ */
+  @media (max-width:1040px){
+    nav.main a{padding:8px 9px;font-size:12px;}
+  }
+  @media (max-width:880px){
+    .hero-grid{grid-template-columns:1fr;gap:40px;}
+    .hero-meta{
+      border-left:none;border-top:1px solid var(--line);
+      padding-left:0;padding-top:26px;
+      display:flex;gap:40px;flex-wrap:wrap;
+    }
+    .hero-meta .row{margin-bottom:0;}
+  }
+  @media (max-width:720px){
+    .wrap{padding:0 22px;}
+    .top-inner{height:auto;padding:16px 0;flex-direction:column;align-items:flex-start;gap:14px;}
+    .brand{order:0;}
+    nav.main{
+      order:1;width:100%;
+      overflow-x:auto;
+      gap:0;
+      -webkit-overflow-scrolling:touch;
+      scrollbar-width:none;
+      padding-bottom:2px;
+    }
+    nav.main::-webkit-scrollbar{display:none;}
+    nav.main a{padding:6px 12px 6px 0;font-size:12px;}
+    nav.main a.active::after{left:0;right:12px;}
+    .hero{padding:60px 0 56px;}
+    .article-shell{padding:56px 0 30px;}
+    article > p:first-of-type::first-letter{font-size:3.6rem;}
+    .hero-meta{gap:28px;}
+  }
+</style>
+</head>
+<body>
+
+  <!-- STICKY TOP BAR -->
+  <header class="top">
+    <div class="wrap top-inner">
+      <div class="brand">
+        <span class="mark">Meridian <b>Leather</b> Co.</span>
+        <span class="est">Est. 2009 · Wenzhou</span>
+      </div>
+      <nav class="main">
+        <a href="./pu-leather-guide.html">Sourcing Guide</a>
+        <a href="./pu-leather-vs-genuine-leather.html">vs Genuine</a>
+        <a href="./pu-leather-vs-pvc-leather.html">vs PVC</a>
+        <a href="./types-of-synthetic-leather.html" class="active">Material Types</a>
+        <a href="./pu-leather-for-furniture.html">Furniture</a>
+        <a href="./pu-leather-for-automotive.html">Automotive</a>
+        <a href="./is-pu-leather-durable-waterproof.html">Durable &amp; Waterproof</a>
+        <a href="./microfiber-pu-leather-bags.html">Microfiber Bags</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BREADCRUMB -->
+  <div class="breadcrumb">
+    <div class="wrap">
+      <a href="./index.html">Home</a><span class="sep">›</span><a href="./pu-leather-guide.html">PU Leather</a><span class="sep">›</span><span class="here">Material Types</span>
+    </div>
+  </div>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="wrap">
+      <div class="hero-grid">
+        <div class="hero-main">
+          <div class="kicker anim d1">
+            <span class="num">04</span>
+            <span>GUIDE · DOC</span>
+            <span class="dash"></span>
+          </div>
+          <h2 class="display anim d2">The <em>Types</em> of Synthetic Leather</h2>
+          <p class="lede anim d3">Compare the main types of synthetic leather (PU, PVC, microfiber, silicone) by thickness, abrasion, peel strength and certification to choose the right roll.</p>
+          <div class="chips anim d4">
+            <span class="chip"><b>PU · PVC</b> families</span>
+            <span class="chip"><b>Microfiber</b> base</span>
+            <span class="chip"><b>Silicone</b> surface</span>
+            <span class="chip"><b>ISO 5470</b> abrasion</span>
+            <span class="chip"><b>300–1,000 m</b> MOQ</span>
+          </div>
+        </div>
+        <aside class="hero-meta anim d5">
+          <div class="row">
+            <span class="k">Discipline</span>
+            <span class="v">Taxonomy<small>four families</small></span>
+          </div>
+          <div class="row">
+            <span class="k">Methods Cited</span>
+            <span class="v">ISO &amp; ASTM<small>Martindale · Wyzenbeek</small></span>
+          </div>
+          <div class="row">
+            <span class="k">Read Time</span>
+            <span class="v">10 min<small>decision process</small></span>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <!-- ARTICLE -->
+  <div class="article-shell">
+    <div class="wrap">
+      <article>
+<h1>Types of Synthetic Leather and How to Choose</h1>
+<p>When buyers ask us to quote a fabric, the first job is always to narrow down the <strong>types of synthetic leather</strong> that actually fit the end product. A handbag panel, a restaurant booth, and a car seat each pull from a different family of material, and ordering the wrong one wastes both your MOQ and your sampling budget. This guide walks through the four main families we run on our coating and lamination lines, the test numbers that separate them, and a decision process you can hand to your QC team. For the broader sourcing picture, our <a href="./pu-leather-guide.html">PU leather sourcing guide</a> covers contracts, inspection and shipping in more depth.</p>
+<p>Every figure below comes from our own roll specifications and the test methods printed on our certificates. Treat them as working ranges for negotiation, not absolute limits, because additives, backing cloth and surface texture all shift the result.</p>
+
+<h2>The Four Main Families of Synthetic Leather</h2>
+<p>Most of what the market calls "faux" or "vegan" leather collapses into four constructions. Each starts with a textile backing (woven, knit or non-woven) and differs in the polymer skin laminated or coated on top.</p>
+<ul>
+  <li><strong>PU (polyurethane) leather</strong> &mdash; a polyurethane skin on a polyester or cotton backing. Soft hand, good cold-crack behaviour, and the most common choice for fashion, footwear lining and light upholstery. Typical thickness 0.6&ndash;1.4 mm, weight 320&ndash;760 g/m&sup2;.</li>
+  <li><strong>PVC (polyvinyl chloride) leather</strong> &mdash; a plasticised vinyl skin, usually on a knit backing. Heavier and stiffer, very scrubbable, and cheaper per metre. Thickness 0.8&ndash;1.8 mm, weight 600&ndash;1100 g/m&sup2;. Strong in marine, healthcare and contract seating where bleach cleaning matters.</li>
+  <li><strong>Microfiber PU leather</strong> &mdash; a non-woven entangled microfiber base impregnated with polyurethane. The closest synthetic to top-grain in feel and breathability, with the highest abrasion and tear numbers. Thickness 0.8&ndash;1.6 mm, weight 380&ndash;620 g/m&sup2;.</li>
+  <li><strong>Silicone leather</strong> &mdash; a silicone surface layer, often over a microfiber or recycled-poly base. Plasticiser-free, heat and stain resistant, and increasingly specified where Prop 65 phthalate scrutiny is tight. Thickness 0.9&ndash;1.5 mm, weight 450&ndash;700 g/m&sup2;.</li>
+</ul>
+<p>A fifth label, "bonded leather", reuses ground leather fibre with a polyurethane top coat. We do not run it because peel strength is unreliable, but you will see it sold cheaply, so it is worth recognising on a competitor's spec sheet.</p>
+
+<h2>How Do the Types of Synthetic Leather Compare on Specs?</h2>
+<p>Numbers settle most arguments. The table below puts our four production families side by side on the measurements buyers and end-customers actually audit. Abrasion is reported on both common scales because European tenders cite Martindale (ISO 5470-2) while North American contract work cites Wyzenbeek (ASTM D4157).</p>
+<div class="table-scroll"><table>
+  <thead>
+    <tr><th>Property (method)</th><th>PU</th><th>PVC</th><th>Microfiber PU</th><th>Silicone</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Thickness</td><td>0.6&ndash;1.4 mm</td><td>0.8&ndash;1.8 mm</td><td>0.8&ndash;1.6 mm</td><td>0.9&ndash;1.5 mm</td></tr>
+    <tr><td>Weight</td><td>320&ndash;760 g/m&sup2;</td><td>600&ndash;1100 g/m&sup2;</td><td>380&ndash;620 g/m&sup2;</td><td>450&ndash;700 g/m&sup2;</td></tr>
+    <tr><td>Abrasion, Martindale (ISO 5470-2)</td><td>40,000&ndash;80,000</td><td>50,000&ndash;100,000</td><td>80,000&ndash;150,000</td><td>60,000&ndash;120,000</td></tr>
+    <tr><td>Abrasion, Wyzenbeek (ASTM D4157)</td><td>30,000&ndash;60,000</td><td>50,000&ndash;100,000</td><td>100,000+</td><td>60,000&ndash;100,000</td></tr>
+    <tr><td>Peel strength (ISO 2411)</td><td>18&ndash;30 N/25mm</td><td>20&ndash;35 N/25mm</td><td>25&ndash;40 N/25mm</td><td>22&ndash;34 N/25mm</td></tr>
+    <tr><td>Hydrolysis resistance (ISO 1419)</td><td>3&ndash;5 weeks</td><td>5&ndash;7 weeks</td><td>5&ndash;7 weeks</td><td>6&ndash;8 weeks</td></tr>
+    <tr><td>Relative cost / metre</td><td>Medium</td><td>Low</td><td>High</td><td>High</td></tr>
+  </tbody>
+</table></div>
+<p>Two patterns are worth flagging. First, microfiber PU wins almost every durability column, which is why it carries the highest price and the lowest MOQ flexibility. Second, PVC's hydrolysis figure looks strong, but its weakness shows up as cold-cracking and plasticiser migration rather than humid-heat breakdown, so a single line never tells the whole story. If your decision sits between coated families, our breakdown of <a href="./pu-leather-vs-pvc-leather.html">PU leather versus PVC leather differences</a> goes deeper on cleaning, flame behaviour and feel.</p>
+
+<h2>Matching Material to Application</h2>
+<p>Once you know the families, the choice is mostly driven by what the finished item must survive. Here is how we steer buyers by end use.</p>
+<ul>
+  <li><strong>Bags and small leather goods</strong> &mdash; microfiber PU at 1.0&ndash;1.2 mm gives the grain depth and edge-paint adhesion that premium brands want. Our 1.2 mm microfiber line for bags is described in the <a href="./microfiber-pu-leather-bags.html">wholesale microfiber PU leather for bags</a> page, including roll widths and lamination options.</li>
+  <li><strong>Sofas and residential furniture</strong> &mdash; PU at 0.9&ndash;1.2 mm balances hand-feel against cost; a brushed or skin-foam backing improves seam strength. See application notes in our guide to <a href="./pu-leather-for-furniture.html">PU leather for sofas and upholstery</a>.</li>
+  <li><strong>Automotive seats and interiors</strong> &mdash; OEM and aftermarket work usually demands 0.9&ndash;1.4 mm with strong UV and fogging performance; many programmes now specify silicone or high-spec microfiber. Our <a href="./pu-leather-for-automotive.html">PU leather for automotive seats</a> page lists the relevant interior standards.</li>
+  <li><strong>Healthcare, marine and contract seating</strong> &mdash; PVC or silicone, chosen for bleach-cleanable surfaces and anti-microbial finishes that survive repeated disinfection.</li>
+  <li><strong>Footwear and accessories</strong> &mdash; lightweight PU at 0.6&ndash;0.9 mm where flex-crack resistance matters more than abrasion.</li>
+</ul>
+<p>If you are weighing any synthetic against animal hide for a project brief, our comparison of <a href="./pu-leather-vs-genuine-leather.html">PU leather versus genuine leather sourcing</a> lays out the cost, consistency and sustainability trade-offs that buyers raise most.</p>
+
+<h2>What Certifications and Compliance Should You Check?</h2>
+<p>For export orders the test report often matters as much as the material itself. Customs, retailers and end-brands all run their own compliance gates, and a missing certificate can hold a container at port. We supply the following on request, matched to the destination market:</p>
+<ul>
+  <li><strong>REACH (EU)</strong> &mdash; restricted-substance screening, the baseline for any European buyer.</li>
+  <li><strong>RoHS</strong> &mdash; relevant when the material ships inside an electronic or appliance assembly.</li>
+  <li><strong>OEKO-TEX Standard 100</strong> &mdash; skin-contact safety, frequently requested for fashion and bags.</li>
+  <li><strong>California Prop 65</strong> &mdash; phthalate and heavy-metal limits for US retail; silicone leather passes this most easily because it carries no plasticiser.</li>
+</ul>
+<p>We do not invent certificate numbers or back-date reports. If a batch has not been tested to a given standard, we say so and quote the third-party lab fee instead. That honesty protects you during retailer audits, where a fabricated document is far more damaging than an absent one.</p>
+
+<h2>Ordering Details: MOQ, Width and Lead Time</h2>
+<p>The commercial terms differ by family, and they shape which material is realistic for a first order. Standard roll width across our lines is 54&ndash;58 inches (137&ndash;147 cm), which suits most cut-and-sew nesting. Minimum order quantity is roughly 1,000 m for coated PU and PVC, and about 300 m for microfiber PU and silicone, reflecting how those non-woven bases are made in smaller, more specialised runs. FOB lead time runs 15&ndash;25 days after sample sign-off, longer if you need a custom embossing roller or a colour outside our stock card.</p>
+<p>A practical sequence keeps projects on schedule. First, fix the application and the one or two specs that cannot move, such as a minimum Martindale figure or a Prop 65 pass. Second, request 20 &times; 30 cm hand samples from two candidate families rather than one, so your team can compare feel and not just paperwork. Third, order a bulk-cutting yardage of 30&ndash;50 m before committing the full MOQ, and run your own seam, flex and rub tests on it. Buyers who follow that order rarely face a costly surprise at mass production.</p>
+<p>Choosing among the types of synthetic leather is really a matter of ranking your constraints: durability, hand-feel, cleanability, compliance and price almost never peak in the same roll. Decide which two matter most for the product in front of you, hold those firm, and let the rest flex. If you send us the end use and your target landed cost, we will shortlist two constructions and ship samples within a week so you can judge them on your own bench.</p>
+      </article>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="site">
+    <div class="wrap">
+      <div class="f-brand">
+        <div class="mark">Meridian <b>Leather</b> Co.</div>
+        <div class="est">Est. 2009 · Wenzhou · Specification-grade sourcing</div>
+      </div>
+      <div class="f-meta">
+        © 2026 Meridian Leather Co.<span class="sep">·</span>Specification-grade sourcing<span class="sep">·</span>demo build
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>

@@ -1,0 +1,68 @@
+name: "PU Leather (Synthetic Leather) — B2B Export Supplier"
+seed_keyword: "PU leather"
+language: "English"
+market: "Global B2B export buyers"
+audience: "Importers and manufacturers (furniture, automotive, bags, footwear) sourcing leather material in bulk"
+tone: "Professional, factual, confident manufacturer voice. No fluff, no 'in today's fast-paced world'."
+terminology: "PU leather, synthetic/faux leather, microfiber leather, PVC leather, GSM, thickness (mm), Martindale abrasion, backing fabric, hydrolysis resistance, MOQ"
+eeat: "Cite concrete specs (thickness in mm, Martindale rub counts, application fit). Write like a factory, not a blogger."
+default_category: "PU Leather"
+# 品牌名 —— 全站页头、页脚与 schema.org Organization 都用它（统一身份）。换成你/客户的真实品牌。
+org_name: "Demo Leather Co., Ltd."
+org_description: "Synthetic & microfiber PU leather manufacturer for furniture, automotive, bags and footwear — B2B export supplier."
+
+# 生成站主题（lib/themes/ 里的机器名）。可选：datasheet-editorial（默认）/ atelier-dark / technical-blueprint。
+theme: "datasheet-editorial"
+
+# 预先打磨好的 8 页结构 —— 保证 demo 稳定、好看。
+# 想用客户的现场关键词跑：把整个 pages: 段删掉、改 seed_keyword，结构就交给 keyword-cluster skill 现场生成。
+# nav_label：导航栏短标签（可选，缺省自动从标题截取）；hero_chips：页眉规格小标签（可选）。
+pages:
+  - title: "PU Leather: The Complete Sourcing Guide for Importers"
+    type: pillar
+    slug: pu-leather-guide
+    target_keyword: "PU leather"
+    nav_label: "Sourcing Guide"
+    hero_chips: ["0.6–1.8 mm", "ISO 5470 Martindale", "ISO 2411 Peel", "REACH · OEKO-TEX", "MOQ 300–1000 m"]
+  - title: "PU Leather vs Genuine Leather: Which Should You Source?"
+    type: comparison
+    slug: pu-leather-vs-genuine-leather
+    target_keyword: "PU leather vs genuine leather"
+    nav_label: "vs Genuine"
+    hero_chips: ["Consistency", "Animal-free", "Cost / m²"]
+  - title: "PU Leather vs PVC Leather: Key Differences Explained"
+    type: comparison
+    slug: pu-leather-vs-pvc-leather
+    target_keyword: "PU leather vs PVC leather"
+    nav_label: "vs PVC"
+    hero_chips: ["Softness", "Breathability", "Chemical profile"]
+  - title: "Types of Synthetic Leather and How to Choose"
+    type: guide
+    slug: types-of-synthetic-leather
+    target_keyword: "types of synthetic leather"
+    nav_label: "Material Types"
+    hero_chips: ["PU · PVC · Microfiber", "Backing families", "Grade selection"]
+  - title: "PU Leather for Sofas and Furniture Upholstery"
+    type: application
+    slug: pu-leather-for-furniture
+    target_keyword: "PU leather for furniture"
+    nav_label: "Furniture"
+    hero_chips: ["40–60K Martindale", "Litchi emboss", "1.0–1.4 mm"]
+  - title: "PU Leather for Automotive Seats and Interiors"
+    type: application
+    slug: pu-leather-for-automotive
+    target_keyword: "PU leather for car seats"
+    nav_label: "Automotive"
+    hero_chips: ["FMVSS 302", "100K+ Martindale", "Low-fogging"]
+  - title: "Is PU Leather Durable and Waterproof? A Buyer's FAQ"
+    type: faq
+    slug: is-pu-leather-durable-waterproof
+    target_keyword: "is PU leather durable"
+    nav_label: "Durable & Waterproof"
+    hero_chips: ["Hydrolysis ISO 1419", "Service life", "Care"]
+  - title: "1.2mm Microfiber PU Leather for Bags (Wholesale)"
+    type: product
+    slug: microfiber-pu-leather-bags
+    target_keyword: "microfiber PU leather wholesale"
+    nav_label: "Microfiber Bags"
+    hero_chips: ["1.2 mm", "MOQ 300 m", "Microfiber base"]

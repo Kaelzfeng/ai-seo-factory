@@ -1,0 +1,81 @@
+# =============================================================================
+# 现场版模板 (LIVE client-keyword mode)
+# -----------------------------------------------------------------------------
+# 用法：复制本文件 → 填好下面字段 → 用 seed_keyword 跑现场版。
+#   python run.py industries/<你的-config>.yaml --dry-run   # 本地预览，不发布
+#   python run.py industries/<你的-config>.yaml             # 发布到 WordPress
+#
+# 关键：本模板【没有 pages: 段】。
+#   - 不要手填 pages:，整站结构（主题簇 / 内链闭环）由 keyword-cluster skill
+#     根据 seed_keyword 现场生成 —— 这就是“现场版”最有代入感的地方。
+#   - 想要稳定好看的兜底演示，请改用 industries/pu-leather.yaml（它带预设 pages:）。
+# =============================================================================
+
+# 行业 + 供应商定位。决定整站口吻与“我是谁”。
+# 例：Silicone Kitchenware — B2B Export Supplier
+name: "<行业 + 供应商定位，例：Silicone Kitchenware — B2B Export Supplier>"
+
+# 客户的核心种子词。keyword-cluster skill 以它为根，扩成 pillar + cluster 主题簇。
+# 用买家真实会搜的采购词，别用太宽泛的品类大词。
+# 例：silicone spatula
+seed_keyword: "<客户的核心词，例：silicone spatula>"
+
+# 输出语言。schema.py 取它的短代码写入 JSON-LD 的 inLanguage（如 "English" → en）。
+language: "English"
+
+# 目标市场，写进口吻与受众设定。
+market: "Global B2B export buyers"
+
+# 目标买家画像：是谁、什么采购场景。越具体，文案越像对买家说话。
+# 例：进口商 / 自有品牌 / 工厂采购，按规格与认证选供应商。
+audience: "<目标买家画像：进口商/品牌/工厂，采购场景>"
+
+# 文案口吻。保持工厂的、事实导向的、自信的供应商声音，不要博主腔、不要废话。
+tone: "Professional, factual, confident manufacturer voice. No fluff."
+
+# 本行业“必须出现”的术语 / 标准 / 单位，逗号分隔。
+# 质检（内功 rubric）会据此判定 specificity：有具体规格+单位+标准才得分。
+# 例：food-grade silicone, LFGB, FDA 21 CFR, Shore A hardness, °C heat resistance, MOQ
+terminology: "<本行业必须出现的术语/标准/单位，逗号分隔>"
+
+# E-E-A-T 可信信号：要求像工厂、不像博主。
+# 列出可摆事实的点：具体规格、认证、检测报告、案例、MOQ/交期/质保。
+eeat: "<可信信号：具体规格/认证/案例，要求像工厂不像博主>"
+
+# 站点分类名，用作面包屑（Breadcrumb）的中间一级，也用于 schema 的 category。
+default_category: "<站点分类名，用作面包屑>"
+
+# ---------------------------------------------------------------------------
+# 可选：JSON-LD / Organization 字段
+# 由 lib/schema.py 读取，写入每页的 Organization 节点（publisher / seller 引用）。
+# 留空或删掉都安全 —— 缺失的字段会被自动省略，不会报错。
+# ---------------------------------------------------------------------------
+
+# 公司名（Organization.name）。不填则回退用上面的 name。
+org_name: "<公司名>"
+
+# 公司 Logo 的可访问 URL（建议正方形）。不填则省略 logo 节点。
+logo_url: "<https://.../logo.png 方形可访问>"
+
+# 一句话公司简介（Organization.description）。
+org_description: "<一句话公司简介>"
+
+# 权威外链数组（Organization.sameAs）：官网/领英/Alibaba/Made-in-China 店铺等。
+same_as: ["<linkedin>", "<alibaba/made-in-china 店铺>"]
+
+# 联系电话（可选）。
+telephone: "<+86 ...>"
+
+# 联系邮箱（可选）。
+email: "<sales@...>"
+
+# =============================================================================
+# 跑法速查：
+#   本地预览（推荐先跑，不需要 WordPress）：
+#     python run.py industries/_template.yaml --dry-run
+#     然后打开 output/index.html 浏览整站
+#   发布到 WordPress（需先在 .env 配好 WP_SITE / WP_USER / WP_APP_PASSWORD）：
+#     python run.py industries/_template.yaml
+#   或用网页 UI：
+#     python app.py   →  http://127.0.0.1:5000
+# =============================================================================

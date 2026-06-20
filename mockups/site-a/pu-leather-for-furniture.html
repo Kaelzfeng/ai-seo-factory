@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>PU Leather for Sofas and Furniture Upholstery — Meridian Leather Co.</title>
+<meta name="description" content="A factory guide to PU leather for furniture: thickness, abrasion, peel strength, REACH compliance, MOQ, and width specs to spec sofa and chair upholstery." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=Archivo+Black&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --paper:#F2EEE3;
+    --paper-2:#ECE6D7;
+    --ink:#15110B;
+    --accent:#E2402A;
+    --accent-deep:#B82E1C;
+    --muted:#6B6357;
+    --line:#D8D1C2;
+    --line-strong:#C4BBA6;
+    --th-bg:#EAE4D6;
+    --measure:68ch;
+    --maxw:1180px;
+    --gutter:clamp(20px,5vw,72px);
+  }
+
+  *,*::before,*::after{box-sizing:border-box;}
+
+  html{ -webkit-text-size-adjust:100%; scroll-behavior:smooth; }
+
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:"Newsreader",Georgia,serif;
+    font-size:1.0625rem;
+    line-height:1.72;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+    overflow-x:hidden;
+  }
+
+  /* ---- paper grain / noise overlay ---- */
+  body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    z-index:9999;
+    pointer-events:none;
+    opacity:.045;
+    mix-blend-mode:multiply;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  ::selection{ background:var(--accent); color:var(--paper); }
+
+  a{ color:inherit; }
+
+  /* ---------- TOP BAR ---------- */
+  .topbar{
+    position:sticky;
+    top:0;
+    z-index:50;
+    background:rgba(242,238,227,.86);
+    backdrop-filter:saturate(140%) blur(8px);
+    -webkit-backdrop-filter:saturate(140%) blur(8px);
+    border-bottom:1px solid var(--line);
+  }
+  .topbar__inner{
+    max-width:var(--maxw);
+    margin:0 auto;
+    padding:0 var(--gutter);
+    display:flex;
+    align-items:stretch;
+    justify-content:space-between;
+    gap:24px;
+    min-height:64px;
+  }
+  .brand{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    text-decoration:none;
+    color:var(--ink);
+    flex-shrink:0;
+  }
+  .brand__mark{
+    width:30px;height:30px;
+    flex-shrink:0;
+    display:grid;place-items:center;
+    background:var(--ink);
+    color:var(--paper);
+    font-family:"Archivo Black","Archivo",sans-serif;
+    font-size:1rem;
+    line-height:1;
+    transform:rotate(-3deg);
+  }
+  .brand__mark span{ transform:rotate(3deg); }
+  .brand__txt{ display:flex; flex-direction:column; line-height:1.05; }
+  .brand__name{
+    font-family:"Archivo",sans-serif;
+    font-weight:900;
+    letter-spacing:-.01em;
+    font-size:.98rem;
+    text-transform:uppercase;
+  }
+  .brand__est{
+    font-family:"IBM Plex Mono",monospace;
+    font-size:.58rem;
+    letter-spacing:.18em;
+    text-transform:uppercase;
+    color:var(--muted);
+    margin-top:2px;
+  }
+
+  nav.mainnav{
+    display:flex;
+    align-items:stretch;
+    gap:0;
+    overflow-x:auto;
+    scrollbar-width:none;
+    -ms-overflow-style:none;
+  }
+  nav.mainnav::-webkit-scrollbar{ display:none; }
+  nav.mainnav a{
+    display:flex;
+    align-items:center;
+    padding:0 14px;
+    text-decoration:none;
+    color:var(--muted);
+    font-family:"IBM Plex Mono",monospace;
+    font-size:.66rem;
+    font-weight:500;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    white-space:nowrap;
+    position:relative;
+    transition:color .18s ease;
+  }
+  nav.mainnav a::after{
+    content:"";
+    position:absolute;
+    left:14px;right:14px;bottom:18px;
+    height:2px;
+    background:var(--accent);
+    transform:scaleX(0);
+    transform-origin:left;
+    transition:transform .22s ease;
+  }
+  nav.mainnav a:hover{ color:var(--ink); }
+  nav.mainnav a:hover::after{ transform:scaleX(1); }
+  nav.mainnav a.active{ color:var(--ink); }
+  nav.mainnav a.active::after{ transform:scaleX(1); background:var(--accent); }
+
+  /* ---------- BREADCRUMB ---------- */
+  .crumb{
+    max-width:var(--maxw);
+    margin:0 auto;
+    padding:14px var(--gutter) 0;
+    font-family:"IBM Plex Mono",monospace;
+    font-size:.66rem;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    color:var(--muted);
+  }
+  .crumb a{ color:var(--muted); text-decoration:none; transition:color .15s; }
+  .crumb a:hover{ color:var(--accent); }
+  .crumb .sep{ color:var(--line-strong); margin:0 8px; }
+  .crumb .here{ color:var(--ink); }
+
+  /* ---------- HERO ---------- */
+  .hero{
+    max-width:var(--maxw);
+    margin:0 auto;
+    padding:clamp(34px,6vw,72px) var(--gutter) clamp(30px,4.5vw,52px);
+    position:relative;
+  }
+  .hero__kicker{
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    font-family:"IBM Plex Mono",monospace;
+    font-size:.68rem;
+    letter-spacing:.22em;
+    text-transform:uppercase;
+    color:var(--accent-deep);
+    margin-bottom:clamp(20px,3vw,34px);
+  }
+  .hero__kicker .tick{
+    width:30px;height:1px;background:var(--accent);display:inline-block;
+  }
+  .hero__kicker .doc{
+    color:var(--muted);
+  }
+
+  .hero__title{
+    font-family:"Archivo Black","Archivo",sans-serif;
+    font-weight:900;
+    font-size:clamp(2.7rem,7.4vw,5.5rem);
+    line-height:.95;
+    letter-spacing:-.022em;
+    margin:0;
+    max-width:14ch;
+    text-wrap:balance;
+  }
+  .hero__title .vm{ color:var(--accent); }
+
+  .hero__lede{
+    font-family:"Newsreader",serif;
+    font-size:clamp(1.08rem,1.9vw,1.35rem);
+    line-height:1.55;
+    color:var(--ink);
+    max-width:58ch;
+    margin:clamp(20px,3vw,30px) 0 0;
+    font-weight:400;
+  }
+  .hero__lede em{ color:var(--muted); font-style:italic; }
+
+  .chips{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-top:clamp(26px,3.5vw,38px);
+    padding-top:clamp(22px,3vw,30px);
+    border-top:1px solid var(--line);
+  }
+  .chip{
+    font-family:"IBM Plex Mono",monospace;
+    font-size:.68rem;
+    letter-spacing:.05em;
+    text-transform:uppercase;
+    padding:7px 12px;
+    border:1px solid var(--line-strong);
+    background:transparent;
+    color:var(--ink);
+    display:inline-flex;
+    align-items:center;
+    gap:7px;
+    transition:border-color .18s,background .18s;
+  }
+  .chip::before{
+    content:"";
+    width:5px;height:5px;border-radius:50%;
+    background:var(--accent);
+    flex-shrink:0;
+  }
+  .chip:hover{ border-color:var(--accent); background:rgba(226,64,42,.05); }
+  .chip strong{ font-weight:600; }
+
+  /* ---------- ARTICLE ---------- */
+  .sheet{
+    max-width:var(--maxw);
+    margin:0 auto;
+    padding:0 var(--gutter) clamp(60px,8vw,110px);
+  }
+  .article{
+    counter-reset:h2;
+    max-width:var(--measure);
+    margin:0;
+  }
+  /* The source HTML's <h1> is demoted to a visible eyebrow-line, so only the hero <h1> would be...
+     but per requirement we keep the in-article <h1> as the real H1 — hero uses non-h1 text. */
+  .article h1{
+    font-family:"Archivo",sans-serif;
+    font-weight:800;
+    font-size:clamp(1.05rem,2vw,1.3rem);
+    line-height:1.25;
+    letter-spacing:.01em;
+    text-transform:uppercase;
+    color:var(--muted);
+    margin:0 0 clamp(26px,4vw,40px);
+    padding-bottom:18px;
+    border-bottom:2px solid var(--ink);
+    max-width:100%;
+  }
+
+  .article > p{
+    margin:0 0 1.35em;
+    font-size:1.115rem;
+    line-height:1.74;
+    color:#211B12;
+  }
+  .article > p:first-of-type::first-letter,
+  .article h1 + p::first-letter{
+    /* intentionally none — keep editorial restraint */
+  }
+
+  .article h2{
+    counter-increment:h2;
+    font-family:"Archivo",sans-serif;
+    font-weight:800;
+    font-size:clamp(1.55rem,3.2vw,2.3rem);
+    line-height:1.08;
+    letter-spacing:-.018em;
+    color:var(--ink);
+    margin:clamp(48px,6vw,74px) 0 .55em;
+    padding-top:clamp(34px,4.5vw,48px);
+    border-top:1px solid var(--line);
+    position:relative;
+    text-wrap:balance;
+  }
+  .article h2::before{
+    content:counter(h2,decimal-leading-zero) "  —";
+    display:block;
+    font-family:"IBM Plex Mono",monospace;
+    font-size:.78rem;
+    font-weight:500;
+    letter-spacing:.16em;
+    color:var(--accent);
+    margin-bottom:14px;
+    text-transform:none;
+  }
+
+  .article h3{
+    font-family:"Archivo",sans-serif;
+    font-weight:700;
+    font-size:1.2rem;
+    letter-spacing:-.01em;
+    margin:2em 0 .5em;
+    color:var(--ink);
+  }
+
+  .article a{
+    color:var(--ink);
+    text-decoration:none;
+    background-image:linear-gradient(var(--accent),var(--accent));
+    background-position:0 100%;
+    background-repeat:no-repeat;
+    background-size:100% 1.5px;
+    padding-bottom:1px;
+    transition:background-size .2s ease,color .2s ease;
+  }
+  .article a:hover{
+    color:var(--accent-deep);
+    background-size:100% calc(100% );
+    background-image:linear-gradient(rgba(226,64,42,.12),rgba(226,64,42,.12));
+  }
+
+  .article ul{
+    list-style:none;
+    margin:1.6em 0 1.8em;
+    padding:0;
+  }
+  .article ul li{
+    position:relative;
+    padding:.62em 0 .62em 34px;
+    border-bottom:1px solid var(--line);
+    font-size:1.05rem;
+    line-height:1.6;
+  }
+  .article ul li:first-child{ border-top:1px solid var(--line); }
+  .article ul li::before{
+    content:"";
+    position:absolute;
+    left:6px;
+    top:1.18em;
+    width:9px;height:9px;
+    background:var(--accent);
+    transform:rotate(45deg);
+  }
+
+  /* ---------- DATASHEET TABLE ---------- */
+  .article table{
+    width:100%;
+    border-collapse:collapse;
+    margin:1.8em 0 2em;
+    font-family:"Newsreader",serif;
+    background:var(--paper);
+    border:1px solid var(--line-strong);
+  }
+  .table-scroll{
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+    margin:1.9em 0 2.2em;
+    border:1px solid var(--line-strong);
+  }
+  .table-scroll table{ margin:0; border:none; min-width:600px; }
+
+  .article thead th{
+    background:var(--th-bg);
+    color:var(--ink);
+    text-align:left;
+    font-family:"IBM Plex Mono",monospace;
+    font-weight:600;
+    font-size:.64rem;
+    letter-spacing:.13em;
+    text-transform:uppercase;
+    padding:13px 16px;
+    border-bottom:2px solid var(--ink);
+    white-space:nowrap;
+  }
+  .article tbody td{
+    padding:12px 16px;
+    border-bottom:1px solid var(--line);
+    font-size:.98rem;
+    vertical-align:top;
+    color:#241D14;
+  }
+  .article tbody tr:last-child td{ border-bottom:none; }
+  .article tbody tr:hover{ background:rgba(226,64,42,.035); }
+  /* property column = label */
+  .article tbody td:first-child{
+    font-family:"Archivo",sans-serif;
+    font-weight:600;
+    color:var(--ink);
+    width:24%;
+  }
+  /* range column = mono numeric datasheet feel */
+  .article tbody td:nth-child(2){
+    font-family:"IBM Plex Mono",monospace;
+    font-size:.86rem;
+    letter-spacing:-.01em;
+    color:var(--accent-deep);
+    font-weight:500;
+    white-space:nowrap;
+  }
+  /* test standard column = mono uppercase */
+  .article tbody td:nth-child(3){
+    font-family:"IBM Plex Mono",monospace;
+    font-size:.76rem;
+    letter-spacing:.04em;
+    text-transform:uppercase;
+    color:var(--muted);
+    white-space:nowrap;
+  }
+  .article tbody td:nth-child(4){
+    color:var(--muted);
+    font-size:.95rem;
+  }
+
+  /* ---------- FOOTER ---------- */
+  .footer{
+    border-top:2px solid var(--ink);
+    background:var(--paper-2);
+  }
+  .footer__inner{
+    max-width:var(--maxw);
+    margin:0 auto;
+    padding:clamp(36px,5vw,56px) var(--gutter);
+    display:flex;
+    flex-wrap:wrap;
+    align-items:flex-end;
+    justify-content:space-between;
+    gap:24px;
+  }
+  .footer__brand{
+    font-family:"Archivo Black","Archivo",sans-serif;
+    font-weight:900;
+    font-size:clamp(1.6rem,4vw,2.6rem);
+    letter-spacing:-.02em;
+    line-height:.95;
+    text-transform:uppercase;
+    color:var(--ink);
+  }
+  .footer__brand .vm{ color:var(--accent); }
+  .footer__meta{
+    font-family:"IBM Plex Mono",monospace;
+    font-size:.66rem;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:var(--muted);
+    text-align:right;
+    line-height:1.9;
+  }
+  .footer__meta .accent{ color:var(--accent-deep); }
+
+  /* ---------- LOAD ANIMATION ---------- */
+  @keyframes rise{
+    from{ opacity:0; transform:translateY(16px); }
+    to{ opacity:1; transform:translateY(0); }
+  }
+  .anim{ opacity:0; animation:rise .72s cubic-bezier(.2,.7,.2,1) forwards; }
+  .d1{ animation-delay:.05s; }
+  .d2{ animation-delay:.16s; }
+  .d3{ animation-delay:.28s; }
+  .d4{ animation-delay:.42s; }
+  @media (prefers-reduced-motion:reduce){
+    .anim{ animation:none; opacity:1; }
+    html{ scroll-behavior:auto; }
+  }
+
+  /* ---------- RESPONSIVE ---------- */
+  @media (max-width:880px){
+    .topbar__inner{ flex-direction:column; min-height:0; padding-top:12px; padding-bottom:0; gap:8px; }
+    .brand{ padding-bottom:2px; }
+    nav.mainnav{
+      border-top:1px solid var(--line);
+      margin:0 calc(var(--gutter) * -1);
+      padding:0 var(--gutter);
+    }
+    nav.mainnav a{ padding:12px 12px; }
+    nav.mainnav a::after{ bottom:8px; }
+  }
+  @media (max-width:720px){
+    body{ font-size:1rem; }
+    .hero__title{ max-width:100%; }
+    .article ul li{ padding-left:30px; }
+  }
+  @media (max-width:520px){
+    .footer__inner{ flex-direction:column; align-items:flex-start; }
+    .footer__meta{ text-align:left; }
+  }
+</style>
+</head>
+<body>
+
+  <!-- ====== STICKY TOP BAR ====== -->
+  <header class="topbar">
+    <div class="topbar__inner">
+      <a class="brand" href="./index.html" aria-label="Meridian Leather Co. home">
+        <span class="brand__mark"><span>M</span></span>
+        <span class="brand__txt">
+          <span class="brand__name">Meridian Leather Co.</span>
+          <span class="brand__est">EST. 2009 · Wenzhou</span>
+        </span>
+      </a>
+      <nav class="mainnav" aria-label="Primary">
+        <a href="./pu-leather-guide.html">Sourcing Guide</a>
+        <a href="./pu-leather-vs-genuine-leather.html">vs Genuine</a>
+        <a href="./pu-leather-vs-pvc-leather.html">vs PVC</a>
+        <a href="./types-of-synthetic-leather.html">Material Types</a>
+        <a href="./pu-leather-for-furniture.html" class="active" aria-current="page">Furniture</a>
+        <a href="./pu-leather-for-automotive.html">Automotive</a>
+        <a href="./is-pu-leather-durable-waterproof.html">Durable &amp; Waterproof</a>
+        <a href="./microfiber-pu-leather-bags.html">Microfiber Bags</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ====== BREADCRUMB ====== -->
+  <nav class="crumb" aria-label="Breadcrumb">
+    <a href="./index.html">Home</a><span class="sep">›</span><a href="./pu-leather-guide.html">PU Leather</a><span class="sep">›</span><span class="here">Furniture</span>
+  </nav>
+
+  <!-- ====== HERO (editorial — visual title is non-h1; real H1 lives in <article>) ====== -->
+  <section class="hero" aria-labelledby="hero-title">
+    <p class="hero__kicker anim d1">
+      <span class="tick"></span>
+      <span>Application Note</span>
+      <span class="doc">/ DOC. PU-005</span>
+    </p>
+    <div class="hero__title anim d2" id="hero-title" role="heading" aria-level="1">PU Leather for Sofas and Furniture Upholstery</div>
+    <p class="hero__lede anim d3">A factory guide to PU leather for furniture: thickness, abrasion, peel strength, REACH compliance, MOQ, and width specs to spec sofa and chair upholstery.</p>
+    <div class="chips anim d4" role="list" aria-label="Key specifications">
+      <span class="chip" role="listitem"><strong>0.8&ndash;1.4&nbsp;mm</strong> Thickness</span>
+      <span class="chip" role="listitem"><strong>50k&ndash;100k</strong> Martindale</span>
+      <span class="chip" role="listitem"><strong>22&ndash;40</strong> N/25mm Peel</span>
+      <span class="chip" role="listitem"><strong>BS 5852</strong> &middot; CAL 117</span>
+      <span class="chip" role="listitem"><strong>54&ndash;58&nbsp;in</strong> Width</span>
+    </div>
+  </section>
+
+  <!-- ====== ARTICLE BODY (source HTML rendered verbatim, links localized) ====== -->
+  <main class="sheet">
+    <article class="article">
+<h1>PU Leather for Sofas and Furniture Upholstery</h1>
+<p>When a sofa program goes wrong, it almost always traces back to the cover material spec. As a PU/synthetic leather mill that ships container loads of upholstery coated fabric every month, we wrote this page to help importers, furniture brands, and contract buyers spec <strong>PU leather for furniture</strong> correctly the first time. Below you will find the real numbers we quote on our datasheets, the test standards we certify against, and the trade-offs that decide whether a cover survives five years of daily seating or cracks in eighteen months.</p>
+<p>PU leather (polyurethane-coated fabric) suits sofas, sectionals, dining chairs, headboards, ottomans, and recliners because it offers a consistent grain, wide color range, and far easier cleaning than top-grain hide. It is not a single product, though. The grade you choose for a high-traffic hospitality booth is not the grade you choose for an occasional accent chair, and pretending otherwise is how warranty claims start.</p>
+<h2>What Makes a Good Upholstery-Grade PU Leather?</h2>
+<p>Furniture covers fail in predictable ways: surface abrasion on seat decks and armrests, edge cracking where the coating meets stress folds, delamination when the PU skin separates from the backing, and tackiness or surface breakdown from hydrolysis in humid climates. A proper upholstery grade is engineered against each of those failure modes, and every value below appears on the technical datasheet we issue per lot.</p>
+<table>
+<thead>
+<tr><th>Property</th><th>Typical Range (Furniture Grade)</th><th>Test Standard</th></tr>
+</thead>
+<tbody>
+<tr><td>Total thickness</td><td>0.8 - 1.4 mm</td><td>ISO 2589</td></tr>
+<tr><td>Weight</td><td>420 - 720 g/m&sup2;</td><td>ISO 2286-2</td></tr>
+<tr><td>Abrasion resistance</td><td>50,000 - 100,000 Martindale</td><td>ISO 5470-2</td></tr>
+<tr><td>Abrasion (US contract)</td><td>50,000 - 100,000 double rubs</td><td>Wyzenbeek ASTM D4157</td></tr>
+<tr><td>Peel / bond strength</td><td>22 - 40 N/25mm</td><td>ISO 2411</td></tr>
+<tr><td>Hydrolysis resistance</td><td>5 - 7 weeks pass, no surface breakdown</td><td>ISO 1419</td></tr>
+<tr><td>Roll width</td><td>54 - 58 in (137 - 147 cm)</td><td>-</td></tr>
+<tr><td>Flame retardance (optional)</td><td>Pass cigarette &amp; match</td><td>BS 5852 / CAL 117</td></tr>
+</tbody>
+</table>
+<p>For a busy family sofa we recommend a backing-reinforced grade at 50,000 Martindale or higher; for contract and hospitality seating we push to 80,000 - 100,000 Martindale and ask for the Wyzenbeek result as well, since US buyers usually purchase against ASTM D4157. Peel strength matters more than most buyers realize: a cover can pass abrasion yet still delaminate at the seam folds if bond strength sits below 20 N/25mm.</p>
+<h2>Thickness, Backing, and Weight: Matching the Spec to the Seat</h2>
+<p>Thickness is the spec buyers fixate on, but the backing fabric underneath the polyurethane skin does most of the structural work. We coat onto knit, woven, and non-woven backings, and the choice changes how the finished cover behaves on the frame.</p>
+<ul>
+<li><strong>Knit backing (warp/weft knit):</strong> high stretch and recovery, ideal for tightly upholstered curved arms and tufted backs where the cover must conform without puckering. Typical 0.9 - 1.2 mm.</li>
+<li><strong>Woven backing:</strong> dimensionally stable, lower stretch, preferred for flat seat decks and tight pull-over panels. Typical 1.0 - 1.4 mm.</li>
+<li><strong>Non-woven / suede-feel backing:</strong> economical, used on cushion sides and non-stress panels where appearance matters more than mechanical load.</li>
+<li><strong>Microfiber base:</strong> the premium tier; denser, more uniform, and closer to genuine hide hand-feel, carried over from our bag and automotive lines.</li>
+</ul>
+<p>As a rule of thumb, heavier seat-contact surfaces want 1.0 mm and up with a woven or microfiber base; vertical and decorative panels can drop to 0.8 - 0.9 mm to save cost and improve drape. We can also split a single program across two thicknesses to balance budget and durability, which is common on large sectional ranges.</p>
+<h2>Is PU Leather Durable Enough for Daily Furniture Use?</h2>
+<p>Yes, when specified correctly. The honest answer is that PU does not outlast a well-tanned full-grain hide on a heirloom timescale, but a 50,000+ Martindale upholstery grade comfortably handles years of residential daily seating, resists spills, and wipes clean with a damp cloth, all at a fraction of the cost and with no dye-lot surprises across a container order. The two factors that actually decide lifespan are abrasion grade and hydrolysis resistance. In hot, humid markets, an under-spec PU skin can turn tacky and flake within a year or two; a hydrolysis-rated grade tested to ISO 1419 avoids that. We dig deeper into water resistance and lifespan in our buyer FAQ on whether <a href="./is-pu-leather-durable-waterproof.html">PU leather is durable and waterproof</a>, and the short version is that PU is highly water-resistant on the surface but is not a sealed, fully waterproof membrane at the seams.</p>
+<p>For context on where PU sits against other materials, two comparisons are worth reading before you finalize a furniture spec. If your brand is weighing real hide against coated fabric, see <a href="./pu-leather-vs-genuine-leather.html">PU leather versus genuine leather</a> for the durability and cost trade-offs. If a supplier is quoting you something suspiciously cheap, it may be PVC rather than PU, so check <a href="./pu-leather-vs-pvc-leather.html">the differences between PU and PVC leather</a> since PVC tends to be stiffer and less breathable on seating.</p>
+<h2>Compliance, Certification, and What We Test</h2>
+<p>Furniture sold into the EU, US, and most of Asia must clear chemical and, increasingly, flammability requirements. We supply against the following on request, with third-party reports per shipment:</p>
+<ul>
+<li><strong>REACH</strong> (EU restricted substances, including SVHC screening)</li>
+<li><strong>RoHS</strong> for heavy metal limits</li>
+<li><strong>OEKO-TEX Standard 100</strong> for skin-contact safety</li>
+<li><strong>California Proposition 65</strong> screening for the US market</li>
+<li><strong>Flame retardance</strong> to CAL TB 117-2013 or BS 5852 where the destination requires it</li>
+</ul>
+<p>We do not claim certifications a lot has not actually passed. If you need a specific standard for a tender, tell us before sampling so we build it into the formulation, because retrofitting flame retardance or a stricter SVHC limit after a color is dialed in usually means a new lab dip and lost time.</p>
+<h2>Colors, Embossing, and Finish Options</h2>
+<p>Most furniture programs live or die on appearance consistency. We hold color to a delta-E tolerance agreed at sampling and keep a retained standard per program so re-orders match the original run. Standard offerings include:</p>
+<ul>
+<li>Grain embossing: fine pebble, full-grain hide replica, litchi, nappa, and smooth glossy finishes.</li>
+<li>Surface treatments: matte PU topcoat, anti-scratch (self-healing) topcoat, soft-touch hand feel, and stain-resistant easy-clean finishes.</li>
+<li>Color: custom Pantone matching with lab dips before bulk; we keep a stocked palette of common upholstery neutrals for faster lead times.</li>
+</ul>
+<p>The anti-scratch self-healing topcoat is worth specifying for homes with pets, where light surface marks recover with warmth from a hand or a warm cloth. It adds cost but cuts cosmetic returns noticeably.</p>
+<h2>MOQ, Width, Lead Time, and Ordering</h2>
+<p>For furniture upholstery our standard PU grades carry an MOQ of roughly 1,000 m per color, while microfiber-based upholstery grades start around 300 m per color because of the denser base construction. Stock-color upholstery rolls can ship in smaller trial quantities for sampling. Standard usable width is 54 - 58 inches (137 - 147 cm), which most furniture cutting plans are built around, and rolls run 30 - 50 linear meters. Typical lead time is 15 - 25 days FOB after color and finish approval; stocked colors ship faster. We always advise ordering a bulk pre-production sample and signing off on a physical swatch before the full run, since screens and printed cards never represent the true grain and sheen.</p>
+<p>To place an order we need: the destination market (it drives compliance and flammability), the seat application (daily residential, contract, or hospitality), required abrasion grade, finish and grain, and target color references. With that, we can quote a grade, confirm the test package, and send a datasheet within a day or two.</p>
+<h2>Where to Read More</h2>
+<p>This page focuses on seating, but the same material family covers many uses. For a full overview of grades, construction, and how to evaluate suppliers, start with our <a href="./pu-leather-guide.html">PU leather sourcing guide</a> for importers. If your sourcing extends beyond furniture into vehicle interiors, the durability and heat-aging requirements differ, so our notes on <a href="./pu-leather-for-automotive.html">PU leather for automotive seats and interiors</a> cover those tighter specs. Spec the grade to the seat, lock the compliance package early, and approve a physical bulk sample, and PU leather for furniture will give you predictable quality across every container.</p>
+    </article>
+  </main>
+
+  <!-- ====== FOOTER ====== -->
+  <footer class="footer">
+    <div class="footer__inner">
+      <div class="footer__brand">Meridian<span class="vm">.</span> Leather&nbsp;Co.</div>
+      <div class="footer__meta">
+        © 2026 Meridian Leather Co.<br>
+        <span class="accent">Specification-grade sourcing</span><br>
+        Demo build
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>
