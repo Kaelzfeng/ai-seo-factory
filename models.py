@@ -403,6 +403,32 @@ def _create_tables(conn):
     CREATE INDEX IF NOT EXISTS idx_we_status ON webhook_events(status);
     CREATE INDEX IF NOT EXISTS idx_al_tenant ON audit_logs(tenant_id);
     CREATE INDEX IF NOT EXISTS idx_al_resource ON audit_logs(resource_type);
+
+    CREATE TABLE IF NOT EXISTS billing_events (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        tenant_id INTEGER REFERENCES tenants(id) ON DELETE SET NULL,
+        event_type TEXT NOT NULL DEFAULT '',
+        status TEXT NOT NULL DEFAULT 'pending',
+        amount_cents INTEGER NOT NULL DEFAULT 0,
+        currency TEXT NOT NULL DEFAULT 'CNY',
+        metadata_json TEXT DEFAULT '{}',
+        error TEXT DEFAULT '',
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        processed_at TEXT DEFAULT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS usage_snapshots (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        tenant_id INTEGER REFERENCES tenants(id) ON DELETE SET NULL,
+        year INTEGER NOT NULL DEFAULT 0,
+        month INTEGER NOT NULL DEFAULT 0,
+        usage_json TEXT DEFAULT '{}',
+        created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_be_tenant ON billing_events(tenant_id);
+    CREATE INDEX IF NOT EXISTS idx_be_type ON billing_events(event_type);
+    CREATE INDEX IF NOT EXISTS idx_us_tenant ON usage_snapshots(tenant_id);
     """
     )
 
@@ -1401,4 +1427,67 @@ def list_audit_log_records(tenant_id=None, resource_type=None, resource_id=None,
     if resource_id is not None:
         sql += " AND resource_id = ?"; params.append(resource_id)
     sql += " ORDER BY created_at DESC LIMIT ?"; params.append(limit)
+    return [dict(r) for r in db.execute(sql, params).fetchall()]
+
+
+# ── 账单事件 (Phase 7) ───────────────────────────────
+
+
+def create_billing_event_record(tenant_id=None, event_type="", amount_cents=0,
+                                currency="CNY", status="pending", metadata_json="{}"):
+    db = _get_db()
+    db.execute(
+        """INSERT INTO billing_events (tenant_id, event_type, amount_cents, currency, status, metadata_json)
+           VALUES (?, ?, ?, ?, ?, ?)""",
+        (tenant_id, event_type, amount_cents, currency, status, metadata_json),
+    )
+    db.commit()
+    return db.execute("SELECT last_insert_rowid()").fetchone()[0]
+
+
+def list_billing_event_records(tenant_id=None, event_type=None):
+    db = _get_db()
+    sql = "SELECT * FROM billing_events WHERE 1=1"
+    params = []
+    if tenant_id is not None:
+        sql += " AND tenant_id = ?"; params.append(tenant_id)
+    if event_type is not None:
+        sql += " AND event_type = ?"; params.append(event_type)
+    sql += " ORDER BY created_at DESC LIMIT 200"
+    return [dict(r) for r in db.execute(sql, params).fetchall()]
+
+
+def update_billing_event_status(event_id, status, error=""):
+    db = _get_db()
+    db.execute(
+        "UPDATE billing_events SET status = ?, error = ?, processed_at = datetime('now') WHERE id = ?",
+        (status, error, event_id),
+    )
+    db.commit()
+
+
+# ── 用量快照 (Phase 7) ───────────────────────────────
+
+
+def create_usage_snapshot_record(tenant_id=None, year=0, month=0, usage_json="{}"):
+    db = _get_db()
+    db.execute(
+        "INSERT INTO usage_snapshots (tenant_id, year, month, usage_json) VALUES (?, ?, ?, ?)",
+        (tenant_id, year, month, usage_json),
+    )
+    db.commit()
+    return db.execute("SELECT last_insert_rowid()").fetchone()[0]
+
+
+def list_usage_snapshot_records(tenant_id=None, year=None, month=None):
+    db = _get_db()
+    sql = "SELECT * FROM usage_snapshots WHERE 1=1"
+    params = []
+    if tenant_id is not None:
+        sql += " AND tenant_id = ?"; params.append(tenant_id)
+    if year is not None:
+        sql += " AND year = ?"; params.append(year)
+    if month is not None:
+        sql += " AND month = ?"; params.append(month)
+    sql += " ORDER BY created_at DESC LIMIT 100"
     return [dict(r) for r in db.execute(sql, params).fetchall()]

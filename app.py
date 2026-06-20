@@ -962,6 +962,62 @@ def api_audit_logs():
     return jsonify({"ok": True, "logs": list_audit_logs(tid)})
 
 
+# ── Phase 7: SaaS API ────────────────────────────────
+
+@app.route("/api/entitlements")
+def api_entitlements():
+    err = _require_login(); tid, err2 = _require_tenant()
+    if err: return err
+    if err2: return err2
+    from lib.entitlements import get_tenant_entitlements
+    return jsonify({"ok": True, "entitlements": get_tenant_entitlements(tid)})
+
+@app.route("/api/usage/events")
+def api_usage_events():
+    err = _require_login(); tid, err2 = _require_tenant()
+    if err: return err
+    if err2: return err2
+    from lib.usage_meter import get_usage_summary
+    return jsonify({"ok": True, "usage": get_usage_summary(tid)})
+
+@app.route("/api/billing/events")
+def api_billing_events():
+    err = _require_login(); tid, err2 = _require_tenant()
+    if err: return err
+    if err2: return err2
+    from lib.billing_events import list_billing_events
+    return jsonify({"ok": True, "events": list_billing_events(tid)})
+
+@app.route("/api/billing/change-plan", methods=["POST"])
+def api_billing_change_plan():
+    err = _require_login(); tid, err2 = _require_tenant()
+    if err: return err
+    if err2: return err2
+    data = request.get_json() or {}
+    code = data.get("plan_code", "")
+    if not code: return jsonify({"ok": False, "error": "missing plan_code"}), 400
+    from lib.admin_ops import change_tenant_plan
+    return jsonify(change_tenant_plan(tid, code, mock_payment=True))
+
+@app.route("/api/billing/mock-payment", methods=["POST"])
+def api_billing_mock_payment():
+    err = _require_login(); tid, err2 = _require_tenant()
+    if err: return err
+    if err2: return err2
+    data = request.get_json() or {}
+    from lib.admin_ops import mock_payment
+    return jsonify(mock_payment(tid, data.get("amount_cents", 0), metadata=data.get("metadata")))
+
+@app.route("/api/admin/reset-monthly-usage", methods=["POST"])
+def api_admin_reset_monthly():
+    err = _require_login(); tid, err2 = _require_tenant()
+    if err: return err
+    if err2: return err2
+    data = request.get_json() or {}
+    from lib.monthly_reset import reset_monthly_usage
+    return jsonify(reset_monthly_usage(tid, dry_run=data.get("dry_run", True)))
+
+
 # ── Phase 5: Competitor API ──────────────────────────
 
 
