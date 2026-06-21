@@ -963,7 +963,11 @@
     $("pressIdle").style.display = "none";
     proof.classList.remove("show");
     writer.classList.add("show");
-    writer.innerHTML = html + '<span class="caret"></span>';
+    // Strip <style> blocks to prevent dark theme leakage into parent document.
+    // The atelier-dark theme CSS uses :root overrides that would pollute the app shell.
+    // Full styling is preserved in the iframe via revealPage().
+    var safe = String(html || "").replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "");
+    writer.innerHTML = safe + '<span class="caret"></span>';
     writer.scrollTop = writer.scrollHeight;
     pressTick.textContent = (row.title || slug) + " · 正在写 …";
   }
