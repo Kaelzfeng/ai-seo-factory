@@ -1,9 +1,14 @@
 # -*- coding: utf-8 -*-
-"""Deterministic intent locking and the default six-page B2B site plan."""
+"""Deterministic intent locking and the default six-page B2B site plan.
+
+Phase 9.3.8: Delegates intent extraction and merge to lib.intent_engine.
+"""
 
 from __future__ import annotations
 
 import re
+
+from lib.intent_engine import merge_intent, is_intent_ready, build_clarification
 
 
 def _contains(text: str, *terms: str) -> bool:
@@ -12,48 +17,28 @@ def _contains(text: str, *terms: str) -> bool:
 
 
 def lock_intent(message: str, project: dict | None = None) -> dict:
-    text = str(message or "").strip()
+    """Merge user message into a fresh intent and return it.
+
+    If a project seed_keyword is available and no product was detected,
+    seed it from the project as a fallback.
+    """
+    from lib.intent_engine import empty_intent
+    intent = merge_intent(empty_intent(), message)
+
+    # Fallback: use project seed_keyword if no product detected
     project = project or {}
+    if not intent.get("product") and not intent.get("industry"):
+        seed = str(project.get("seed_keyword", "")).strip()
+        if seed:
+            intent["product"] = seed.split()[0] if seed else ""
+            intent["industry"] = seed
 
-    product = ""
-    industry = ""
-    if _contains(text, "铁锤", "锤子", "hammer"):
-        product = "hammer"
-    elif _contains(text, "扳手", "wrench"):
-        product = "wrench"
-    elif _contains(text, "钳子", "pliers"):
-        product = "pliers"
-    elif project.get("seed_keyword"):
-        product = str(project.get("seed_keyword")).strip().split()[0].lower()
-
-    if _contains(text, "五金工具", "五金", "hardware tools", "hand tools"):
-        industry = "hardware tools"
-    elif product in {"hammer", "wrench", "pliers"}:
-        industry = "hardware tools"
-
-    is_b2b = _contains(
-        text, "b2b", "批发", "批发商", "经销商", "分销商", "进口商",
-        "wholesale", "distributor", "importer", "supplier", "manufacturer",
-    )
-    is_export = _contains(text, "出口", "外贸", "海外", "export", "overseas", "global")
-    wants_english = _contains(text, "英文", "英语", "english")
-
-    return {
-        "product": product,
-        "industry": industry,
-        "language": "English" if wants_english or (is_b2b and is_export) else "",
-        "market": "B2B export" if is_b2b and is_export else "",
-        "audience": (
-            "overseas wholesalers and distributors"
-            if is_b2b and is_export else ""
-        ),
-    }
+    return intent
 
 
 def intent_is_locked(intent: dict) -> bool:
-    return all(str(intent.get(key) or "").strip() for key in (
-        "product", "industry", "language", "market", "audience"
-    ))
+    """An intent is locked when enough slots are filled to generate."""
+    return is_intent_ready(intent)
 
 
 def _slugify(value: str) -> str:
@@ -96,23 +81,29 @@ def build_generation_plan(intent: dict) -> dict:
     return {"title": "站点生成计划", "pages": pages}
 
 
-_CLARIFICATION_PROMPTS = (
-    "你想为哪一种产品或行业创建网站？给我一个产品名就可以。",
-    "主要面向哪类买家：海外批发商、经销商，还是终端消费者？",
-    "请补充目标市场和页面语言，我会据此继续规划。",
-)
-
-
 def next_clarification(messages: list[dict]) -> str:
-    prior = {
-        str(item.get("content") or "")
-        for item in (messages or [])
-        if item.get("role") == "assistant"
-    }
-    for prompt in _CLARIFICATION_PROMPTS:
-        if prompt not in prior:
-            return prompt
-    return "把产品名、目标买家和市场放在一句话里告诉我，我就直接开始规划。"
+    """Build a contextual clarification from the intent engine.
+
+    Uses messages to reconstruct intent state, then asks for the first
+    genuinely missing slot. Falls back to a short prompt if all slots
+    have been asked.
+    """
+    from lib.intent_engine import empty_intent, get_missing_slots
+
+    # Reconstruct intent from the conversation history
+    intent = empty_intent()
+    for item in (messages or []):
+        if item.get("role") == "user":
+            text = str(item.get("content") or item.get("text") or "")
+            if text:
+                intent = merge_intent(intent, text)
+
+    missing = get_missing_slots(intent)
+    if not missing:
+        return "请简短描述你的产品和目标市场，我就开始规划。"
+
+    msg, intent = build_clarification(intent)
+    return msg
 
 
 def understanding_message(intent: dict) -> str:
