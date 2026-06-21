@@ -593,7 +593,8 @@ def _record_generation(tenant_id: int, project: dict, all_pages: list,
 
 def generate_site(project: dict, mode: str = "dry-run",
                   bypass_subscription: bool = False,
-                  output_dir=None) -> dict:
+                  output_dir=None,
+                  progress_callback=None) -> dict:
     """对单个 project 执行完整生成管线。
 
     Args:
@@ -652,6 +653,12 @@ def generate_site(project: dict, mode: str = "dry-run",
     page_errors = []
     total_pages = len(pages)
 
+    if progress_callback:
+        progress_callback("stage", {"stage": "generating", "label": "逐页生成",
+            "message": f"共 {total_pages} 页, 开始生成…"})
+        progress_callback("progress", {"current": 0, "total": total_pages,
+            "percent": 0, "elapsed": 0})
+
     for i, page_plan in enumerate(pages):
         page_entry = None
         gen_id = None
@@ -661,6 +668,16 @@ def generate_site(project: dict, mode: str = "dry-run",
         page_label = f"第 {i+1}/{total_pages} 页 [{page_type}] {target_kw}"
 
         try:
+            # ── page_start event ──
+            if progress_callback:
+                progress_callback("page_start", {
+                    "slug": page_slug,
+                    "title": page_plan.get("title", target_kw),
+                    "index": i + 1,
+                    "total": total_pages,
+                    "status": "generating",
+                })
+
             # 3a. LLM 生成
             gen_result = _generate_page_content(
                 page_plan, industry, seed, org_name, today,
@@ -668,6 +685,15 @@ def generate_site(project: dict, mode: str = "dry-run",
             )
             content = gen_result["content"]
             page = gen_result["page"]
+
+            # ── page_preview event ──
+            if progress_callback:
+                progress_callback("page_preview", {
+                    "slug": page_slug,
+                    "title": content.get("title", ""),
+                    "html": content.get("html", ""),
+                    "status": "preview",
+                })
 
             # 3b. 记录到 generations 表 + generation_logs
             try:
@@ -696,6 +722,15 @@ def generate_site(project: dict, mode: str = "dry-run",
 
             # 3c. 质量评分
             q_result = _score_page(page, content, industry)
+
+            # ── log score event ──
+            if progress_callback:
+                progress_callback("log", {
+                    "level": "info" if q_result.get("passed") else "warning",
+                    "message": f"{page_slug}: 得分 {q_result.get('score', 0):.0f}/100 {'PASS' if q_result.get('passed') else 'NEEDS_POLISH'}",
+                    "time": time.strftime("%H:%M:%S"),
+                })
+
             try:
                 if gen_id:
                     from lib.generation_logs import log_generation_step
@@ -746,10 +781,40 @@ def generate_site(project: dict, mode: str = "dry-run",
                 "quality": q_result,
             })
 
+            # ── page_done event ──
+            if progress_callback:
+                progress_callback("page_done", {
+                    "slug": page_slug,
+                    "title": content.get("title", ""),
+                    "url": f"./{page_slug}.html",
+                    "score": q_result.get("score", 0),
+                    "passed": q_result.get("passed", False),
+                    "status": "done",
+                })
+                done_count = i + 1
+                progress_callback("progress", {
+                    "current": done_count,
+                    "total": total_pages,
+                    "percent": int(done_count / total_pages * 100) if total_pages > 0 else 0,
+                })
+
         except Exception as e:
             # Phase 1.1: 解析 LLM 失败诊断
             err_str = str(e)
             page_errors.append(f"{page_label} 生成失败: {err_str}")
+
+            if progress_callback:
+                progress_callback("log", {
+                    "level": "error",
+                    "message": f"{page_slug}: 生成失败 — {err_str}",
+                    "time": time.strftime("%H:%M:%S"),
+                })
+                progress_callback("page_done", {
+                    "slug": page_slug,
+                    "title": page_plan.get("title", page_slug),
+                    "status": "failed",
+                    "error": err_str[:200],
+                })
 
             # 记录失败 generation(状态 = retry_pending,供补跑)
             try:
@@ -1089,7 +1154,8 @@ def generate_site_from_blueprint(project: dict, blueprint,
                                  mode: str = "dry-run",
                                  bypass_subscription: bool = False,
                                  max_pages: int = None,
-                                 output_dir=None) -> dict:
+                                 output_dir=None,
+                                 progress_callback=None) -> dict:
     """从 SiteBlueprint 执行完整内容生成管线。
 
     Pipeline:
@@ -1145,6 +1211,12 @@ def generate_site_from_blueprint(project: dict, blueprint,
     total = len(blueprint.pages)
     os.environ["CURRENT_DATE"] = _today_str()
 
+    if progress_callback:
+        progress_callback("stage", {"stage": "generating", "label": "逐页生成",
+            "message": f"共 {total} 页, 开始生成…"})
+        progress_callback("progress", {"current": 0, "total": total,
+            "percent": 0, "elapsed": 0})
+
     # 1. 逐页生成
     page_contents = generate_pages_from_blueprint(blueprint, bp_profile)
 
@@ -1158,15 +1230,42 @@ def generate_site_from_blueprint(project: dict, blueprint,
     failed_gen_ids = []
     persistence_errors_list = []
 
-    for pc in page_contents:
+    for idx, pc in enumerate(page_contents):
         try:
+            # ── page_start event ──
+            if progress_callback:
+                progress_callback("page_start", {
+                    "slug": pc.slug,
+                    "title": pc.title,
+                    "index": idx + 1,
+                    "total": total,
+                    "status": "generating",
+                })
+
             # Gutenberg
             gb = page_content_to_gutenberg(pc)
             if hasattr(pc, 'gutenberg_html'):
                 pc.gutenberg_html = gb
 
+            # ── page_preview event ──
+            if progress_callback and (pc.body_html or gb):
+                progress_callback("page_preview", {
+                    "slug": pc.slug,
+                    "title": pc.title,
+                    "html": gb or pc.body_html,
+                    "status": "preview",
+                })
+
             # Review
             review = review_page_content(pc)
+
+            # ── log score event ──
+            if progress_callback:
+                progress_callback("log", {
+                    "level": "info" if review.get("ok") else "warning",
+                    "message": f"{pc.slug}: 得分 {review.get('score', 0):.0f}/100 {'PASS' if review.get('ok') else 'NEEDS_POLISH'}",
+                    "time": time.strftime("%H:%M:%S"),
+                })
 
             # Polish if needed (score < 70)
             polish_attempted = False
@@ -1183,6 +1282,13 @@ def generate_site_from_blueprint(project: dict, blueprint,
                 # Re-review after polish
                 review = review_page_content(pc)
                 review["polished"] = True
+
+                if progress_callback:
+                    progress_callback("log", {
+                        "level": "info",
+                        "message": f"{pc.slug}: 已润色, 新得分 {review.get('score', 0):.0f}/100",
+                        "time": time.strftime("%H:%M:%S"),
+                    })
 
             # Quality gate: if still below threshold, flag
             if review.get("score", 0) < 70:
@@ -1261,8 +1367,37 @@ def generate_site_from_blueprint(project: dict, blueprint,
                 "quality": {"score": review.get("score", 0), "passed": review.get("ok"), "issues": review.get("issues", [])},
             })
 
+            # ── page_done event ──
+            if progress_callback:
+                progress_callback("page_done", {
+                    "slug": pc.slug,
+                    "title": pc.title,
+                    "url": f"./{pc.slug}.html",
+                    "score": review.get("score", 0),
+                    "passed": review.get("ok", False),
+                    "status": "done",
+                })
+                done_count = idx + 1
+                progress_callback("progress", {
+                    "current": done_count,
+                    "total": total,
+                    "percent": int(done_count / total * 100) if total > 0 else 0,
+                })
+
         except Exception as e:
             errors.append(f"{pc.slug} 生成失败: {e}")
+            if progress_callback:
+                progress_callback("log", {
+                    "level": "error",
+                    "message": f"{getattr(pc, 'slug', 'unknown')}: 生成失败 — {e}",
+                    "time": time.strftime("%H:%M:%S"),
+                })
+                progress_callback("page_done", {
+                    "slug": getattr(pc, 'slug', 'unknown'),
+                    "title": getattr(pc, 'title', 'Unknown'),
+                    "status": "failed",
+                    "error": str(e)[:200],
+                })
             if hasattr(pc, 'slug'):
                 try:
                     from models import create_generation
@@ -1275,8 +1410,15 @@ def generate_site_from_blueprint(project: dict, blueprint,
             continue
 
     # 6a. Render HTML preview to output_src (for Canvas/frontend)
+    if progress_callback:
+        progress_callback("stage", {"stage": "quality", "label": "渲染预览",
+            "message": f"正在生成 {len(all_results)} 页的 HTML 预览…"})
     site_url = project.get("site_url", "https://example.com")
     _write_preview(all_results, site_url, output_dir=output_dir)
+
+    if progress_callback:
+        progress_callback("stage", {"stage": "done", "label": "完成",
+            "message": f"已生成 {len(all_results)}/{total} 页"})
 
     # 6b. Usage recording
     usage_info = {}
@@ -1337,7 +1479,8 @@ def generate_site_from_input(user_input: str, project_id: int = None,
                              use_competitor: bool = False,
                              competitor_query: str = None,
                              competitor_urls: list[str] = None,
-                             output_dir=None) -> dict:
+                             output_dir=None,
+                             progress_callback=None) -> dict:
     """从自然语言输入执行完整 S0 → PageContent 管线。
 
     Phase 5.1: 可选竞品分析增强 (use_competitor=True)。
@@ -1347,10 +1490,21 @@ def generate_site_from_input(user_input: str, project_id: int = None,
     from lib.seo_engine.stage2_blueprint import build_site_blueprint
 
     # S0
+    if progress_callback:
+        progress_callback("stage", {"stage": "planning", "label": "需求分析",
+            "message": "S0 正在澄清你的需求…"})
     scope_result = clarify_request(user_input)
     scope = scope_result.get("scope", {})
 
+    if progress_callback:
+        progress_callback("log", {"level": "info",
+            "message": f"已识别行业: {scope.get('industry', '未知')}, 语言: {scope.get('language', 'English')}",
+            "time": time.strftime("%H:%M:%S")})
+
     # S1
+    if progress_callback:
+        progress_callback("stage", {"stage": "serp", "label": "生意画像",
+            "message": "S1 正在构建生意画像…"})
     project = None
     if project_id:
         from models import get_project
@@ -1380,10 +1534,19 @@ def generate_site_from_input(user_input: str, project_id: int = None,
             pass
 
     # S2
+    if progress_callback:
+        progress_callback("stage", {"stage": "blueprint", "label": "站点蓝图",
+            "message": "S2 正在规划页面结构…"})
     blueprint = build_site_blueprint(
         project_id=project_id or 0, profile=profile,
         competitor_hints=competitor_hints,
     )
+
+    if progress_callback:
+        total_pages = len(blueprint.pages)
+        progress_callback("log", {"level": "info",
+            "message": f"蓝图完成: {total_pages} 页, {len(blueprint.pillar_pages)} pillar + {len(blueprint.cluster_pages)} cluster",
+            "time": time.strftime("%H:%M:%S")})
 
     # Phase 4 generation
     gen_project = {
@@ -1396,7 +1559,8 @@ def generate_site_from_input(user_input: str, project_id: int = None,
     return generate_site_from_blueprint(gen_project, blueprint, mode=mode,
                                         bypass_subscription=bypass_subscription,
                                         max_pages=max_pages,
-                                        output_dir=output_dir)
+                                        output_dir=output_dir,
+                                        progress_callback=progress_callback)
 
 
 # ── Phase 5: 竞品 SEO 分析 ─────────────────────────────

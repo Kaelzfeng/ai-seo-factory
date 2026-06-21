@@ -405,6 +405,12 @@
   .lrow.s-done .lscore{color:var(--ink);font-weight:600}
   .lrow .lscore .pass{color:var(--ok)} .lrow .lscore .miss{color:var(--danger)}
   .lrow.sel{background:var(--blue-wash)}
+  /* Phase 9.3.6: Real-time Canvas page states */
+  .lrow.s-generating .lstate{color:var(--blue)}
+  .lrow.s-generating .lstate .ms{animation:blink 1.1s steps(2,start) infinite}
+  .lrow.s-failed .lstate{color:var(--danger)}
+  .lrow.s-failed .ltitle{color:var(--danger);text-decoration:line-through}
+  .lrow.s-queued .lstate{color:var(--faint)}
   .ledger:empty::before{content:"等待落第一块版 …";display:block;padding:16px;color:var(--faint);font-family:var(--mono);font-size:11.5px}
   /* 关键词落位明细(原 #kwPanel) */
   #kwPanel{display:none;margin:0;padding:0;font-family:var(--mono);font-size:12px;color:var(--ink2)}
@@ -594,7 +600,7 @@
       </section>
 
       <!-- ============ Canvas(原双屏剧场,常驻) ============ -->
-      <section class="canvas theater" id="theater" aria-label="生成 Canvas">
+      <section class="canvas theater" id="theater" aria-label="生成 Canvas" data-realtime-canvas>
         <div class="cvtop">
           <span class="cz"><span class="ms">auto_awesome</span>Canvas · 实时生成</span>
           <div id="pageTabs"></div>
@@ -643,8 +649,8 @@
             <span class="ms chev">expand_more</span>
           </div>
           <div class="dbody">
-            <pre id="log"></pre>
-            <div class="ledger" id="ledger"></div>
+            <pre id="log" data-generation-log></pre>
+            <div class="ledger" id="ledger" data-page-status-list></div>
             <div id="kwPanel"></div>
           </div>
         </div>
@@ -720,6 +726,19 @@
       return;
     }
     _doHideWarm();
+  }
+
+  function showPageLoading(slug, title) {
+    hideWarm();
+    $("pressIdle").style.display = "none";
+    proof.classList.remove("show");
+    writer.classList.add("show");
+    writer.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;flex-direction:column;gap:14px;color:var(--gray)">' +
+      '<span class="ms" style="font-size:36px">auto_awesome</span>' +
+      '<span style="font-family:var(--mono);font-size:13px">' + escapeHtml(title || slug) + ' · 生成中 …</span>' +
+      '<div style="display:flex;gap:8px"><i style="display:block;width:8px;height:8px;border-radius:50%;background:var(--blue);animation:blink .9s steps(2,start) infinite"></i><i style="display:block;width:8px;height:8px;border-radius:50%;background:var(--blue);animation:blink .9s .15s steps(2,start) infinite"></i><i style="display:block;width:8px;height:8px;border-radius:50%;background:var(--blue);animation:blink .9s .3s steps(2,start) infinite"></i></div></div>';
+    writer.scrollTop = 0;
+    pressTick.textContent = (title || slug) + " · 生成中 …";
   }
 
   // ---- 单选切换子表单 ----
@@ -848,7 +867,7 @@
     writer.classList.remove("show"); writer.innerHTML = "";
     hideWarm();
     const kp = document.getElementById("kwPanel"); if (kp) { kp.className = ""; kp.innerHTML = ""; }
-    prevFrame.removeAttribute("src"); pressTick.textContent = "待落版";
+    prevFrame.removeAttribute("src"); prevFrame.removeAttribute("srcdoc"); pressTick.textContent = "待落版";
     setProg(0, 0);
     resetTokenMeter();
   }
@@ -969,6 +988,54 @@
     panel.className = "show";
   }
   function cssEsc(s) { return String(s).replace(/"/g, '\\"'); }
+
+  function restorePreviewState() {
+    if (PROJECT_ID == null) return Promise.resolve(null);
+    try {
+      const params = new URL(window.location.href).searchParams;
+      if (params.get("autorun") === "1") return Promise.resolve(null);
+    } catch (_) {}
+    return fetch("/api/projects/" + encodeURIComponent(PROJECT_ID) + "/preview-state", {
+      credentials: "same-origin",
+      headers: { "Accept": "application/json" },
+    })
+      .then(response => response.ok ? response.json() : null)
+      .then(stateData => {
+        if (!stateData || stateData.ok !== true || !Array.isArray(stateData.pages)) return null;
+        if (!stateData.pages.length || !stateData.preview) return stateData;
+
+        resetStage();
+        theater.classList.add("show");
+        stage.total = stateData.pages.length;
+        stateData.pages.forEach(page => {
+          if (!page.slug) return;
+          const row = ensureRow(page.slug, page.title || page.slug, page.page_type || "");
+          if (page.quality_score != null) {
+            setRowScore(row, Number(page.quality_score) || 0, page.status !== "failed");
+          }
+          setRowState(row, page.status === "failed" ? "build" : "done");
+          if (page.status !== "failed") stage.done += 1;
+        });
+        setProg(stage.done, stage.total);
+
+        const previewState = stateData.preview;
+        const previewRow = stage.rows[previewState.slug];
+        if (previewRow) stage.current = previewRow;
+        if (previewState.html) {
+          hideWarm();
+          $("pressIdle").style.display = "none";
+          writer.classList.remove("show");
+          proof.classList.add("show");
+          prevFrame.removeAttribute("src");
+          prevFrame.srcdoc = previewState.html;
+          fitProof();
+          pressTick.textContent = (previewState.title || previewState.slug) + " · 已恢复";
+        }
+        setStatus("已恢复 · " + stage.done + " / " + stage.total, "done");
+        return stateData;
+      })
+      .catch(() => null);
+  }
 
   function slugFromPath(p) {
     const m = String(p).replace(/\\/g, "/").match(/([^\/]+)\.html\b/);
@@ -1255,6 +1322,58 @@
       let d = {}; try { d = JSON.parse(ev.data); } catch (_) {}
       if (d.slug != null) { try { materialize(d.slug, d.html || ""); } catch (_) {} }
     });
+    // ── Phase 9.3.6: Real-time Canvas SSE handlers ──
+    es.addEventListener("stage", ev => {
+      let d = {}; try { d = JSON.parse(ev.data); } catch (_) {}
+      if (d.label) {
+        setStatus(d.label, "live");
+        if ($("pressWarm").classList.contains("show")) {
+          $("warmStatus").textContent = d.label + (d.message ? " · " + d.message : "");
+        }
+      }
+    });
+    es.addEventListener("progress", ev => {
+      let d = {}; try { d = JSON.parse(ev.data); } catch (_) {}
+      if (d.current != null && d.total != null) {
+        setProg(d.current, d.total);
+      }
+    });
+    es.addEventListener("page_start", ev => {
+      let d = {}; try { d = JSON.parse(ev.data); } catch (_) {}
+      if (d.slug) {
+        const row = ensureRow(d.slug, d.title || d.slug, "");
+        setRowState(row, "build");
+        stage.current = row;
+        stage.total = Math.max(stage.total, d.total || 0);
+        setProg(stage.done, stage.total);
+        showPageLoading(d.slug, d.title);
+      }
+    });
+    es.addEventListener("page_preview", ev => {
+      let d = {}; try { d = JSON.parse(ev.data); } catch (_) {}
+      if (d.slug && d.html) {
+        try { materialize(d.slug, d.html || ""); } catch (_) {}
+      }
+    });
+    es.addEventListener("page_done", ev => {
+      let d = {}; try { d = JSON.parse(ev.data); } catch (_) {}
+      if (d.slug) {
+        const row = stage.rows[d.slug] || ensureRow(d.slug, d.title || d.slug, "");
+        if (d.score != null) setRowScore(row, d.score, d.passed !== false);
+        if (d.status === "failed") {
+          setRowState(row, "build"); // keep as generating (will look like failed)
+        } else {
+          setRowState(row, "done");
+          stage.done++;
+          revealPage(d.slug, d.title);
+        }
+        setProg(stage.done, stage.total);
+      }
+    });
+    es.addEventListener("log", ev => {
+      let d = {}; try { d = JSON.parse(ev.data); } catch (_) {}
+      append("[" + (d.level || "info").toUpperCase() + "] " + (d.message || ""));
+    });
     es.addEventListener("done", ev => {
       clearInterval(timer); hideWarm(); runBtn.disabled = false; $("demoBtn").disabled = false;
       let summary = {}; try { summary = JSON.parse(ev.data); } catch (_) {}
@@ -1438,6 +1557,8 @@
   // 这里在页面加载时若带 autorun 就用现有 beginStream("/run?…") 流程直接开跑(seed/name/audience 透传)。
   // 复用现有 /run→Canvas→双屏的全部 JS,这里只负责拼参数 + 调 beginStream,不改那段流程。
   // ============================================================
+  restorePreviewState();
+
   (function maybeAutorun() {
     try {
       const u = new URL(window.location.href);

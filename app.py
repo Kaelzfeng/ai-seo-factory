@@ -117,6 +117,34 @@ _RUN_PREVIEW_FORBIDDEN = (
 )
 
 
+def _redact_sse_text(value) -> str:
+    """Mask credentials before an exception or progress message reaches SSE."""
+    text = str(value or "")
+    for key, secret in os.environ.items():
+        upper = key.upper()
+        if not any(marker in upper for marker in ("API_KEY", "SECRET", "PASSWORD", "TOKEN")):
+            continue
+        if secret and len(secret) >= 6:
+            text = text.replace(secret, "***")
+    return re.sub(
+        r"(?i)\b(?:sk|pk|api|key)[-_][a-z0-9._-]{8,}\b",
+        "***",
+        text,
+    )
+
+
+def _redact_sse_payload(value):
+    if isinstance(value, dict):
+        return {key: _redact_sse_payload(item) for key, item in value.items()}
+    if isinstance(value, list):
+        return [_redact_sse_payload(item) for item in value]
+    if isinstance(value, tuple):
+        return [_redact_sse_payload(item) for item in value]
+    if isinstance(value, str):
+        return _redact_sse_text(value)
+    return value
+
+
 def _run_preview_result() -> dict:
     """Return the one Canvas result guaranteed by the GET /run preview path."""
     return {
@@ -527,6 +555,11 @@ def run_generate():
 
             def worker():
                 try:
+                    def on_progress(ev_type, ev_data):
+                        """Progress callback: pushes typed events into the SSE queue."""
+                        if not cancelled.is_set():
+                            q.put(("progress", {"type": ev_type, **ev_data}))
+
                     # Full generation renders into an isolated directory. A timed-out
                     # worker can therefore never overwrite the public preview later.
                     with tempfile.TemporaryDirectory(prefix="ai-seo-run-") as stage_dir:
@@ -535,6 +568,7 @@ def run_generate():
                         if has_cfg:
                             result = _run.generate_site(
                                 proj, mode=mode, output_dir=stage_dir,
+                                progress_callback=on_progress,
                             )
                         else:
                             user_input = (
@@ -545,12 +579,13 @@ def run_generate():
                                 user_input, project_id=int(project_id), tenant_id=tid,
                                 mode=mode, bypass_subscription=True,
                                 output_dir=stage_dir,
+                                progress_callback=on_progress,
                             )
                         if not cancelled.is_set():
                             q.put(("done", result))
                 except Exception as e:
                     if not cancelled.is_set():
-                        q.put(("error", str(e)))
+                        q.put(("error", _redact_sse_text(e)))
 
             t = threading.Thread(target=worker, daemon=True)
             t.start()
@@ -579,6 +614,11 @@ def run_generate():
                             )
                             yield f"data: 已用完整内容更新 {_RUN_PREVIEW_SLUG}.html\n\n"
                         done = _run_preview_done()
+                        # Enhance done with generation metadata from result
+                        result = msg[1]
+                        done["job_id"] = result.get("generation_ids", [None])[0] if result.get("generation_ids") else None
+                        done["pages_total"] = result.get("pages_total", 0)
+                        done["pages_success"] = result.get("pages_success", 0)
                         yield f"event: done\ndata: {_json.dumps(done, ensure_ascii=False)}\n\n"
                         return
                     elif msg[0] == "error":
@@ -587,6 +627,25 @@ def run_generate():
                         )
                         yield f"event: done\ndata: {_json.dumps(done, ensure_ascii=False)}\n\n"
                         return
+                    elif msg[0] == "progress":
+                        # ── New: emit typed SSE events from pipeline callback ──
+                        ev = _redact_sse_payload(msg[1])
+                        ev_type = ev.pop("type", "")
+                        payload = _json.dumps(ev, ensure_ascii=False)
+                        if ev_type == "stage":
+                            yield f"event: stage\ndata: {payload}\n\n"
+                        elif ev_type == "progress":
+                            yield f"event: progress\ndata: {payload}\n\n"
+                        elif ev_type == "page_start":
+                            yield f"event: page_start\ndata: {payload}\n\n"
+                        elif ev_type == "page_preview":
+                            yield f"event: page_preview\ndata: {payload}\n\n"
+                        elif ev_type == "page_done":
+                            yield f"event: page_done\ndata: {payload}\n\n"
+                        elif ev_type == "log":
+                            yield f"event: log\ndata: {payload}\n\n"
+                            # Also emit as text line for backward compat with interpret()
+                            yield f"data: [{ev.get('level', 'info').upper()}] {ev.get('message', '')}\n\n"
                 except queue.Empty:
                     elapsed = max(1, int(time.monotonic() - started_at))
                     yield f"data: 正在生成中 ({elapsed}s)...\n\n"
@@ -1548,6 +1607,91 @@ def api_page_content_detail(pc_id):
     return jsonify({"ok": True, "page_content": pc})
 
 
+@app.route("/api/projects/<int:project_id>/preview-state")
+def api_preview_state(project_id):
+    """返回项目的最近生成状态，供前端刷新恢复 Canvas 使用。"""
+    err = _require_login()
+    if err: return err
+    tid, err2 = _require_tenant()
+    if err2: return err2
+
+    from models import get_project, list_generations, list_page_contents
+    proj = get_project(project_id)
+    if not proj:
+        return jsonify({"ok": False, "error": "项目不存在"}), 404
+    if proj.get("tenant_id") != tid:
+        return jsonify({"ok": False, "error": "无权访问该项目"}), 403
+
+    # list_generations currently gives tenant_id precedence when both filters are
+    # supplied, so filter by project first and then verify tenant ownership here.
+    generations = [
+        item for item in list_generations(project_id=project_id)
+        if item.get("tenant_id") in (None, tid)
+    ]
+    latest_gen = generations[0] if generations else None
+    if latest_gen:
+        latest_gen = {
+            key: latest_gen.get(key)
+            for key in (
+                "id", "project_id", "status", "page_count", "passed_count",
+                "tokens_used", "keyword", "page_type", "title", "slug",
+                "quality_score", "token_count", "created_at",
+            )
+        }
+
+    # 所有已持久化的页面
+    pcs = list_page_contents(project_id=project_id, tenant_id=tid)
+
+    # 最近一次 job
+    latest_job = None
+    try:
+        from models import list_jobs
+        jobs = list_jobs(tenant_id=tid)
+        for j in jobs:
+            if j.get("project_id") == project_id:
+                latest_job = j
+                break
+    except Exception:
+        pass
+    if latest_job:
+        latest_job = {
+            key: latest_job.get(key)
+            for key in (
+                "id", "project_id", "mode", "status", "pages_total",
+                "pages_success", "pages_failed", "generation_id", "retryable",
+                "created_at", "started_at", "finished_at",
+            )
+        }
+
+    pages_list = []
+    for pc in pcs:
+        pages_list.append({
+            "id": pc.get("id"),
+            "slug": pc.get("slug", ""),
+            "title": pc.get("title", ""),
+            "page_type": pc.get("page_type", ""),
+            "primary_keyword": pc.get("primary_keyword", ""),
+            "quality_score": pc.get("quality_score", 0),
+            "review_status": pc.get("review_status", "pending"),
+            "status": pc.get("review_status", "pending"),
+            "html": pc.get("gutenberg_html", ""),
+            "gutenberg_html": pc.get("gutenberg_html", ""),
+            "preview_url": f"/output/{pc.get('slug', '')}.html" if pc.get("slug") else "",
+        })
+
+    preview = dict(pages_list[-1]) if pages_list else None
+
+    return jsonify({
+        "ok": True,
+        "project_id": project_id,
+        "latest_job": latest_job,
+        "latest_generation": latest_gen,
+        "preview": preview,
+        "pages": pages_list,
+        "pages_total": len(pages_list),
+    })
+
+
 # ── Phase 9.2: Job API ───────────────────────────────
 
 
@@ -1941,6 +2085,43 @@ def api_health():
 def api_ready():
     from lib.health import readiness_check
     return jsonify(readiness_check())
+
+@app.route("/configs")
+def api_configs():
+    """返回可用的行业配置文件列表，供前端设置下拉框使用。"""
+    import os as _os
+    import yaml as _yaml
+    industries_dir = ROOT / "industries"
+    configs = []
+    if industries_dir.exists():
+        for f in sorted(industries_dir.glob("*.yaml")):
+            try:
+                with open(f, "r", encoding="utf-8") as fh:
+                    cfg = _yaml.safe_load(fh)
+                name = cfg.get("name", f.stem) if cfg else f.stem
+            except Exception:
+                name = f.stem
+            configs.append({"file": f.name, "name": name})
+    return jsonify(configs)
+
+
+@app.route("/themes")
+def api_themes():
+    """返回可用站点主题列表，供前端 Demo 主题下拉框使用。"""
+    try:
+        from lib.themes import available as _avail
+        theme_list = []
+        for key in _avail():
+            label = key.replace("-", " ").title()
+            theme_list.append({
+                "name": key,
+                "label": label,
+                "default": key == "datasheet-editorial",
+            })
+        return jsonify(theme_list)
+    except Exception:
+        return jsonify([{"name": "datasheet-editorial", "label": "Datasheet Editorial", "default": True}])
+
 
 @app.route("/api/config/report")
 def api_config_report():
