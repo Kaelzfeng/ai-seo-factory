@@ -95,22 +95,34 @@ class WordPressCMSAdapter(BaseCMSAdapter):
 
     def _get_wp(self):
         if self._wp is None:
-            from lib.wp_publish import WordPress
-            site = self.config.get("wp_url") or self.config.get("site_url", "")
-            user = self.config.get("wp_username", "")
-            pw = self.config.get("wp_app_password", "")
+            from lib.cms_wordpress import WordPressAdapter
+            site = (
+                self.config.get("base_url")
+                or self.config.get("wp_base_url")
+                or self.config.get("wp_url")
+                or self.config.get("site_url", "")
+            )
+            user = self.config.get("username") or self.config.get("wp_username", "")
+            pw = self.config.get("app_password") or self.config.get("wp_app_password", "")
             if not site or not user or not pw:
                 return None
-            self._wp = WordPress(site=site, user=user, app_password=pw)
+            self._wp = WordPressAdapter(
+                base_url=site,
+                username=user,
+                app_password=pw,
+                timeout=self.config.get("timeout", 20),
+            )
         return self._wp
 
     def validate_config(self) -> dict:
         missing = []
-        if not self.config.get("wp_url") and not self.config.get("site_url"):
+        if not any(self.config.get(key) for key in (
+            "base_url", "wp_base_url", "wp_url", "site_url"
+        )):
             missing.append("wp_url")
-        if not self.config.get("wp_username"):
+        if not (self.config.get("username") or self.config.get("wp_username")):
             missing.append("wp_username")
-        if not self.config.get("wp_app_password"):
+        if not (self.config.get("app_password") or self.config.get("wp_app_password")):
             missing.append("wp_app_password")
         if missing:
             return {"ok": False, "cms": "wordpress",
@@ -126,7 +138,13 @@ class WordPressCMSAdapter(BaseCMSAdapter):
     def _publish(self, page_content, mapped_fields=None, status="draft") -> dict:
         vc = self.validate_config()
         if not vc["ok"]:
-            return {"ok": False, "cms": "wordpress", "status": "failed", "errors": vc["errors"]}
+            error = "; ".join(vc["errors"])
+            return {
+                "ok": False, "cms": "wordpress", "provider": "wordpress_real",
+                "status": "failed", "post_id": None, "edit_url": "", "link": "",
+                "warning": "", "error": error,
+                "remote_id": "", "remote_url": "", "errors": vc["errors"],
+            }
 
         wp = self._get_wp()
         if wp is None:
@@ -139,15 +157,40 @@ class WordPressCMSAdapter(BaseCMSAdapter):
         meta = mf.get("meta_description", getattr(page_content, "meta_description", ""))
 
         try:
-            result = wp.create_post(title=title, html=html, slug=slug,
-                                    meta_description=meta, status=status)
-            return {"ok": True, "cms": "wordpress",
-                    "remote_id": str(result.get("id", "")),
-                    "remote_url": result.get("link", ""),
-                    "status": status, "errors": []}
+            result = wp.create_post(
+                title=title,
+                content=html,
+                slug=slug,
+                excerpt=meta,
+                status=status,
+                categories=mf.get("categories"),
+                tags=mf.get("tags"),
+            )
+            error = wp.sanitize_error(result.get("error", ""))
+            post_id = result.get("post_id")
+            link = result.get("link", "")
+            return {
+                "ok": result.get("ok", False),
+                "cms": "wordpress",
+                "provider": "wordpress_real",
+                "remote_id": str(post_id) if post_id is not None else "",
+                "remote_url": link,
+                "post_id": post_id,
+                "edit_url": result.get("edit_url", ""),
+                "link": link,
+                "status": result.get("status", "failed"),
+                "warning": result.get("warning", ""),
+                "error": error,
+                "errors": [error] if error else [],
+            }
         except Exception as e:
-            return {"ok": False, "cms": "wordpress", "status": "failed",
-                    "errors": [str(e)]}
+            error = wp.sanitize_error(e)
+            return {
+                "ok": False, "cms": "wordpress", "provider": "wordpress_real",
+                "status": "failed", "post_id": None, "edit_url": "", "link": "",
+                "warning": "", "error": error,
+                "remote_id": "", "remote_url": "", "errors": [error],
+            }
 
     def update_content(self, remote_id, page_content, mapped_fields=None) -> dict:
         return {"ok": False, "cms": "wordpress", "status": "failed",
@@ -165,13 +208,23 @@ class WordPressCMSAdapter(BaseCMSAdapter):
         vc = self.validate_config()
         if not vc["ok"]:
             return {"ok": False, "cms": "wordpress", "status": "unhealthy", "errors": vc["errors"]}
-        return {"ok": True, "cms": "wordpress", "status": "healthy"}
+        result = self._get_wp().test_connection()
+        return {
+            "ok": result["ok"], "cms": "wordpress",
+            "provider": "wordpress_real",
+            "status": "healthy" if result["ok"] else "unhealthy",
+            "errors": [result["error"]] if result.get("error") else [],
+        }
 
 
 # ── Factory ──────────────────────────────────────────
 
 
-_ADAPTERS = {"mock": MockCMSAdapter, "wordpress": WordPressCMSAdapter}
+_ADAPTERS = {
+    "mock": MockCMSAdapter,
+    "wordpress": WordPressCMSAdapter,
+    "wordpress_real": WordPressCMSAdapter,
+}
 
 
 def get_cms_adapter(cms_type: str = "wordpress", config: dict = None) -> BaseCMSAdapter:

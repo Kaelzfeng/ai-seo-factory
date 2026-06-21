@@ -1653,7 +1653,14 @@ def api_publish_sync_page():
     if not pc_id:
         return jsonify({"ok": False, "error": "缺少 page_content_id"}), 400
     from lib.publish_sync import sync_page_content
-    result = sync_page_content(pc_id, tid, dry_run=data.get("dry_run", True), mode=data.get("mode", "draft"))
+    cms_type = data.get("provider") or data.get("cms_type") or "wordpress"
+    result = sync_page_content(
+        pc_id,
+        tid,
+        cms_type=cms_type,
+        dry_run=data.get("dry_run", True),
+        mode=data.get("mode", "draft"),
+    )
     return jsonify(result)
 
 
@@ -1667,7 +1674,14 @@ def api_publish_sync_project():
     if not pid:
         return jsonify({"ok": False, "error": "缺少 project_id"}), 400
     from lib.publish_sync import sync_project_pages
-    result = sync_project_pages(pid, tid, dry_run=data.get("dry_run", True), mode=data.get("mode", "draft"))
+    cms_type = data.get("provider") or data.get("cms_type") or "wordpress"
+    result = sync_project_pages(
+        pid,
+        tid,
+        cms_type=cms_type,
+        dry_run=data.get("dry_run", True),
+        mode=data.get("mode", "draft"),
+    )
     return jsonify(result)
 
 
