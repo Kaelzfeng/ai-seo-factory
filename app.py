@@ -446,6 +446,21 @@ def project_detail(project_id):
     return render_template("index.html", **ctx)
 
 
+@app.route("/projects/<int:project_id>/wordpress")
+def project_wordpress_sync(project_id):
+    from auth import current_user
+    if not current_user():
+        return redirect(url_for("login"))
+
+    from models import get_project
+    proj = get_project(project_id)
+    if not proj:
+        return "项目不存在", 404
+
+    ctx = _get_template_context(project=proj)
+    return render_template("wordpress_sync.html", **ctx)
+
+
 @app.route("/run", methods=["GET", "POST"])
 def run_generate():
     from auth import current_user, current_tenant_id
@@ -1597,6 +1612,116 @@ def api_cancel_job(job_id):
     if err2: return err2
     from lib.generation_job_mode import cancel_generation_job
     return jsonify(cancel_generation_job(job_id, tenant_id=tid))
+
+
+# ── Phase 9.3.5: WordPress Sync Panel API ────────────────
+
+@app.route("/api/wordpress/test-connection", methods=["POST"])
+def api_wordpress_test_connection():
+    err = _require_login(); tid, err2 = _require_tenant()
+    if err: return err
+    if err2: return err2
+    data = request.get_json() or {}
+
+    wp_url = (data.get("wp_url") or "").strip()
+    wp_username = (data.get("wp_username") or "").strip()
+    wp_app_password = (data.get("wp_app_password") or "").strip()
+
+    if not wp_url:
+        return jsonify({"ok": False, "error": "缺少 wp_url"}), 400
+    if not wp_username:
+        return jsonify({"ok": False, "error": "缺少 wp_username"}), 400
+    if not wp_app_password:
+        return jsonify({"ok": False, "error": "缺少 wp_app_password"}), 400
+
+    from lib.cms_wordpress import WordPressAdapter
+    timeout = data.get("timeout", 20)
+    try:
+        adapter = WordPressAdapter(wp_url, wp_username, wp_app_password, timeout=timeout)
+    except Exception as e:
+        return jsonify({"ok": False, "status": "failed", "error": str(e), "hint": "配置无效 — 请检查 WordPress URL 格式"})
+
+    result = adapter.test_connection()
+
+    err_msg = result.get("error", "")
+    hint = ""
+    if result["ok"]:
+        hint = "连接成功"
+    elif "401" in err_msg:
+        hint = "认证失败 — 检查用户名和应用密码是否正确，或服务器是否允许 Authorization Header"
+    elif "403" in err_msg:
+        hint = "权限不足 — 确认该用户有编辑权限（Editor 或 Administrator 角色），WAF 或安全插件可能拦截了 REST API"
+    elif "timed out" in err_msg.lower() or "timeout" in err_msg.lower():
+        hint = "连接超时 — 检查 WordPress URL 是否可达，或服务器防火墙是否放行"
+    else:
+        hint = err_msg
+
+    return jsonify({
+        "ok": result["ok"],
+        "status": result.get("status", "failed"),
+        "username": result.get("username", ""),
+        "hint": hint,
+        "error": err_msg,
+    })
+
+
+@app.route("/api/wordpress/sync-draft", methods=["POST"])
+def api_wordpress_sync_draft():
+    err = _require_login(); tid, err2 = _require_tenant()
+    if err: return err
+    if err2: return err2
+    data = request.get_json() or {}
+
+    pc_id = data.get("page_id")
+    wp_url = (data.get("wp_url") or "").strip()
+    wp_username = (data.get("wp_username") or "").strip()
+    wp_app_password = (data.get("wp_app_password") or "").strip()
+
+    if not pc_id:
+        return jsonify({"ok": False, "error": "缺少 page_id"}), 400
+    if not wp_url:
+        return jsonify({"ok": False, "error": "缺少 wp_url"}), 400
+    if not wp_username:
+        return jsonify({"ok": False, "error": "缺少 wp_username"}), 400
+    if not wp_app_password:
+        return jsonify({"ok": False, "error": "缺少 wp_app_password"}), 400
+
+    from models import get_page_content
+    pc = get_page_content(pc_id)
+    if not pc:
+        return jsonify({"ok": False, "error": "PageContent 不存在"}), 404
+    if pc.get("tenant_id") and pc.get("tenant_id") != tid:
+        return jsonify({"ok": False, "error": "无权访问该页面"}), 403
+
+    title = pc.get("title") or ""
+    content = pc.get("gutenberg_html") or ""
+    slug = pc.get("slug") or ""
+    excerpt = pc.get("meta_description") or ""
+
+    if not title and not content:
+        return jsonify({"ok": False, "error": "页面内容为空 — 请先运行生成管线"}), 400
+
+    from lib.cms_wordpress import WordPressAdapter
+    timeout = data.get("timeout", 20)
+    try:
+        adapter = WordPressAdapter(wp_url, wp_username, wp_app_password, timeout=timeout)
+    except Exception as e:
+        return jsonify({"ok": False, "status": "failed", "post_id": None,
+                        "edit_url": "", "link": "", "error": str(e)})
+
+    result = adapter.create_draft_post(title, content, slug=slug, excerpt=excerpt)
+
+    return jsonify({
+        "ok": result["ok"],
+        "provider": result.get("provider", "wordpress_real"),
+        "status": result.get("status", "failed"),
+        "post_id": result.get("post_id"),
+        "edit_url": result.get("edit_url", ""),
+        "link": result.get("link", ""),
+        "warning": result.get("warning", ""),
+        "error": result.get("error", ""),
+        "page_content_id": pc_id,
+    })
 
 
 # ── Phase 9.3: Beta API ──────────────────────────────
