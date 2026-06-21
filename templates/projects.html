@@ -140,7 +140,7 @@
               <label for="seed">种子关键词</label>
               <input type="text" id="seed" name="seed" placeholder="例如:pu leather wholesale">
             </div>
-            <button type="submit" class="btn pri block"><span class="ms">auto_awesome</span>创建并进操作台</button>
+            <button type="submit" class="btn pri block"><span class="ms">auto_awesome</span>创建并进入 AI Workspace</button>
           </form>
         </div>
       </section>
@@ -153,7 +153,7 @@
             <h2>已有项目</h2>
             <span class="count">{{ projects|length }}</span>
           </div>
-          <p class="desc">点「进操作台」即可在该项目里跑管线、看双屏实时生成。</p>
+          <p class="desc">进入 AI Workspace，即可通过对话生成内容并在 Artifact Canvas 实时校样。</p>
           {% if projects %}
             {% for p in projects %}
             <div class="proj">
@@ -167,7 +167,7 @@
                   </div>
                 </div>
               </div>
-              <a class="btn pri proj__go" href="{{ url_for('project_detail', project_id=p.id) }}">进操作台<span class="ms">arrow_forward</span></a>
+              <a class="btn pri proj__go" data-conversational-workspace-link href="{{ url_for('project_detail', project_id=p.id) }}">进入 AI Workspace<span class="ms">arrow_forward</span></a>
             </div>
             {% endfor %}
           {% else %}
