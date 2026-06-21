@@ -62,15 +62,18 @@ def _slugify(value: str) -> str:
 
 
 def build_generation_plan(intent: dict) -> dict:
-    from lib.intent_engine import product_display_name
+    from lib.intent_engine import get_product_for_page
     from lib.industry_brief import build_industry_brief
     from lib.page_content_writer import localized_page_title
 
-    display = product_display_name(intent)
-    industry = str(intent.get("industry") or display).strip().title()
-    brief = build_industry_brief(dict(intent or {}, product=display, industry=industry))
+    # Phase 9.4.1: Use localized product for page content
+    localized_product = get_product_for_page(intent)
+    display = get_product_for_page(intent)  # same — localized for page use
+    industry = str(intent.get("industry") or localized_product).strip().title()
+    brief = build_industry_brief(dict(intent or {}, product=localized_product, industry=industry))
     page_types = ("supplier_guide", "manufacturer", "wholesale", "export", "specifications", "faq")
-    slug_base = _slugify(f"{display} {industry}")
+    # Use localized product in slugs
+    slug_base = _slugify(f"{localized_product} {industry}")
     pages = [{
         "title": localized_page_title(brief, page_type),
         "type": page_type,
@@ -123,9 +126,13 @@ def understanding_message(intent: dict) -> str:
 
 
 def artifact_title(intent: dict) -> str:
-    from lib.intent_engine import product_display_name
-    product = product_display_name(intent)
-    return f"{product} B2B Export Site"
+    from lib.intent_engine import get_product_for_page
+    from lib.localization import localize_site_title
+    # Phase 9.4.1: Use localized product for site title
+    product = get_product_for_page(intent)
+    return localize_site_title(
+        product, intent.get("language"), market=intent.get("market"), site_type="B2B export"
+    )
 
 
 def render_fallback_artifacts(outdir, intent: dict, plan: dict) -> list[dict]:
@@ -135,6 +142,7 @@ def render_fallback_artifacts(outdir, intent: dict, plan: dict) -> list[dict]:
     from lib.industry_brief import build_industry_brief
     from lib.language_normalizer import normalize as normalize_language
     from lib.page_content_writer import write_page_content
+    from lib.localization import localize_sentence, localize_site_title
     from lib.themes import atelier
 
     outdir = Path(outdir)
@@ -173,18 +181,26 @@ def render_fallback_artifacts(outdir, intent: dict, plan: dict) -> list[dict]:
             "score": None, "passed": True,
         })
 
+    site_title = localize_site_title(brief.product, brief.language, brief.market, "B2B export")
+    site_sub = localize_sentence("site_sub", brief.language, {
+        "product": brief.product, "market": brief.market, "buyer": brief.buyer_type,
+    })
     groups = [{
-        "title": "B2B Export Pages", "label": "B2B Export Pages",
+        "title": site_title, "label": site_title,
         "items": [{
             "title": page["title"], "href": f"./{page['slug']}.html",
             "type": page["type"], "type_label": page["type"],
-            "desc": f"{page['title']} — {brief.industry} / {brief.market}.",
-            "teaser": f"{page['title']} — {brief.industry} / {brief.market}.", "passed": True,
+            "desc": localize_sentence("intro", brief.language, {
+                "product": brief.product, "market": brief.market, "buyer": brief.buyer_type,
+            }),
+            "teaser": localize_sentence("intro", brief.language, {
+                "product": brief.product, "market": brief.market, "buyer": brief.buyer_type,
+            }), "passed": True,
         } for page in rendered],
     }]
     index_ctx = {
-        "lang": html_lang, "org": artifact_title(intent), "site_name": artifact_title(intent),
-        "sub": f"Six-page {brief.industry} sourcing workspace for {brief.buyer_type}.",
+        "lang": html_lang, "org": site_title, "site_name": site_title,
+        "sub": site_sub,
         "robots": "noindex,follow", "year": today.year,
         "stats": {"total": len(rendered), "n_pass": len(rendered), "n_skip": 0},
         "groups": groups, "nav": [{"label": "Home", "href": "./index.html", "active": True}] + nav,
