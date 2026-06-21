@@ -1150,6 +1150,58 @@ def load_or_create_blueprint(project: dict = None,
 # ── Phase 4: Blueprint → PageContent 生成 ─────────────
 
 
+def _industry_brief_from_pipeline_context(project: dict, profile):
+    """Build or restore the brief used by the normal generation pipeline."""
+    from lib.industry_brief import IndustryBrief, build_industry_brief
+
+    stored = (project or {}).get("industry_brief")
+    if isinstance(stored, IndustryBrief):
+        return stored
+    if isinstance(stored, dict) and stored.get("product"):
+        return IndustryBrief.from_dict(stored)
+
+    products = list(getattr(profile, "products", None) or [])
+    buyers = list(getattr(profile, "buyer_personas", None) or [])
+    markets = list(getattr(profile, "target_markets", None) or [])
+    languages = list(getattr(profile, "languages", None) or [])
+    product = (project or {}).get("seed_keyword") or (products[0] if products else "")
+    industry = getattr(profile, "industry", "") or (project or {}).get("name", "")
+    return build_industry_brief({
+        "product": product or industry,
+        "industry": industry or product,
+        "audience": buyers[0] if buyers else "B2B buyers and distributors",
+        "market": markets[0] if markets else "global export markets",
+        "language": languages[0] if languages else "English",
+    })
+
+
+def _reinforce_page_contents_with_industry_brief(page_contents, brief):
+    """Replace only weak/generic PageContent bodies with brief-driven copy."""
+    from lib.page_content_writer import reinforce_page_content
+
+    for page_content in page_contents or []:
+        page = {
+            "type": getattr(page_content, "page_type", "supplier_guide"),
+            "page_type": getattr(page_content, "page_type", "supplier_guide"),
+            "slug": getattr(page_content, "slug", ""),
+            "title": getattr(page_content, "title", ""),
+        }
+        original = {
+            "title": getattr(page_content, "title", ""),
+            "meta_description": getattr(page_content, "meta_description", ""),
+            "body_html": getattr(page_content, "body_html", ""),
+        }
+        reinforced = reinforce_page_content(original, page, brief)
+        if reinforced != original:
+            page_content.title = reinforced.get("title", page_content.title)
+            page_content.meta_title = reinforced.get("title", getattr(page_content, "meta_title", ""))
+            page_content.meta_description = reinforced.get("meta_description", page_content.meta_description)
+            page_content.body_html = reinforced.get("body_html") or reinforced.get("html", page_content.body_html)
+            if hasattr(page_content, "cta"):
+                page_content.cta = reinforced.get("cta", page_content.cta)
+    return page_contents
+
+
 def generate_site_from_blueprint(project: dict, blueprint,
                                  mode: str = "dry-run",
                                  bypass_subscription: bool = False,
@@ -1219,6 +1271,8 @@ def generate_site_from_blueprint(project: dict, blueprint,
 
     # 1. 逐页生成
     page_contents = generate_pages_from_blueprint(blueprint, bp_profile)
+    industry_brief = _industry_brief_from_pipeline_context(project, bp_profile)
+    page_contents = _reinforce_page_contents_with_industry_brief(page_contents, industry_brief)
 
     # 2. 注入内部链接
     page_contents = attach_links_to_pages(page_contents, blueprint)
@@ -1515,6 +1569,24 @@ def generate_site_from_input(user_input: str, project_id: int = None,
         project["tenant_id"] = tenant_id
     profile = build_business_profile(scope, project)
 
+    # Phase 9.4.0: consume (without replacing) the open-vocabulary intent and
+    # language-normalizer output, then carry a deterministic content brief into S3.
+    from lib.intent_engine import empty_intent, merge_intent
+    from lib.industry_brief import build_industry_brief
+    from lib.generation_plan import apply_b2b_content_defaults
+    content_intent = apply_b2b_content_defaults(merge_intent(empty_intent(), user_input))
+    if not content_intent.get("product"):
+        content_intent["product"] = (profile.products[0] if profile.products else scope.get("industry"))
+    if not content_intent.get("industry"):
+        content_intent["industry"] = profile.industry or scope.get("industry")
+    if not content_intent.get("audience"):
+        content_intent["audience"] = profile.buyer_personas[0] if profile.buyer_personas else "B2B buyers and distributors"
+    if not content_intent.get("market"):
+        content_intent["market"] = profile.target_markets[0] if profile.target_markets else scope.get("target_market")
+    if not content_intent.get("language"):
+        content_intent["language"] = profile.languages[0] if profile.languages else scope.get("language", "English")
+    industry_brief = build_industry_brief(content_intent)
+
     # Optional: competitor analysis → hints
     competitor_hints = None
     if use_competitor:
@@ -1555,6 +1627,7 @@ def generate_site_from_input(user_input: str, project_id: int = None,
         "user_id": project.get("user_id"),
         "name": scope.get("industry", "Generated"),
         "site_url": project.get("site_url", ""),
+        "industry_brief": industry_brief.to_dict(),
     }
     return generate_site_from_blueprint(gen_project, blueprint, mode=mode,
                                         bypass_subscription=bypass_subscription,

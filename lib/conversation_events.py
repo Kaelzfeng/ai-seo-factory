@@ -13,7 +13,7 @@ from pathlib import Path
 
 from lib.conversation_state import get_conversation_state, save_conversation_state
 from lib.generation_plan import (
-    artifact_title, build_generation_plan, intent_is_locked, lock_intent,
+    apply_b2b_content_defaults, artifact_title, build_generation_plan, intent_is_locked, lock_intent,
     next_clarification, render_fallback_artifacts, understanding_message,
 )
 
@@ -83,7 +83,7 @@ def stream_conversation(
     # Phase 9.3.8: Merge into previous intent from conversation state
     previous_intent = state.get("intent") or {}
     from lib.intent_engine import merge_intent as _merge, is_intent_ready as _ready, build_clarification as _build_clar
-    intent = _merge(previous_intent, safe_message)
+    intent = apply_b2b_content_defaults(_merge(previous_intent, safe_message))
     # Fallback: use project seed_keyword if nothing detected
     if not intent.get("product") and not intent.get("industry"):
         seed = str(project.get("seed_keyword", "")).strip()

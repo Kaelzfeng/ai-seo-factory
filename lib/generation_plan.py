@@ -16,6 +16,21 @@ def _contains(text: str, *terms: str) -> bool:
     return any(term.lower() in lowered for term in terms)
 
 
+def apply_b2b_content_defaults(intent: dict) -> dict:
+    """Complete an explicit site request without changing extraction rules.
+
+    A product + target language + website goal is sufficient for this B2B
+    product. Existing audience or market values always win.
+    """
+    resolved = dict(intent or {})
+    has_product = bool(resolved.get("product") or resolved.get("product_phrase") or resolved.get("industry"))
+    is_site_request = resolved.get("goal") == "generate website"
+    if has_product and resolved.get("language") and is_site_request:
+        if not resolved.get("audience") and not resolved.get("market"):
+            resolved["audience"] = "B2B buyers and distributors"
+    return resolved
+
+
 def lock_intent(message: str, project: dict | None = None) -> dict:
     """Merge user message into a fresh intent and return it.
 
@@ -33,7 +48,7 @@ def lock_intent(message: str, project: dict | None = None) -> dict:
             intent["product"] = seed.split()[0] if seed else ""
             intent["industry"] = seed
 
-    return intent
+    return apply_b2b_content_defaults(intent)
 
 
 def intent_is_locked(intent: dict) -> bool:
@@ -47,38 +62,25 @@ def _slugify(value: str) -> str:
 
 
 def build_generation_plan(intent: dict) -> dict:
-    product = str(intent.get("product") or "product").strip().lower()
-    product_title = product.title()
-    industry = str(intent.get("industry") or product).strip().title()
-    pages = [
-        {
-            "title": f"{product_title} {industry} Supplier Guide",
-            "type": "supplier_guide",
-        },
-        {
-            "title": f"{product_title} Manufacturer for Wholesale Buyers",
-            "type": "manufacturer",
-        },
-        {
-            "title": f"{product_title} Wholesale Bulk Order Guide",
-            "type": "wholesale",
-        },
-        {
-            "title": f"{product_title} Export Distributor Guide",
-            "type": "export",
-        },
-        {
-            "title": f"{product_title} Specifications Buying Guide",
-            "type": "specifications",
-        },
-        {
-            "title": f"{product_title} FAQ for B2B Buyers",
-            "type": "faq",
-        },
-    ]
-    for page in pages:
-        page["slug"] = _slugify(page["title"])
-    return {"title": "站点生成计划", "pages": pages}
+    from lib.intent_engine import product_display_name
+    from lib.industry_brief import build_industry_brief
+    from lib.page_content_writer import localized_page_title
+
+    display = product_display_name(intent)
+    industry = str(intent.get("industry") or display).strip().title()
+    brief = build_industry_brief(dict(intent or {}, product=display, industry=industry))
+    page_types = ("supplier_guide", "manufacturer", "wholesale", "export", "specifications", "faq")
+    slug_base = _slugify(f"{display} {industry}")
+    pages = [{
+        "title": localized_page_title(brief, page_type),
+        "type": page_type,
+        "slug": f"{slug_base}-{page_type.replace('_', '-')}",
+    } for page_type in page_types]
+    plan_titles = {
+        "Japanese": "サイト生成計画", "Spanish": "Plan de generación del sitio",
+        "German": "Website-Erstellungsplan", "French": "Plan de génération du site",
+    }
+    return {"title": plan_titles.get(brief.language, "站点生成计划"), "pages": pages}
 
 
 def next_clarification(messages: list[dict]) -> str:
@@ -107,53 +109,56 @@ def next_clarification(messages: list[dict]) -> str:
 
 
 def understanding_message(intent: dict) -> str:
+    from lib.intent_engine import product_display_name
+
+    product = product_display_name(intent)
+    industry = str(intent.get("industry") or product)
+    language = str(intent.get("language") or "English")
+    market = str(intent.get("market") or "global export markets")
+    audience = str(intent.get("audience") or "B2B buyers and distributors")
     return (
-        f"我理解你的需求是：为 {intent['product']} / {intent['industry']} "
-        f"创建英文 {intent['market']} 网站，目标读者是 {intent['audience']}。"
+        f"我理解你的需求是：为 {product} / {industry} 创建 {language} "
+        f"{market} 网站，目标读者是 {audience}。"
     )
 
 
 def artifact_title(intent: dict) -> str:
-    return f"{str(intent.get('product') or 'Product').title()} Hardware Tools Export Site"
+    from lib.intent_engine import product_display_name
+    product = product_display_name(intent)
+    return f"{product} B2B Export Site"
 
 
 def render_fallback_artifacts(outdir, intent: dict, plan: dict) -> list[dict]:
     """Render the six planned pages when the full generator is unavailable."""
     import datetime
     from pathlib import Path
+    from lib.industry_brief import build_industry_brief
+    from lib.language_normalizer import normalize as normalize_language
+    from lib.page_content_writer import write_page_content
     from lib.themes import atelier
 
     outdir = Path(outdir)
     outdir.mkdir(parents=True, exist_ok=True)
     today = datetime.date.today()
-    product = str(intent.get("product") or "product")
-    audience = str(intent.get("audience") or "B2B buyers")
+    brief = build_industry_brief(intent)
+    locale = normalize_language(brief.language).get("locale", "en-US")
+    html_lang = locale.split("-")[0].lower()
     rendered = []
     nav = [
         {"label": item["title"], "href": f"./{item['slug']}.html"}
         for item in plan.get("pages", [])
     ]
     for item in plan.get("pages", []):
-        body = (
-            f"<h1>{item['title']}</h1>"
-            f"<p>This B2B export guide helps {audience} evaluate {product} "
-            "suppliers, specifications, wholesale terms, and export readiness.</p>"
-            "<h2>Supplier and Manufacturing Scope</h2>"
-            f"<p>Review {product} manufacturing controls, material specifications, "
-            "packaging options, lead times, and bulk order capabilities.</p>"
-            "<h2>Wholesale and Export Requirements</h2>"
-            "<p>Confirm commercial terms, inspection documents, shipment planning, "
-            "and distributor support before ordering.</p>"
-            "<blockquote>Request specifications, wholesale terms, and export documentation.</blockquote>"
-        )
+        page_copy = write_page_content(item, brief)
+        item["title"] = page_copy["title"]
         ctx = {
-            "lang": "en", "org": artifact_title(intent),
-            "title": item["title"],
-            "meta_desc": f"{item['title']} for {audience}.",
+            "lang": html_lang, "org": artifact_title(intent),
+            "title": page_copy["title"],
+            "meta_desc": page_copy["meta_description"],
             "robots": "noindex,follow", "type_label": item["type"],
-            "body_has_h1": True, "body_html": body, "warn_html": "",
+            "body_has_h1": True, "body_html": page_copy["html"], "warn_html": "",
             "jsonld": "", "year": today.year, "updated": today.isoformat(),
-            "chips": ["B2B Export", "Wholesale", "Supplier"],
+            "chips": [brief.industry, brief.market, "B2B", "MOQ"],
             "crumbs": [
                 {"label": "Home", "href": "./index.html"},
                 {"label": item["title"], "href": f"./{item['slug']}.html", "active": True},
@@ -163,7 +168,7 @@ def render_fallback_artifacts(outdir, intent: dict, plan: dict) -> list[dict]:
         html = atelier.render_page(ctx)
         (outdir / f"{item['slug']}.html").write_text(html, encoding="utf-8")
         rendered.append({
-            "slug": item["slug"], "title": item["title"], "type": item["type"],
+            "slug": item["slug"], "title": page_copy["title"], "type": item["type"],
             "html": html, "url": f"/output/{item['slug']}.html", "status": "done",
             "score": None, "passed": True,
         })
@@ -173,13 +178,13 @@ def render_fallback_artifacts(outdir, intent: dict, plan: dict) -> list[dict]:
         "items": [{
             "title": page["title"], "href": f"./{page['slug']}.html",
             "type": page["type"], "type_label": page["type"],
-            "desc": f"{page['title']} for international buyers.",
-            "teaser": f"{page['title']} for international buyers.", "passed": True,
+            "desc": f"{page['title']} — {brief.industry} / {brief.market}.",
+            "teaser": f"{page['title']} — {brief.industry} / {brief.market}.", "passed": True,
         } for page in rendered],
     }]
     index_ctx = {
-        "lang": "en", "org": artifact_title(intent), "site_name": artifact_title(intent),
-        "sub": f"Six-page B2B export workspace for {audience}.",
+        "lang": html_lang, "org": artifact_title(intent), "site_name": artifact_title(intent),
+        "sub": f"Six-page {brief.industry} sourcing workspace for {brief.buyer_type}.",
         "robots": "noindex,follow", "year": today.year,
         "stats": {"total": len(rendered), "n_pass": len(rendered), "n_skip": 0},
         "groups": groups, "nav": [{"label": "Home", "href": "./index.html", "active": True}] + nav,
