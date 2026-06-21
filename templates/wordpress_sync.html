@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>WordPress 同步 · 内容工厂</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&family=Roboto+Mono:wght@400;500;600&family=Noto+Sans+SC:wght@400;500;600;700&family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='console.css') }}">
+  <style>
+    .wrap{max-width:720px;margin:0 auto;padding:32px 22px 60px}
+    .wrap h1{font-size:22px;font-weight:600;margin:0 0 8px}
+    .wrap .sub{font-size:13px;color:var(--faint);margin:0 0 28px}
+    /* panel = card with spacing */
+    .panel{background:var(--surface);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:24px 26px;margin-bottom:22px}
+    .panel__h{display:flex;align-items:center;gap:11px;margin-bottom:18px}
+    .panel__h .ci{width:32px;height:32px;border-radius:10px;background:var(--blue-wash);color:var(--blue);display:grid;place-items:center;flex:none}
+    .panel__h .ci .ms{font-size:20px}
+    .panel__h h2{font-size:15.5px;font-weight:600;margin:0}
+    /* status stripe */
+    .status{margin-top:16px;padding:12px 14px;border-radius:12px;font-size:13px;line-height:1.6;display:none}
+    .status.show{display:block}
+    .status.ok{background:var(--ok-wash);border:1px solid #CEEAD6;color:var(--ok)}
+    .status.fail{background:var(--danger-wash);border:1px solid #F3C0BC;color:var(--danger)}
+    .status .code{font-family:var(--mono);font-size:11px;margin-top:6px;color:var(--gray);word-break:break-all}
+    .status .linkrow{margin-top:8px;display:flex;flex-wrap:wrap;gap:12px}
+    .status .linkrow a{display:inline-flex;align-items:center;gap:5px;font-size:13px;font-weight:500}
+    .status .linkrow a .ms{font-size:18px}
+    /* result pre block */
+    .rblock{margin-top:14px;background:var(--surface2);border-radius:12px;padding:14px 16px;font-family:var(--mono);font-size:11.5px;color:var(--ink2);overflow:auto;max-height:240px;white-space:pre-wrap;word-break:break-all;display:none}
+    .rblock.show{display:block}
+    /* spinner inline */
+    .spin{display:inline-block;width:16px;height:16px;border:2px solid var(--blue-wash);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px}
+    /* page selector row */
+    .pagerow{display:flex;gap:10px;align-items:flex-end}
+    .pagerow .field{flex:1;margin-bottom:0}
+    /* shared credential note */
+    .crednote{font-size:12px;color:var(--faint);margin-bottom:12px;display:flex;align-items:center;gap:6px}
+    .crednote .ms{font-size:17px}
+    /* save-status indicator */
+    .savestat{font-size:11.5px;color:var(--faint);margin-left:auto}
+  </style>
+</head>
+<body>
+  <!-- Top bar -->
+  <header class="topbar">
+    <a href="{{ url_for('index') }}" class="brandmark" title="内容工厂" style="text-decoration:none;flex:none">CF</a>
+    {% if project %}
+    <a href="{{ url_for('project_detail', project_id=project.id) }}" class="projpill" style="text-decoration:none">
+      <span class="dot"></span>{{ project.name }}
+    </a>
+    {% endif %}
+    <span class="ttl">WordPress 同步</span>
+    <span class="grow"></span>
+    {% if user %}
+    <a href="{{ url_for('logout') }}" class="btn ghost" style="font-size:12.5px"><span class="ms">logout</span>登出</a>
+    {% endif %}
+  </header>
+
+  <main class="wrap">
+    <h1>WordPress 同步</h1>
+    <p class="sub">配置 WordPress 站点凭据，测试连接后将已生成页面同步为草稿。</p>
+
+    <!-- Shared credentials -->
+    <div class="panel">
+      <div class="panel__h">
+        <div class="ci"><span class="ms">key</span></div>
+        <h2>站点凭据</h2>
+        <span class="savestat">凭据仅保存在当前会话，不会写入数据库</span>
+      </div>
+      <label class="field">
+        <span>WordPress Base URL</span>
+        <input type="url" id="wpUrl" placeholder="https://your-site.com" autocomplete="url">
+        <span class="hint">WordPress 站点根地址，例如 https://example.com（不含 /wp-json）</span>
+      </label>
+      <label class="field">
+        <span>WordPress Username</span>
+        <input type="text" id="wpUsername" placeholder="api-editor" autocomplete="username">
+      </label>
+      <label class="field" style="margin-bottom:0">
+        <span>Application Password</span>
+        <input type="password" id="wpAppPassword" placeholder="xxxx xxxx xxxx xxxx" autocomplete="off">
+        <span class="hint">在 WordPress 后台 → 用户 → 个人资料 → Application Passwords 中生成</span>
+      </label>
+    </div>
+
+    <!-- Section 1: Test Connection -->
+    <div class="panel">
+      <div class="panel__h">
+        <div class="ci"><span class="ms">link</span></div>
+        <h2>连接测试</h2>
+      </div>
+      <p style="font-size:13px;color:var(--ink2);margin:0 0 16px">验证凭据是否正确，确认 WordPress REST API 可达。</p>
+      <button class="btn pri" id="testBtn" type="button"><span class="ms">network_ping</span>测试连接</button>
+      <div class="status" id="testStatus"></div>
+      <pre class="rblock" id="testRaw"></pre>
+    </div>
+
+    <!-- Section 2: Sync Draft -->
+    <div class="panel">
+      <div class="panel__h">
+        <div class="ci"><span class="ms">cloud_upload</span></div>
+        <h2>同步草稿</h2>
+      </div>
+      <p style="font-size:13px;color:var(--ink2);margin:0 0 16px">将选中页面以 <strong>草稿</strong> 状态推送到 WordPress。即使选择发布，也会强制降级为草稿。</p>
+      <div class="pagerow">
+        <label class="field">
+          <span>选择页面</span>
+          <select id="pageSelect"><option value="">— 加载中… —</option></select>
+        </label>
+        <button class="btn pri" id="syncBtn" type="button" style="height:44px;flex:none"><span class="ms">cloud_upload</span>同步草稿</button>
+      </div>
+      <div class="status" id="syncStatus"></div>
+      <pre class="rblock" id="syncRaw"></pre>
+    </div>
+
+    {% if not project %}
+    <div class="alert" style="margin-top:20px">
+      <span class="ms">info</span>
+      <span>请先从操作台选择一个项目，再访问 WordPress 同步面板。</span>
+    </div>
+    {% endif %}
+  </main>
+</body>
+<script>
+(function(){
+  'use strict';
+  var $=function(id){return document.getElementById(id);};
+
+  /* helpers */
+  function readCreds(){
+    return {
+      wp_url: ($('wpUrl').value||'').trim(),
+      wp_username: ($('wpUsername').value||'').trim(),
+      wp_app_password: ($('wpAppPassword').value||'').trim()
+    };
+  }
+
+  function setStatus(el, ok, msg, extra){
+    el.className='status show '+(ok?'ok':'fail');
+    var h='<span class="ms">'+(ok?'check_circle':'error')+'</span> '+msg;
+    if(extra) h+=extra;
+    el.innerHTML=h;
+  }
+
+  function showRaw(el, obj){
+    el.textContent=JSON.stringify(obj,null,2);
+    el.classList.add('show');
+  }
+
+  function hideStatus(el){el.className='status';el.innerHTML='';}
+  function hideRaw(el){el.classList.remove('show');el.textContent='';}
+
+  function loading(btn,label){
+    btn.disabled=true;
+    btn._prev=btn.innerHTML;
+    btn.innerHTML='<span class="spin"></span>'+label;
+  }
+  function unload(btn){
+    btn.disabled=false;
+    if(btn._prev) btn.innerHTML=btn._prev;
+  }
+
+  /* load pages */
+  {% if project %}
+  fetch('/api/page-contents?project_id={{ project.id }}')
+    .then(function(r){return r.json();})
+    .then(function(d){
+      var sel=$('pageSelect'),items=d.page_contents||d||[];
+      sel.innerHTML='';
+      if(!Array.isArray(items)||items.length===0){
+        sel.innerHTML='<option value="">— 暂无页面 —</option>';
+        return;
+      }
+      sel.innerHTML='<option value="">— 选择页面 —</option>';
+      items.forEach(function(pc){
+        var opt=document.createElement('option');
+        opt.value=pc.id;
+        opt.textContent=(pc.title||pc.slug||'Untitled')+'  ['+(pc.slug||'no-slug')+']';
+        sel.appendChild(opt);
+      });
+    })
+    .catch(function(){
+      $('pageSelect').innerHTML='<option value="">— 加载失败 —</option>';
+    });
+  {% endif %}
+
+  /* Test Connection */
+  $('testBtn').addEventListener('click',function(){
+    var creds=readCreds();
+    if(!creds.wp_url){setStatus($('testStatus'),false,'请填写 WordPress Base URL');return;}
+    if(!creds.wp_username){setStatus($('testStatus'),false,'请填写 Username');return;}
+    if(!creds.wp_app_password){setStatus($('testStatus'),false,'请填写 Application Password');return;}
+
+    hideStatus($('testStatus'));hideRaw($('testRaw'));
+    loading($('testBtn'),'测试中…');
+
+    fetch('/api/wordpress/test-connection',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(creds)
+    })
+    .then(function(r){return r.json();})
+    .then(function(d){
+      unload($('testBtn'));
+      var extra='';
+      if(d.hint&&d.hint!=='连接成功') extra='<div style="margin-top:6px;font-size:12px">'+d.hint+'</div>';
+      setStatus($('testStatus'),d.ok, d.ok?'已连接 · '+ (d.username||'') :'连接失败',extra);
+      showRaw($('testRaw'),d);
+    })
+    .catch(function(e){
+      unload($('testBtn'));
+      setStatus($('testStatus'),false,'网络错误: '+e.message);
+    });
+  });
+
+  /* Sync Draft */
+  $('syncBtn').addEventListener('click',function(){
+    var creds=readCreds();
+    var pcId=$('pageSelect').value;
+    if(!pcId){setStatus($('syncStatus'),false,'请先选择一个页面');return;}
+    if(!creds.wp_url){setStatus($('syncStatus'),false,'请填写 WordPress Base URL');return;}
+    if(!creds.wp_username){setStatus($('syncStatus'),false,'请填写 Username');return;}
+    if(!creds.wp_app_password){setStatus($('syncStatus'),false,'请填写 Application Password');return;}
+
+    hideStatus($('syncStatus'));hideRaw($('syncRaw'));
+    loading($('syncBtn'),'同步中…');
+
+    var body=JSON.stringify({
+      page_id:parseInt(pcId),
+      wp_url:creds.wp_url,
+      wp_username:creds.wp_username,
+      wp_app_password:creds.wp_app_password
+    });
+
+    fetch('/api/wordpress/sync-draft',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:body
+    })
+    .then(function(r){return r.json();})
+    .then(function(d){
+      unload($('syncBtn'));
+      var extra='';
+      if(d.ok){
+        extra='<div class="linkrow">';
+        if(d.edit_url) extra+='<a href="'+d.edit_url+'" target="_blank" rel="noopener"><span class="ms">edit</span>编辑</a>';
+        if(d.link) extra+='<a href="'+d.link+'" target="_blank" rel="noopener"><span class="ms">open_in_new</span>查看</a>';
+        extra+='</div>';
+        if(d.warning) extra+='<div style="margin-top:6px;font-size:12px;color:var(--warn)"><span class="ms">warning</span> '+d.warning+'</div>';
+      }
+      setStatus($('syncStatus'),d.ok,
+        d.ok?'草稿已创建 · Post #'+d.post_id:'同步失败'+(d.error?': '+d.error:''),
+        extra);
+      showRaw($('syncRaw'),d);
+    })
+    .catch(function(e){
+      unload($('syncBtn'));
+      setStatus($('syncStatus'),false,'网络错误: '+e.message);
+    });
+  });
+})();
+</script>
+</body>
+</html>

@@ -470,6 +470,9 @@
 
     <div class="side__foot">
       <button class="side__act" id="sideSettings" type="button" title="生成设置:行业配置 / 目标 / 样板模板"><span class="ms">tune</span><span>生成设置</span></button>
+      {% if project %}
+      <a class="side__act" href="{{ url_for('project_wordpress_sync', project_id=project.id) }}" title="WordPress 同步:测试连接 / 同步草稿"><span class="ms">cloud_sync</span><span>WordPress 同步</span></a>
+      {% endif %}
       {% if user %}
       <div class="side__user" title="{{ user.email }}">
         <div class="ravatar">{{ user.email[0]|upper }}</div>
