@@ -439,7 +439,7 @@ def _attach_schema(content: dict) -> dict:
     return content
 
 
-def _write_preview(all_pages: list, site_url: str) -> list:
+def _write_preview(all_pages: list, site_url: str, output_dir=None) -> list:
     """渲染 HTML 预览文件到 output_src/。
 
     Returns:
@@ -449,7 +449,7 @@ def _write_preview(all_pages: list, site_url: str) -> list:
     if not all_pages:
         return errors
 
-    outdir = ROOT / "output_src"
+    outdir = Path(output_dir) if output_dir else ROOT / "output_src"
     outdir.mkdir(parents=True, exist_ok=True)
 
     for entry in all_pages:
@@ -592,7 +592,8 @@ def _record_generation(tenant_id: int, project: dict, all_pages: list,
 
 
 def generate_site(project: dict, mode: str = "dry-run",
-                  bypass_subscription: bool = False) -> dict:
+                  bypass_subscription: bool = False,
+                  output_dir=None) -> dict:
     """对单个 project 执行完整生成管线。
 
     Args:
@@ -794,7 +795,7 @@ def generate_site(project: dict, mode: str = "dry-run",
             continue
 
     # ── 4. 本地预览渲染 ──
-    preview_errors = _write_preview(all_pages, site_url)
+    preview_errors = _write_preview(all_pages, site_url, output_dir=output_dir)
 
     # ── 5. 发布到 WordPress ──
     publish_errors = _publish_if_needed(mode, project, all_pages, tenant_id)
@@ -1087,7 +1088,8 @@ def load_or_create_blueprint(project: dict = None,
 def generate_site_from_blueprint(project: dict, blueprint,
                                  mode: str = "dry-run",
                                  bypass_subscription: bool = False,
-                                 max_pages: int = None) -> dict:
+                                 max_pages: int = None,
+                                 output_dir=None) -> dict:
     """从 SiteBlueprint 执行完整内容生成管线。
 
     Pipeline:
@@ -1272,7 +1274,11 @@ def generate_site_from_blueprint(project: dict, blueprint,
                     pass
             continue
 
-    # 6. Usage recording
+    # 6a. Render HTML preview to output_src (for Canvas/frontend)
+    site_url = project.get("site_url", "https://example.com")
+    _write_preview(all_results, site_url, output_dir=output_dir)
+
+    # 6b. Usage recording
     usage_info = {}
     if tenant_id and not bypass_subscription:
         try:
@@ -1330,7 +1336,8 @@ def generate_site_from_input(user_input: str, project_id: int = None,
                              max_pages: int = None,
                              use_competitor: bool = False,
                              competitor_query: str = None,
-                             competitor_urls: list[str] = None) -> dict:
+                             competitor_urls: list[str] = None,
+                             output_dir=None) -> dict:
     """从自然语言输入执行完整 S0 → PageContent 管线。
 
     Phase 5.1: 可选竞品分析增强 (use_competitor=True)。
@@ -1388,10 +1395,44 @@ def generate_site_from_input(user_input: str, project_id: int = None,
     }
     return generate_site_from_blueprint(gen_project, blueprint, mode=mode,
                                         bypass_subscription=bypass_subscription,
-                                        max_pages=max_pages)
+                                        max_pages=max_pages,
+                                        output_dir=output_dir)
 
 
 # ── Phase 5: 竞品 SEO 分析 ─────────────────────────────
+
+
+_GENERIC_COMPETITOR_TOKENS = {
+    "best", "b2b", "buyer", "buyers", "compare", "comparison", "export",
+    "global", "guide", "manufacturer", "market", "supplier", "top",
+    "wholesale",
+}
+
+
+def _validate_mock_report_topic(query: str, report_dict: dict) -> None:
+    """Reject mock reports whose generated topic does not match the query."""
+    import json as _json
+    import re as _re
+
+    query_tokens = set(_re.findall(r"[a-z0-9]+", str(query or "").lower()))
+    payload = {
+        "serp_results": report_dict.get("serp_results", []),
+        "competitors": report_dict.get("competitors", []),
+    }
+    report_text = _json.dumps(payload, ensure_ascii=False).lower()
+
+    if "leather" not in query_tokens and any(marker in report_text for marker in (
+        "pu leather", "synthetic leather", "pvc leather", "pu-leather",
+    )):
+        raise ValueError("mock report topic mismatch: leather content does not match query")
+
+    topic_tokens = {
+        token for token in query_tokens
+        if len(token) >= 3 and token not in _GENERIC_COMPETITOR_TOKENS
+    }
+    report_tokens = set(_re.findall(r"[a-z0-9]+", report_text))
+    if topic_tokens and not topic_tokens.intersection(report_tokens):
+        raise ValueError("mock report topic mismatch: generated content does not match query")
 
 
 def analyze_competitor_seo(query: str, project_id: int = None,
@@ -1429,6 +1470,10 @@ def analyze_competitor_seo(query: str, project_id: int = None,
     strategy = build_surpass_strategy(query, gap, report.competitors)
     report.surpass_strategy = strategy
 
+    report_dict = report.to_dict()
+    if provider == "mock":
+        _validate_mock_report_topic(query, report_dict)
+
     # 4. Save to DB
     try:
         from models import create_competitor_report
@@ -1438,7 +1483,7 @@ def analyze_competitor_seo(query: str, project_id: int = None,
             query=query, market=market or "global",
             language=language or "English",
             status=report.status,
-            report_json=_json.dumps(report.to_dict(), ensure_ascii=False),
+            report_json=_json.dumps(report_dict, ensure_ascii=False),
         )
         report.id = report_id
     except Exception:

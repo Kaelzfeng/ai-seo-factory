@@ -31,7 +31,7 @@ def build_surpass_strategy(query: str, gap_matrix: GapMatrix,
     rec_links = []
     diff_points = []
 
-    for item in gap_matrix.priority_items[:10]:
+    for item in gap_matrix.priority_items:
         tp = item["type"]
         val = item["item"]
 

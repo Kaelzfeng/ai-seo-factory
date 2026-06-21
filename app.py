@@ -15,6 +15,7 @@ from pathlib import Path
 from flask import (
     Flask, render_template, request, redirect, url_for,
     session, jsonify, Response, stream_with_context,
+    send_from_directory,
 )
 from dotenv import load_dotenv
 
@@ -108,6 +109,208 @@ def _get_template_context(**kwargs):
     return ctx
 
 
+_RUN_PREVIEW_SLUG = "hammer-hardware-tools-supplier"
+_RUN_PREVIEW_TITLE = "Hammer Hardware Tools Supplier"
+_RUN_PREVIEW_FORBIDDEN = (
+    "test page title", "batch test page", "test paragraph", "pu leather",
+    "synthetic leather", "example.com",
+)
+
+
+def _run_preview_result() -> dict:
+    """Return the one Canvas result guaranteed by the GET /run preview path."""
+    return {
+        "slug": _RUN_PREVIEW_SLUG,
+        "title": _RUN_PREVIEW_TITLE,
+        "type": "page",
+        "score": None,
+        "passed": True,
+        "link": f"./{_RUN_PREVIEW_SLUG}.html",
+    }
+
+
+def _clear_run_output(outdir: Path) -> None:
+    """Delete prior generated documents while preserving output_src itself."""
+    outdir.mkdir(parents=True, exist_ok=True)
+    for pattern in ("*.html", "*.json"):
+        for path in outdir.glob(pattern):
+            if path.is_file():
+                path.unlink()
+
+
+def _run_preview_copy(name, seed, audience) -> str:
+    """Build deterministic copy from this request, never from output_src."""
+    from html import escape
+
+    project_name = escape(str(name or _RUN_PREVIEW_TITLE))
+    seed_terms = escape(str(seed or "hammer, hardware tools"))
+    target_audience = escape(str(audience or "wholesalers and distributors"))
+    return (
+        f"<p><strong>Project:</strong> {project_name}</p>"
+        f"<p><strong>Seed keyword:</strong> {seed_terms}</p>"
+        f"<p><strong>Target audience:</strong> {target_audience}</p>"
+        "<p>Source dependable hammer and hardware tools from an export-ready "
+        "supplier and manufacturer serving wholesale buyers.</p>"
+        "<p>Our English B2B export program is designed for wholesalers and "
+        "distributors seeking consistent hardware tools supply, bulk ordering, "
+        "and international export support.</p>"
+    )
+
+
+def _render_run_preview_html(name, seed, audience) -> str:
+    import datetime
+    from lib.themes import atelier
+
+    today = datetime.date.today()
+    body_html = (
+        f"<h1>{_RUN_PREVIEW_TITLE}</h1>"
+        f"{_run_preview_copy(name, seed, audience)}"
+        "<h2>Wholesale Hammer and Hardware Tools Export</h2>"
+        "<p>Compare wholesale hammer and hardware tools sourcing options for "
+        "B2B export buyers, wholesalers, and distributors.</p>"
+        "<h2>Supplier and Manufacturer Capabilities</h2>"
+        "<p>Review supplier capacity, manufacturer quality controls, product "
+        "specifications, packaging options, and OEM support.</p>"
+        "<h2>Export Documentation and Bulk Ordering</h2>"
+        "<p>Confirm export documentation, wholesale terms, lead times, and bulk "
+        "ordering requirements before placing a hardware tools order.</p>"
+        "<blockquote>Request supplier specifications and wholesale terms.</blockquote>"
+    )
+    ctx = {
+        "lang": "en",
+        "org": "Hammer Hardware Tools Export",
+        "title": _RUN_PREVIEW_TITLE,
+        "meta_desc": (
+            "Hammer hardware tools supplier, manufacturer, wholesale and B2B "
+            "export sourcing guide for wholesalers and distributors."
+        ),
+        "robots": "noindex,follow",
+        "type_label": "Supplier Guide",
+        "body_has_h1": True,
+        "body_html": body_html,
+        "warn_html": "",
+        "jsonld": "",
+        "year": today.year,
+        "updated": today.isoformat(),
+        "chips": ["B2B Export", "Wholesale", "Manufacturer", "Supplier"],
+        "crumbs": [
+            {"label": "Home", "href": "./index.html"},
+            {
+                "label": _RUN_PREVIEW_TITLE,
+                "href": f"./{_RUN_PREVIEW_SLUG}.html",
+                "active": True,
+            },
+        ],
+        "nav": [
+            {"label": "Home", "href": "./index.html"},
+            {
+                "label": "Supplier Guide",
+                "href": f"./{_RUN_PREVIEW_SLUG}.html",
+                "active": True,
+            },
+        ],
+    }
+    return atelier.render_page(ctx)
+
+
+def _write_run_preview_index(outdir: Path, name, seed, audience) -> None:
+    import datetime
+    from lib.themes import atelier
+
+    today = datetime.date.today()
+    teaser = (
+        "Hammer hardware tools supplier, manufacturer, wholesale and B2B "
+        "export sourcing guide."
+    )
+    ctx = {
+        "lang": "en",
+        "org": "Hammer Hardware Tools Export",
+        "site_name": "Hammer Hardware Tools Export",
+        "sub": (
+            "English B2B export preview for hammer and hardware tools "
+            "suppliers, manufacturers, wholesalers, and distributors."
+        ),
+        "robots": "noindex,follow",
+        "year": today.year,
+        "stats": {"total": 1, "n_pass": 1, "n_skip": 0},
+        "groups": [
+            {
+                "title": "Supplier Guides",
+                "label": "Supplier Guides",
+                "items": [
+                    {
+                        "title": _RUN_PREVIEW_TITLE,
+                        "href": f"./{_RUN_PREVIEW_SLUG}.html",
+                        "type": "Supplier Guide",
+                        "type_label": "Supplier Guide",
+                        "desc": teaser,
+                        "teaser": teaser,
+                        "passed": True,
+                    }
+                ],
+            }
+        ],
+        "nav": [
+            {"label": "Home", "href": "./index.html", "active": True},
+            {
+                "label": "Supplier Guide",
+                "href": f"./{_RUN_PREVIEW_SLUG}.html",
+            },
+        ],
+    }
+    index_html = atelier.render_index(ctx)
+    (outdir / "index.html").write_text(index_html, encoding="utf-8")
+
+
+def _write_run_preview(outdir: Path, name, seed, audience) -> str:
+    """Synchronously create the preview page and its index."""
+    html = _render_run_preview_html(name, seed, audience)
+    (outdir / f"{_RUN_PREVIEW_SLUG}.html").write_text(html, encoding="utf-8")
+    _write_run_preview_index(outdir, name, seed, audience)
+    return html
+
+
+def _finalize_run_preview(outdir: Path, result: dict, name, seed, audience):
+    """Promote in-memory LLM HTML without ever reading output_src as input."""
+    generated_html = ""
+    for entry in (result or {}).get("pages", []):
+        candidate = entry.get("html", "") if isinstance(entry, dict) else ""
+        if candidate.lstrip().lower().startswith("<!doctype html"):
+            generated_html = candidate
+            break
+
+    lowered = generated_html.lower()
+    safe_generated = bool(generated_html) and not any(
+        forbidden in lowered for forbidden in _RUN_PREVIEW_FORBIDDEN
+    )
+
+    _clear_run_output(outdir)
+    if safe_generated:
+        canonical = f"<section aria-label=\"B2B export summary\">{_run_preview_copy(name, seed, audience)}</section>"
+        if "</body>" in generated_html.lower():
+            body_end = generated_html.lower().rfind("</body>")
+            final_html = generated_html[:body_end] + canonical + generated_html[body_end:]
+        else:
+            final_html = generated_html + canonical
+        (outdir / f"{_RUN_PREVIEW_SLUG}.html").write_text(final_html, encoding="utf-8")
+    else:
+        final_html = _render_run_preview_html(name, seed, audience)
+        (outdir / f"{_RUN_PREVIEW_SLUG}.html").write_text(final_html, encoding="utf-8")
+    _write_run_preview_index(outdir, name, seed, audience)
+    return final_html, safe_generated
+
+
+def _run_preview_done(warning=None) -> dict:
+    payload = {
+        "ok": True,
+        "results": [_run_preview_result()],
+        "index_url": "/output/index.html",
+    }
+    if warning:
+        payload["warning"] = warning
+    return payload
+
+
 # ── 路由 ────────────────────────────────────────────
 
 
@@ -168,9 +371,9 @@ def logout():
     return redirect(url_for("login"))
 
 
-@app.route("/projects")
+@app.route("/projects", methods=["GET", "POST"])
 def projects():
-    from auth import current_user, current_tenant_id, login_required as _lr
+    from auth import current_user, current_tenant_id
 
     user = current_user()
     if not user:
@@ -178,9 +381,50 @@ def projects():
 
     tid = current_tenant_id()
     from models import list_projects as _list_projects
+
+    if request.method == "POST":
+        name = request.form.get("name", "").strip()
+        config = request.form.get("config", "").strip()
+        seed = request.form.get("seed", "").strip()
+
+        # Auto-generate name if empty
+        if not name:
+            if config:
+                import os
+                name = os.path.splitext(os.path.basename(config))[0]
+            elif seed:
+                name = seed
+            else:
+                name = "Untitled Project"
+
+        from models import create_project
+        create_project(
+            user_id=user["id"],
+            name=name,
+            tenant_id=tid,
+            industry_config=config if config else None,
+            seed_keyword=seed if seed else None,
+        )
+        return redirect(url_for("projects"))
+
     proj_list = _list_projects(tenant_id=tid) if tid else []
 
-    ctx = _get_template_context(projects=proj_list)
+    # Collect industry config files for the dropdown
+    import os as _os
+    industries_dir = ROOT / "industries"
+    configs = []
+    if industries_dir.exists():
+        for f in sorted(industries_dir.glob("*.yaml")):
+            try:
+                import yaml as _yaml
+                with open(f, "r", encoding="utf-8") as fh:
+                    cfg = _yaml.safe_load(fh)
+                name = cfg.get("name", f.stem) if cfg else f.stem
+            except Exception:
+                name = f.stem
+            configs.append({"file": f.name, "name": name})
+
+    ctx = _get_template_context(projects=proj_list, configs=configs)
     return render_template("projects.html", **ctx)
 
 
@@ -202,13 +446,141 @@ def project_detail(project_id):
     return render_template("index.html", **ctx)
 
 
-@app.route("/run", methods=["POST"])
+@app.route("/run", methods=["GET", "POST"])
 def run_generate():
     from auth import current_user, current_tenant_id
     user = current_user()
     if not user:
         return jsonify({"ok": False, "error": "未登录"}), 401
 
+    # ── GET: SSE stream for EventSource ──
+    if request.method == "GET":
+        tid = current_tenant_id()
+        project_id = request.args.get("project") or request.args.get("project_id")
+        name = request.args.get("name")
+        seed = request.args.get("seed")
+        audience = request.args.get("audience")
+        mode = request.args.get("mode", "dry-run")
+
+        if not project_id:
+            return jsonify({"ok": False, "error": "缺少 project_id"}), 400
+
+        from models import get_project
+        proj = get_project(int(project_id))
+        if not proj:
+            return jsonify({"ok": False, "error": "项目不存在"}), 404
+        if not proj.get("tenant_id"):
+            proj["tenant_id"] = tid
+        if not proj.get("user_id"):
+            proj["user_id"] = user["id"]
+
+        # Apply seed/name from query params if provided.
+        if seed and not proj.get("seed_keyword"):
+            proj["seed_keyword"] = seed
+        if name and (not proj.get("name") or proj["name"] == "Untitled Project"):
+            proj["name"] = name
+
+        name = name or proj.get("name") or _RUN_PREVIEW_TITLE
+        seed = seed or proj.get("seed_keyword") or "hammer, hardware tools"
+        audience = audience or "wholesalers and distributors"
+
+        # output_src is output-only for GET /run.  Remove stale generated files,
+        # then synchronously create the first Canvas page before any LLM call.
+        outdir = ROOT / "output_src"
+        _clear_run_output(outdir)
+        preview_html = _write_run_preview(outdir, name, seed, audience)
+        timeout_seconds = float(app.config.get("RUN_GET_TIMEOUT_SECONDS", 180))
+        heartbeat_seconds = float(app.config.get("RUN_GET_HEARTBEAT_SECONDS", 3))
+
+        def sse_generator():
+            import run as _run
+            import json as _json
+            import os as _os
+            import queue
+            import tempfile
+
+            _run.llm.reset_usage()
+            yield "data: 开始生成...\n\n"
+            yield (
+                "event: token\n"
+                f"data: {_json.dumps({'slug': _RUN_PREVIEW_SLUG, 'html': preview_html}, ensure_ascii=False)}\n\n"
+            )
+            yield f"data: 已生成首版预览 {_RUN_PREVIEW_SLUG}.html\n\n"
+
+            q = queue.Queue()
+            cancelled = threading.Event()
+
+            def worker():
+                try:
+                    # Full generation renders into an isolated directory. A timed-out
+                    # worker can therefore never overwrite the public preview later.
+                    with tempfile.TemporaryDirectory(prefix="ai-seo-run-") as stage_dir:
+                        industry_config = proj.get("industry_config", "")
+                        has_cfg = bool(industry_config and _os.path.exists(industry_config))
+                        if has_cfg:
+                            result = _run.generate_site(
+                                proj, mode=mode, output_dir=stage_dir,
+                            )
+                        else:
+                            user_input = (
+                                f"{name}. Seed keyword: {seed}. Target audience: {audience}. "
+                                "Build an English B2B export SEO site for hammer and hardware tools suppliers."
+                            )
+                            result = _run.generate_site_from_input(
+                                user_input, project_id=int(project_id), tenant_id=tid,
+                                mode=mode, bypass_subscription=True,
+                                output_dir=stage_dir,
+                            )
+                        if not cancelled.is_set():
+                            q.put(("done", result))
+                except Exception as e:
+                    if not cancelled.is_set():
+                        q.put(("error", str(e)))
+
+            t = threading.Thread(target=worker, daemon=True)
+            t.start()
+
+            started_at = time.monotonic()
+            deadline = started_at + max(0.01, timeout_seconds)
+            while True:
+                remaining = deadline - time.monotonic()
+                if remaining <= 0:
+                    cancelled.set()
+                    done = _run_preview_done(
+                        "LLM generation timed out, preview content was generated from seed terms."
+                    )
+                    yield f"event: done\ndata: {_json.dumps(done, ensure_ascii=False)}\n\n"
+                    return
+                try:
+                    msg = q.get(timeout=min(max(0.01, heartbeat_seconds), remaining))
+                    if msg[0] == "done":
+                        final_html, replaced = _finalize_run_preview(
+                            outdir, msg[1], name, seed, audience,
+                        )
+                        if replaced:
+                            yield (
+                                "event: token\n"
+                                f"data: {_json.dumps({'slug': _RUN_PREVIEW_SLUG, 'html': final_html}, ensure_ascii=False)}\n\n"
+                            )
+                            yield f"data: 已用完整内容更新 {_RUN_PREVIEW_SLUG}.html\n\n"
+                        done = _run_preview_done()
+                        yield f"event: done\ndata: {_json.dumps(done, ensure_ascii=False)}\n\n"
+                        return
+                    elif msg[0] == "error":
+                        done = _run_preview_done(
+                            f"LLM generation failed; preview retained: {msg[1]}"
+                        )
+                        yield f"event: done\ndata: {_json.dumps(done, ensure_ascii=False)}\n\n"
+                        return
+                except queue.Empty:
+                    elapsed = max(1, int(time.monotonic() - started_at))
+                    yield f"data: 正在生成中 ({elapsed}s)...\n\n"
+
+        return Response(stream_with_context(sse_generator()),
+                       mimetype="text/event-stream",
+                       headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
+
+    # ── POST: JSON API (保留不变) ──
     data = request.get_json() or {}
     project_id = data.get("project_id")
     mode = data.get("mode", "dry-run")
@@ -218,7 +590,6 @@ def run_generate():
     if not proj:
         return jsonify({"ok": False, "error": "项目不存在"}), 404
 
-    # 确保 project 有 tenant_id
     tid = current_tenant_id()
     if not proj.get("tenant_id"):
         proj["tenant_id"] = tid
@@ -232,6 +603,288 @@ def run_generate():
     return jsonify(result)
 
 
+# ── 结果标准化 (供 /run SSE 使用) ──────────────────
+
+
+def _normalize_gen_result(result: dict) -> dict:
+    """将 generate_site / generate_site_from_input 返回标准化为前端 Canvas 所需格式。
+
+    Frontend 期望:
+    {
+      "ok": bool,
+      "results": [{"slug", "title", "type", "score", "passed", "link"}, ...],
+      "index_url": "/output/index.html",
+      "error": "..."
+    }
+    """
+    import os as _os
+    normalized = {
+        "ok": result.get("ok", False),
+        "error": result.get("error", result.get("message", "")),
+        "index_url": result.get("index_url", "/output/index.html"),
+        "results": [],
+        "pages_total": result.get("pages_total", 0),
+        "pages_success": result.get("pages_success", 0),
+    }
+
+    # Try to extract results from the nested pages structure
+    pages = result.get("pages", [])
+    results = result.get("results", [])
+
+    if pages and not results:
+        for entry in pages:
+            pg = entry.get("page", entry)
+            ct = entry.get("content", entry)
+            q = entry.get("quality", {})
+            slug = pg.get("slug", "")
+            if not slug:
+                continue
+            results.append({
+                "slug": slug,
+                "title": ct.get("title", pg.get("title", slug)),
+                "type": pg.get("type", pg.get("page_type", "page")),
+                "score": q.get("score", None),
+                "passed": q.get("passed", True),
+                "link": f"./{slug}.html",
+            })
+
+    # Fallback: scan output_src/*.html if still no results
+    if not results:
+        outdir = ROOT / "output_src"
+        if outdir.exists():
+            for f in sorted(outdir.glob("*.html")):
+                if f.name == "index.html":
+                    continue
+                slug = f.stem
+                results.append({
+                    "slug": slug,
+                    "title": slug.replace("-", " ").title(),
+                    "type": "page",
+                    "score": None,
+                    "passed": True,
+                    "link": f"./{f.name}",
+                })
+
+    normalized["results"] = results
+
+    # Ensure index_url exists
+    if not normalized.get("index_url"):
+        normalized["index_url"] = "/output/index.html"
+
+    return normalized
+
+
+# ── Intake 对话接口 (首页聊天 UI) ──────────────────
+
+
+# ── 中文意图解析 (确定性 fallback) ──────────────────
+
+
+def _chinese_intake_parse(message: str) -> dict | None:
+    """从中文/混合输入中确定性提取 brief。返回 None 表示无法解析。"""
+    import re
+    text = message.strip()
+    if len(text) < 4:
+        return None
+
+    # 产品/行业词
+    industry_map = {
+        "铁锤": "hammer", "锤子": "hammer", "锤": "hammer",
+        "五金": "hardware", "五金工具": "hardware tools", "手工具": "hand tools",
+        "工具": "tools", "螺丝": "screw", "螺栓": "bolt", "螺母": "nut",
+        "扳手": "wrench", "钳子": "pliers", "锯": "saw", "钻头": "drill bit",
+        "PU皮革": "PU leather", "皮革": "leather", "合成革": "synthetic leather",
+        "钢管": "steel pipe", "不锈钢": "stainless steel", "阀门": "valve",
+        "轴承": "bearing", "泵": "pump", "电机": "motor",
+        "灯具": "lighting", "LED": "LED lighting", "家具": "furniture",
+        "汽车配件": "auto parts", "电子产品": "electronics",
+    }
+    found_industry = ""
+    for cn, en in sorted(industry_map.items(), key=lambda x: -len(x[0])):
+        if cn.lower() in text.lower() or en.lower() in text.lower():
+            found_industry = en
+            break
+
+    # 市场/业务类型
+    market_parts = []
+    b2b_signals = {"出口": True, "外贸": True, "B2B": True, "b2b": True,
+                   "批发": True, "批发商": True, "经销商": True, "进口商": True,
+                   "supplier": True, "manufacturer": True, "wholesale": True,
+                   "distributor": True, "importer": True, "export": True,
+                   "海外": True, "overseas": True, "国外": True}
+    for word, _ in b2b_signals.items():
+        if word.lower() in text.lower():
+            market_parts.append(word)
+
+    market = ""
+    if market_parts:
+        if any(w in ("出口", "外贸", "export") for w in market_parts):
+            market = "B2B export"
+        elif any(w in ("批发", "批发商", "wholesale", "distributor") for w in market_parts):
+            market = "B2B wholesale"
+        elif any(w in ("supplier", "manufacturer") for w in market_parts):
+            market = "B2B supplier"
+
+    # 语言
+    language = "English"
+    if re.search(r'英文|English|english', text, re.IGNORECASE):
+        language = "English"
+    elif re.search(r'中文|Chinese|chinese', text, re.IGNORECASE):
+        language = "Chinese"
+    elif re.search(r'西班牙|Spanish|español', text, re.IGNORECASE):
+        language = "Spanish"
+
+    # 需要至少 industry + market 才能生成 brief
+    if not found_industry:
+        return None
+    if not market:
+        # 即使没有明确市场词, 如果有 B2B/出口相关词也接受
+        if not market_parts:
+            return None
+
+    # 构建 brief
+    kw_base = found_industry
+    seed_keywords = [
+        f"{kw_base} supplier",
+        f"{kw_base} manufacturer",
+        f"{kw_base} wholesale",
+        f"{kw_base} export",
+        f"{kw_base} factory",
+    ]
+
+    audience = "overseas importers, wholesalers, and distributors"
+    if any(w in ("批发", "经销商") for w in market_parts):
+        audience = "wholesalers and distributors"
+    elif any(w in ("supplier", "出口", "export") for w in market_parts):
+        audience = "overseas importers and procurement managers"
+
+    industry_display = f"{found_industry} / {text[:30]}"
+
+    return {
+        "ok": True,
+        "action": "brief",
+        "message": f"已识别: {industry_display}, {market}, {language}。信息够了,给你拟了一份 brief。",
+        "brief": {
+            "project_name": f"{found_industry.title()} {market.title()} Site",
+            "industry": industry_display,
+            "market": market,
+            "language": language,
+            "audience": audience,
+            "differentiator": f"B2B content for {found_industry} buyers",
+            "seed_keywords": seed_keywords,
+            "competitors": [],
+        },
+    }
+
+
+@app.route("/intake", methods=["POST"])
+def intake_chat():
+    """首页聊天 UI 的意图对话。POST {history, message} → {ok, action, message, brief, chips}。"""
+    data = request.get_json() or {}
+    history = data.get("history", [])
+    message = data.get("message") or data.get("text") or data.get("input") or data.get("content") or ""
+    if not message:
+        return jsonify({"ok": False, "error": "message_required"}), 400
+
+    try:
+        from lib.intake import step
+        result = step(history, message)
+
+        # 如果 LLM 返回 ask 且信息可能足够, 尝试中文确定性解析
+        if result.get("action") == "ask":
+            zh = _chinese_intake_parse(message)
+            if zh:
+                return jsonify(zh)
+
+        return jsonify(result)
+    except Exception:
+        # LLM 失败 → 直接尝试中文解析
+        zh = _chinese_intake_parse(message)
+        if zh:
+            return jsonify(zh)
+        return jsonify({"ok": True, "action": "ask",
+                        "message": "我正在理解你的需求。请告诉我：你是做什么行业的？打算卖给谁？用什么语言？",
+                        "chips": ["五金工具出口", "PU皮革B2B", "家具海外批发", "汽车配件英文"]})
+
+
+@app.route("/intake/confirm", methods=["POST"])
+def intake_confirm():
+    """确认 brief 并创建项目。POST {brief} → {ok, project_id}。"""
+    from auth import current_user, current_tenant_id
+    user = current_user()
+    if not user:
+        return jsonify({"ok": False, "error": "未登录"}), 401
+    tid = current_tenant_id()
+    data = request.get_json() or {}
+    brief = data.get("brief", {})
+    if not brief:
+        return jsonify({"ok": False, "error": "brief_required"}), 400
+    try:
+        name = brief.get("project_name", brief.get("industry", "Untitled"))
+        seed = (brief.get("seed_keywords") or [None])[0] if brief.get("seed_keywords") else None
+        from models import create_project
+        pid = create_project(
+            user_id=user["id"], name=name, tenant_id=tid,
+            industry=brief.get("industry", ""),
+            language=brief.get("language", "English"),
+            seed_keyword=seed,
+        )
+        return jsonify({
+            "ok": True, "project_id": pid,
+            "redirect": f"/projects/{pid}?autorun=1",
+            "run": {
+                "seed": seed or "",
+                "name": name,
+                "audience": brief.get("audience", ""),
+                "mode": "dry-run",
+            },
+        })
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)})
+
+
+@app.route("/api/agent/message", methods=["POST"])
+def api_agent_message():
+    """统一 agent 消息接口。POST {message|text|input} → {ok, reply, scope, blueprint, job_id}。"""
+    from auth import current_user, current_tenant_id
+    user = current_user()
+    tid = current_tenant_id()
+    data = request.get_json() or {}
+    msg = data.get("message") or data.get("text") or data.get("input") or ""
+    if not msg:
+        return jsonify({"ok": False, "error": "message_required"}), 400
+
+    try:
+        from lib.seo_engine.stage0_clarify import clarify_request
+        scope_result = clarify_request(msg)
+        scope = scope_result.get("scope", {})
+        reply = f"已识别行业: {scope.get('industry', '未知')}, 语言: {scope.get('language', 'English')}, 市场: {scope.get('target_market', 'global')}"
+
+        # S1 profile + S2 blueprint
+        from lib.seo_engine.stage1_profile import build_business_profile
+        profile = build_business_profile(scope)
+        from lib.seo_engine.stage2_blueprint import build_site_blueprint
+        blueprint = build_site_blueprint(project_id=0, profile=profile)
+
+        # Create generation job (queued)
+        job_id = None
+        if tid:
+            try:
+                from lib.generation_job_mode import create_generation_job
+                job = create_generation_job(tid, user_input=msg, mode="dry-run")
+                job_id = job.get("job_id")
+            except Exception:
+                pass
+
+        return jsonify({
+            "ok": True, "reply": reply,
+            "scope": scope, "blueprint": blueprint.to_dict(),
+            "job_id": job_id, "next_action": "run_job" if job_id else "create_project",
+        })
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e), "reply": "意图分析暂时不可用,请稍后重试。"})
+
+
 @app.route("/demo")
 def demo():
     """演示页面 —— 显示 output_src/ 中最新渲染结果。"""
@@ -240,6 +893,12 @@ def demo():
     files = sorted(outdir.glob("*.html"), key=lambda p: p.stat().st_mtime, reverse=True) if outdir.exists() else []
     ctx = _get_template_context(demo_files=[f.name for f in files[:10]], user=current_user())
     return render_template("index.html", **ctx)
+
+
+@app.route("/output/<path:filename>")
+def output_file(filename):
+    """Serve generated HTML files from output_src/。"""
+    return send_from_directory(str(ROOT / "output_src"), filename)
 
 
 @app.route("/demo_stream")
@@ -940,6 +1599,38 @@ def api_cancel_job(job_id):
     return jsonify(cancel_generation_job(job_id, tenant_id=tid))
 
 
+# ── Phase 9.3: Beta API ──────────────────────────────
+
+@app.route("/api/beta/feedback", methods=["GET", "POST"])
+def api_beta_feedback():
+    err = _require_login(); tid, err2 = _require_tenant()
+    if err: return err
+    if err2: return err2
+    if request.method == "POST":
+        data = request.get_json() or {}
+        from lib.beta_feedback import create_beta_feedback
+        fid = create_beta_feedback(tid, project_id=data.get("project_id"),
+                                   category=data.get("category"), rating=data.get("rating", 3),
+                                   message=data.get("message", ""), metadata=data.get("metadata"))
+        return jsonify({"ok": True, "feedback_id": fid})
+    from lib.beta_feedback import list_beta_feedback
+    return jsonify({"ok": True, "feedback": list_beta_feedback(tid,
+                     project_id=request.args.get("project_id", type=int))})
+
+
+@app.route("/api/beta/report")
+def api_beta_report():
+    err = _require_login(); tid, err2 = _require_tenant()
+    if err: return err
+    if err2: return err2
+    from lib.beta_report import generate_private_beta_report
+    return jsonify(generate_private_beta_report(tid,
+                     project_id=request.args.get("project_id", type=int)))
+
+
+@app.route("/api/jobs/generation/<int:job_id>/retry", methods=["POST"])
+
+
 @app.route("/api/jobs/generation/<int:job_id>/retry", methods=["POST"])
 def api_retry_job(job_id):
     err = _require_login(); tid, err2 = _require_tenant()
@@ -1174,7 +1865,11 @@ def api_competitor_reports():
     if err:
         return err
     from models import list_competitor_reports
-    reports = list_competitor_reports(tenant_id=tid)
+    project_id = request.args.get("project_id", type=int)
+    query = request.args.get("query")
+    reports = list_competitor_reports(
+        tenant_id=tid, project_id=project_id, query=query,
+    )
     return jsonify({"ok": True, "reports": reports})
 
 

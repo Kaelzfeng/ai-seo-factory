@@ -100,7 +100,7 @@
     </div>
     <div class="who">
       {% if user %}<span class="email mono">{{ user.email }}</span>{% endif %}
-      <a class="logout" href="{{ url_for('auth.logout') }}"><span class="ms">logout</span>登出</a>
+      <a class="logout" href="{{ url_for('logout') }}"><span class="ms">logout</span>登出</a>
     </div>
   </header>
 
@@ -167,7 +167,7 @@
                   </div>
                 </div>
               </div>
-              <a class="btn pri proj__go" href="{{ url_for('index', project=p.id) }}">进操作台<span class="ms">arrow_forward</span></a>
+              <a class="btn pri proj__go" href="{{ url_for('project_detail', project_id=p.id) }}">进操作台<span class="ms">arrow_forward</span></a>
             </div>
             {% endfor %}
           {% else %}

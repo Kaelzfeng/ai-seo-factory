@@ -149,7 +149,7 @@
       <div class="alert"><span class="ms">error</span><span>{{ error }}</span></div>
       {% endif %}
 
-      <form method="post" action="{{ url_for('auth.login_page') }}" autocomplete="on">
+      <form method="post" action="{{ url_for('login') }}" autocomplete="on">
         <!-- mode 随选中的 tab 动态填充(下方脚本);无 JS 时默认 login,注册按钮另带 value 兜底 -->
         <input type="hidden" name="mode" id="mode-field" value="{{ mode }}">
         <input type="hidden" name="next" value="{{ next_url }}">

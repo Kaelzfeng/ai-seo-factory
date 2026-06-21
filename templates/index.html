@@ -474,7 +474,7 @@
       <div class="side__user" title="{{ user.email }}">
         <div class="ravatar">{{ user.email[0]|upper }}</div>
         <div class="uinfo"><div class="ue mono">{{ user.email }}</div></div>
-        <a class="ulog" href="{{ url_for('auth.logout') }}" title="登出"><span class="ms">logout</span></a>
+        <a class="ulog" href="{{ url_for('logout') }}" title="登出"><span class="ms">logout</span></a>
       </div>
       {% endif %}
     </div>
@@ -1159,7 +1159,7 @@
       });
   }
 
-  // 点「确认并生成」→ POST /intake/confirm → 切项目上下文 → 跳 /?project=…&autorun=1&… 转现有 /run
+  // 点「确认并生成」→ POST /intake/confirm → 切项目上下文 → 跳 /projects/<id>?autorun=1&… 转现有 /run
   function confirmBrief(brief, btn) {
     if (btn) { btn.disabled = true; btn.innerHTML = '<span class="ms">progress_activity</span>建项目中 …'; }
     fetch("/intake/confirm", {
@@ -1177,12 +1177,11 @@
         const run = d.run || {};
         // 最简稳妥:跳 /?project=<id>&autorun=1&seed=…&name=…&audience=…,页面加载后由 autorun 钩子转现有 /run。
         const qp = new URLSearchParams();
-        qp.set("project", d.project_id);
         qp.set("autorun", "1");
         if (run.seed != null && run.seed !== "") qp.set("seed", run.seed);
         if (run.name != null && run.name !== "") qp.set("name", run.name);
         if (run.audience != null && run.audience !== "") qp.set("audience", run.audience);
-        window.location.href = "/?" + qp.toString();
+        window.location.href = "/projects/" + encodeURIComponent(d.project_id) + "?" + qp.toString();
       })
       .catch(() => {
         if (btn) { btn.disabled = false; btn.innerHTML = '<span class="ms">auto_awesome</span>确认并生成'; }
@@ -1200,7 +1199,7 @@
     if (es) es.close();
     const cfg = (configSelect && configSelect.value) || "";
     if (!cfg) { userSay("用行业配置生成整站"); startTheater(); aiSay('<b>请先在「生成设置」里选一个行业配置。</b>'); append("请先选择一个行业配置。"); setStatus("缺少配置", "err"); return; }
-    const params = new URLSearchParams(); params.set("mode", mode || "preview");
+    const params = new URLSearchParams(); params.set("mode", mode || "dry-run");
     if (PROJECT_ID != null) params.set("project", PROJECT_ID);
     params.set("config", cfg);
     const cfgSel = configSelect.selectedOptions[0];
@@ -1432,7 +1431,7 @@
   })();
 
   // ============================================================
-  // autorun:意图确认建项目后跳回 /?project=<id>&autorun=1&seed=…&name=…&audience=…,
+  // autorun:意图确认建项目后跳到 /projects/<id>?autorun=1&seed=…&name=…&audience=…,
   // 这里在页面加载时若带 autorun 就用现有 beginStream("/run?…") 流程直接开跑(seed/name/audience 透传)。
   // 复用现有 /run→Canvas→双屏的全部 JS,这里只负责拼参数 + 调 beginStream,不改那段流程。
   // ============================================================
@@ -1445,7 +1444,7 @@
       const name = (u.searchParams.get("name") || "").trim();
       const audience = (u.searchParams.get("audience") || "").trim();
       const params = new URLSearchParams();
-      params.set("mode", "preview");           // 自动跑只走预览(不连 WordPress),发布仍由进阶路径手动触发
+      params.set("mode", "dry-run");           // 自动跑默认 dry-run 生成真实 SEO 内容
       if (PROJECT_ID != null) params.set("project", PROJECT_ID);
       params.set("seed", seed);
       if (name) params.set("name", name);

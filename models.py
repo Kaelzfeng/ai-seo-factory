@@ -429,6 +429,20 @@ def _create_tables(conn):
     CREATE INDEX IF NOT EXISTS idx_be_tenant ON billing_events(tenant_id);
     CREATE INDEX IF NOT EXISTS idx_be_type ON billing_events(event_type);
     CREATE INDEX IF NOT EXISTS idx_us_tenant ON usage_snapshots(tenant_id);
+
+    CREATE TABLE IF NOT EXISTS beta_feedback (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        tenant_id INTEGER REFERENCES tenants(id) ON DELETE SET NULL,
+        user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+        project_id INTEGER REFERENCES projects(id) ON DELETE SET NULL,
+        category TEXT NOT NULL DEFAULT 'other',
+        rating INTEGER NOT NULL DEFAULT 3,
+        message TEXT DEFAULT '',
+        metadata_json TEXT DEFAULT '{}',
+        created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_bf_tenant ON beta_feedback(tenant_id);
     """
     )
 
@@ -1298,7 +1312,7 @@ def get_competitor_report(report_id):
     return dict(row) if row else None
 
 
-def list_competitor_reports(tenant_id=None, project_id=None):
+def list_competitor_reports(tenant_id=None, project_id=None, query=None):
     db = _get_db()
     sql = "SELECT * FROM competitor_reports WHERE 1=1"
     params = []
@@ -1308,6 +1322,9 @@ def list_competitor_reports(tenant_id=None, project_id=None):
     if project_id is not None:
         sql += " AND project_id = ?"
         params.append(project_id)
+    if query is not None:
+        sql += " AND query = ?"
+        params.append(query)
     sql += " ORDER BY created_at DESC"
     return [dict(r) for r in db.execute(sql, params).fetchall()]
 
@@ -1490,4 +1507,30 @@ def list_usage_snapshot_records(tenant_id=None, year=None, month=None):
     if month is not None:
         sql += " AND month = ?"; params.append(month)
     sql += " ORDER BY created_at DESC LIMIT 100"
+    return [dict(r) for r in db.execute(sql, params).fetchall()]
+
+
+# ── Beta 反馈 (Phase 9.3) ────────────────────────────
+
+
+def create_beta_feedback_record(tenant_id=None, user_id=None, project_id=None,
+                                category="other", rating=3, message="", metadata_json="{}"):
+    db = _get_db()
+    db.execute(
+        "INSERT INTO beta_feedback (tenant_id, user_id, project_id, category, rating, message, metadata_json) VALUES (?, ?, ?, ?, ?, ?, ?)",
+        (tenant_id, user_id, project_id, category, rating, message, metadata_json),
+    )
+    db.commit()
+    return db.execute("SELECT last_insert_rowid()").fetchone()[0]
+
+
+def list_beta_feedback_records(tenant_id=None, project_id=None):
+    db = _get_db()
+    sql = "SELECT * FROM beta_feedback WHERE 1=1"
+    params = []
+    if tenant_id is not None:
+        sql += " AND tenant_id = ?"; params.append(tenant_id)
+    if project_id is not None:
+        sql += " AND project_id = ?"; params.append(project_id)
+    sql += " ORDER BY created_at DESC LIMIT 200"
     return [dict(r) for r in db.execute(sql, params).fetchall()]

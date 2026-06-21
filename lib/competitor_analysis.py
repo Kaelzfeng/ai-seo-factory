@@ -197,6 +197,73 @@ def _extract_faq_from_signals(signals: OnPageSignals) -> list[dict]:
     return faq_items
 
 
+def _normalize_query(query: str) -> str:
+    return " ".join(str(query or "").strip().split()) or "B2B product supplier"
+
+
+def _mock_keywords(query: str) -> list[str]:
+    topic = _normalize_query(query).lower()
+    if "hardware" in topic and "tool" in topic:
+        subject = "hardware tools"
+    else:
+        subject = topic.removesuffix(" supplier").strip() or topic
+    return [
+        topic,
+        f"{subject} manufacturer",
+        f"{subject} wholesale",
+        f"{subject} export",
+        f"{subject} specifications",
+        f"{subject} B2B buyers",
+        f"{subject} bulk order",
+        f"{subject} OEM",
+        f"{subject} packaging",
+        f"{subject} export documentation",
+    ]
+
+
+def _mock_signals(query: str, result: SERPResult) -> OnPageSignals:
+    topic = _normalize_query(query)
+    topic_lower = topic.lower()
+    if "hardware" in topic_lower and "tool" in topic_lower:
+        h2 = [
+            "Hardware Tools Supplier Capabilities for B2B Buyers",
+            "Hammer Manufacturer and Wholesale Options",
+            "Hardware Tools Specifications, OEM, and Packaging",
+            "Bulk Order Planning and Export Documentation",
+            "Hardware Tools Supplier FAQ",
+        ]
+        h3 = [
+            "How to choose a hardware tools supplier?",
+            "What export documents do wholesale hardware tools buyers need?",
+        ]
+    else:
+        h2 = [
+            f"{topic} Capabilities for B2B Buyers",
+            f"{topic} Manufacturer and Wholesale Options",
+            f"{topic} Specifications, OEM, and Packaging",
+            f"{topic} Bulk Order and Export Documentation",
+            f"{topic} FAQ",
+        ]
+        h3 = [
+            f"How to choose a {topic}?",
+            f"What export documents do wholesale {topic} buyers need?",
+        ]
+    return OnPageSignals(
+        url=result.url,
+        title=result.title,
+        meta_description=result.snippet,
+        h1=[result.title],
+        h2=h2,
+        h3=h3,
+        word_count=1200,
+        schema_types=["Article", "FAQPage"],
+        faq_count=2,
+        internal_links_count=8,
+        external_links_count=3,
+        images_count=4,
+    )
+
+
 # ── 主分析函数 ────────────────────────────────────────
 
 
@@ -213,24 +280,16 @@ def analyze_competitors(query: str, market: str = None, language: str = None,
     """
     provider = get_serp_provider(name=provider_name or "mock", urls=urls)
     serp_results = provider.search(query, market=market, language=language, limit=limit)
+    uses_synthetic_signals = provider_name == "mock" or bool(urls) or provider_name is None
 
     competitors = []
     errors = []
     success_count = 0
 
     for sr in serp_results:
-        if provider_name == "mock" or (urls and len(urls) > 0):
+        if uses_synthetic_signals:
             # Mock/Manual: 不真实发 HTTP, 构造最小 signals
-            signals = OnPageSignals(
-                url=sr.url, title=sr.title,
-                meta_description=sr.snippet,
-                h1=[sr.title],
-                h2=["Key Features", "Specifications", "Applications", "FAQ"],
-                h3=["What is PU leather?", "How to choose?"],
-                word_count=1200, schema_types=["Article", "FAQPage"],
-                faq_count=2, internal_links_count=8, external_links_count=3,
-                images_count=4,
-            )
+            signals = _mock_signals(query, sr)
             error = ""
         else:
             # 真实抓取
@@ -244,6 +303,11 @@ def analyze_competitors(query: str, market: str = None, language: str = None,
             errors.append(f"{sr.url}: {error}")
 
         profile = build_competitor_profile(sr, signals, error)
+        if uses_synthetic_signals:
+            profile.keywords = list(dict.fromkeys([
+                *_mock_keywords(query), *profile.keywords,
+            ]))[:15]
+            profile.intents = classify_competitor_intents(profile.keywords)
         competitors.append(profile)
 
     if success_count == 0:
