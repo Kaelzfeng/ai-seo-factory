@@ -680,6 +680,41 @@ def run_generate():
 # ── 结果标准化 (供 /run SSE 使用) ──────────────────
 
 
+@app.route("/api/chat/run")
+def api_chat_run():
+    """Stream the conversational workspace while preserving legacy /run."""
+    from auth import current_user, current_tenant_id
+    from models import get_project
+
+    if not current_user():
+        return jsonify({"ok": False, "error": "未登录"}), 401
+    tenant_id = current_tenant_id()
+    project_id = request.args.get("project_id", type=int)
+    message = request.args.get("message", "").strip()
+    if not project_id or not message:
+        return jsonify({"ok": False, "error": "缺少 project_id 或 message"}), 400
+    project = get_project(project_id)
+    if not project:
+        return jsonify({"ok": False, "error": "项目不存在"}), 404
+    if project.get("tenant_id") != tenant_id:
+        return jsonify({"ok": False, "error": "无权访问该项目"}), 403
+
+    from lib.conversation_events import stream_conversation
+    generator = stream_conversation(
+        project=project,
+        tenant_id=tenant_id,
+        message=message,
+        root=ROOT,
+        timeout_seconds=app.config.get("CHAT_RUN_TIMEOUT_SECONDS", 180),
+        heartbeat_seconds=app.config.get("CHAT_RUN_HEARTBEAT_SECONDS", 3),
+    )
+    return Response(
+        stream_with_context(generator),
+        mimetype="text/event-stream",
+        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
+    )
+
+
 def _normalize_gen_result(result: dict) -> dict:
     """将 generate_site / generate_site_from_input 返回标准化为前端 Canvas 所需格式。
 
@@ -1605,6 +1640,25 @@ def api_page_content_detail(pc_id):
     if pc.get("tenant_id") and pc.get("tenant_id") != tid:
         return jsonify({"ok": False, "error": "无权访问"}), 403
     return jsonify({"ok": True, "page_content": pc})
+
+
+@app.route("/api/projects/<int:project_id>/conversation-state")
+def api_conversation_state(project_id):
+    """Restore chat plus Artifact state without starting generation or publishing."""
+    err = _require_login()
+    if err:
+        return err
+    tenant_id, err = _require_tenant()
+    if err:
+        return err
+    from models import get_project
+    project = get_project(project_id)
+    if not project:
+        return jsonify({"ok": False, "error": "项目不存在"}), 404
+    if project.get("tenant_id") != tenant_id:
+        return jsonify({"ok": False, "error": "无权访问该项目"}), 403
+    from lib.conversation_state import get_conversation_state
+    return jsonify(get_conversation_state(project_id, tenant_id))
 
 
 @app.route("/api/projects/<int:project_id>/preview-state")
