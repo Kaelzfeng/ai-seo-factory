@@ -52,6 +52,19 @@ def normalize(text):
 
     t_lower = t.lower()
 
+    # Keep the long-standing language="Chinese" value for compatibility,
+    # while locale/script preserve the writing-system distinction required by
+    # the localization writer.
+    chinese_key = t_lower.replace("_", "-")
+    if any(alias in chinese_key for alias in (
+        "繁体中文", "繁體中文", "traditional chinese", "chinese traditional", "zh-tw", "zh-hant",
+    )):
+        return {"language": "Chinese", "locale": "zh-TW", "script": "Hant"}
+    if any(alias in chinese_key for alias in (
+        "简体中文", "簡體中文", "simplified chinese", "chinese simplified", "zh-cn", "zh-hans",
+    )):
+        return {"language": "Chinese", "locale": "zh-CN", "script": "Hans"}
+
     for lang_name, cn_names, native_names, locale, script in _LANGUAGES:
         # Check English name first (exact match, case-insensitive)
         if lang_name.lower() == t_lower:
