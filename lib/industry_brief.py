@@ -183,7 +183,7 @@ _LIBRARIES = {
         "industry": "Packaging / Display Products",
         "spec_dimensions": ["material thickness", "structure", "load capacity", "finished size"],
         "materials": ["corrugated board", "kraft paper", "acrylic", "laminated film"],
-        "applications": ["retail shelf", "counter display", "e-commerce packaging", "gift presentation"],
+        "applications": ["retail display", "retail shelf", "counter display", "e-commerce packaging", "gift presentation"],
         "standards": ["print color tolerance", "carton compression requirement", "retail compliance"],
         "quality_checks": ["load test", "print registration", "dieline fit check"],
         "buyer_pain_points": ["structure collapse", "color mismatch", "assembly complexity"],
@@ -244,20 +244,41 @@ def _generic_library(product: str) -> dict:
 
 
 def build_industry_brief(intent: dict | None) -> IndustryBrief:
-    """Infer a non-empty product brief without external calls or secrets."""
+    """Infer a non-empty product brief without external calls or secrets.
+
+    Phase 9.4.1: Uses product_localized for brief.product when available,
+    falling back to the cleaned original product name.
+    Classification is always done against the ORIGINAL product so that
+    localized names (e.g. 鉄管) still match their classifier (e.g. 铁管).
+    """
+    from lib.localization import clean_product_display_name, normalize_language, normalize_market
+
     intent = intent or {}
-    product = _safe(
+
+    # Original product for classification (never localized, always the
+    # extracted/cleaned product phrase in its source language).
+    product_original = clean_product_display_name(
         intent.get("product") or intent.get("product_phrase") or intent.get("industry"),
-        "B2B product",
+        language=intent.get("language"), market=intent.get("market"),
     )
-    raw_industry = _safe(intent.get("industry"), product)
-    key = _classify(product, raw_industry)
+    product_original = _safe(product_original, "B2B product")
+
+    # Phase 9.4.1: Prefer product_localized for page content generation
+    product_localized = intent.get("product_localized")
+    if product_localized and str(product_localized).strip() and str(product_localized).lower() != "none":
+        product = str(product_localized).strip()
+    else:
+        product = product_original
+
+    raw_industry = _safe(intent.get("industry"), product_original)
+    # Classify using the ORIGINAL product (localized names won't match classifiers)
+    key = _classify(product_original, raw_industry)
     library = dict(_LIBRARIES.get(key) or _generic_library(product))
     return IndustryBrief(
         industry=library.pop("industry"),
         product=product,
         buyer_type=_safe(intent.get("audience") or intent.get("buyer_type"), "B2B buyers and distributors"),
-        market=_safe(intent.get("market"), "global export markets"),
-        language=_safe(intent.get("language"), "English"),
+        market=normalize_market(intent.get("market")) or "global export markets",
+        language=normalize_language(intent.get("language")),
         **library,
     )

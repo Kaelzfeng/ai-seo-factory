@@ -16,6 +16,9 @@ import re
 # Regex patterns for extracting product phrase from natural language.
 # Group 1 = the product phrase X.
 _PRODUCT_EXTRACTION_PATTERNS = [
+    # Command + optional language/site modifiers + "for <product>" must run
+    # before the generic "X B2B website" rule below.
+    r"(?:create|build|make|generate)\s+(?:a|an|the)?\s*(?:\w+\s+){0,3}?(?:website|site)\s+(?:for|about)\s+(.+?)(?:,\s*target|\s+target|$)",
     # Chinese patterns (X = product)
     r"帮(?:我|忙)(?:做|制作|生成|弄|建|搭建|创建一个?)\s*(?:一个|个)?\s*(?:卖|关于|面向海外买家的)?\s*(.+?)(?:的)?\s*(?:网站|站|出口站|外贸站|批发网站|B2B\s*网站|SEO\s*页面|英文站|日语站|德语站|法语站|西语站|中文站|韩语站)",
     r"(?:做|制作|生成|弄|建|搭建|创建一个?)\s*(?:一个|个)?\s*(?:卖|关于)?\s*(.+?)(?:的)?\s*(?:出口站|外贸站|批发网站|B2B\s*网站|SEO\s*页面|英文站|日语站|德语站|法语站|西语站|中文站)",
@@ -43,6 +46,8 @@ _PRODUCT_EXTRACTION_PATTERNS = [
     r"make\s+(?:a|an|the)?\s+(?:B2B\s+)?(?:export\s+)?(?:site|website)\s+(?:for|about)\s+(.+)",
     # "generate SEO pages for X, target Y"
     r"(?:generate|create)\s+SEO\s+pages?\s+for\s+(.+?)(?:,|\.|$)",
+    # "industrial belt German website for Germany distributors"
+    r"^(.+?)\s+(?:English|Japanese|Korean|German|French|Spanish|Portuguese|Italian|Russian|Arabic|Vietnamese|Thai|Indonesian|Malay|Dutch|Turkish|Polish|Chinese)\s+(?:B2B\s+|export\s+|wholesale\s+)?(?:website|site)(?:\s+for.+)?$",
     # Bare product names (single message, 2-8 Chinese chars or multi-word English)
     r"^([一-鿿]{2,8})$",
     r"^([a-zA-Z][a-zA-Z\s\-]{2,40})$",
@@ -182,6 +187,15 @@ _EN_PRODUCT_MAP = [
 
 # Audience detection
 _CN_AUDIENCE_MAP = [
+    ("礼品采购商", "gift buyers"),
+    ("禮品採購商", "gift buyers"),
+    ("工厂采购商", "factory buyers"),
+    ("工廠採購商", "factory buyers"),
+    ("宠物店", "pet shops"),
+    ("寵物店", "pet shops"),
+    ("品牌买家", "brand buyers"),
+    ("品牌買家", "brand buyers"),
+    ("brand buyers", "brand buyers"),
     ("海外批发商", "海外批发商"),
     ("批发商", "批发商"),
     ("经销商", "经销商"),
@@ -207,6 +221,7 @@ _CN_AUDIENCE_MAP = [
 ]
 
 _EN_AUDIENCE_MAP = [
+    ("brand buyers", "brand buyers"),
     ("B2B", "B2B buyers"),
     ("b2b", "B2B buyers"),
     ("wholesale", "Wholesale buyers"),
@@ -221,12 +236,15 @@ _EN_AUDIENCE_MAP = [
 
 # Market detection
 _CN_MARKET_MAP = [
-    ("日本", "日本"),
+    ("日本市场", "日本"),
+    ("日本市場", "日本"),
     ("美国", "美国"),
     ("欧洲", "欧洲"),
     ("德国", "德国"),
     ("英国", "英国"),
     ("法国", "法国"),
+    ("西班牙市场", "Spain"),
+    ("西班牙市場", "Spain"),
     ("加拿大", "加拿大"),
     ("澳大利亚", "澳大利亚"),
     ("澳洲", "澳大利亚"),
@@ -252,6 +270,11 @@ _EN_MARKET_MAP = [
     ("Europe", "Europe"),
     ("europe", "Europe"),
     ("Germany", "Germany"),
+    ("France", "France"),
+    ("Spain", "Spain"),
+    ("Middle East", "Middle East"),
+    ("Southeast Asia", "Southeast Asia"),
+    ("Southeast Asian", "Southeast Asia"),
     ("UK", "UK"),
     ("Canada", "Canada"),
     ("Australia", "Australia"),
@@ -357,17 +380,42 @@ def _extract_product_phrase(text):
     return (None, None)
 
 
-def product_display_name(intent):
-    """Return a human-readable product name for titles, never None.
+def get_product_display_name(intent):
+    """Return a human-readable product name for internal display and audit.
+
+    This is NOT the localized page display name. It preserves the original
+    product name for audit purposes. For page content, use
+    product_localizer.get_product_name_for_page() instead.
 
     Priority: product > product_phrase > industry > "Product"
     """
+    from lib.localization import clean_product_display_name
+
     if not intent:
         return "Product"
     name = intent.get("product") or intent.get("product_phrase") or intent.get("industry")
-    if name and str(name).strip():
-        return str(name).strip()
-    return "Product"
+    return clean_product_display_name(name, intent.get("language"), intent.get("market"))
+
+
+def product_display_name(intent):
+    """Backward-compatible alias for the cleaned internal display name."""
+    return get_product_display_name(intent)
+
+
+def get_product_for_page(intent, provider=None):
+    """Return the best product name for page content generation.
+
+    Priority:
+    1. product_localized (localized for target language)
+    2. product_display_name (cleaned original)
+    3. product_original (raw)
+    4. "Product"
+
+    Never returns None. Uses product_localizer for open-vocab support.
+    """
+    from lib.product_localizer import get_product_name_for_page
+    language = intent.get("language") if intent else None
+    return get_product_name_for_page(intent, language, provider=provider)
 
 
 def empty_intent():
@@ -378,11 +426,34 @@ def empty_intent():
         "audience": None,
         "market": None,
         "language": None,
+        "locale": None,
         "goal": None,
         "tone": None,
         "page_count": None,
         "asked_slots": [],
     }
+
+
+def _sync_locale(intent):
+    """Keep locale derived from language without creating another intent slot."""
+    if intent.get("language"):
+        from lib.language_normalizer import normalize
+        from lib.localization import normalize_language
+        normalized = normalize(intent["language"])
+        locale = intent.get("locale") or normalized.get("locale", "en-US")
+        if normalized.get("language") == "Chinese" or str(intent["language"]).startswith("Chinese"):
+            intent["language"] = normalize_language(locale)
+        intent["locale"] = normalize(intent["language"]).get("locale", locale)
+    return intent
+
+
+def _set_detected_language(intent, result):
+    if not result or result.get("language_confidence") == "defaulted":
+        return
+    from lib.localization import normalize_language
+    source = result.get("locale") if result.get("language") == "Chinese" else result.get("language")
+    intent["language"] = normalize_language(source)
+    intent["locale"] = result.get("locale")
 
 
 def _detect_overrides(message):
@@ -467,28 +538,30 @@ def merge_intent(previous, user_message):
     overrides = _detect_overrides(text)
     for slot, value in overrides.items():
         intent[slot] = value
+    if "language" in overrides:
+        intent["locale"] = None
     # If only an override (short message with only override pattern), skip normal detection
     if overrides and len(text) <= 15:
-        return intent
+        return _sync_locale(intent)
 
     # 2. Detect language (Phase 9.3.9: use language_normalizer for full coverage)
     from lib.language_normalizer import extract_from_phrase, normalize as _norm_lang
     phrase_lang = extract_from_phrase(text)
     if phrase_lang and phrase_lang.get("language_confidence") != "defaulted":
-        intent["language"] = phrase_lang["language"]
+        _set_detected_language(intent, phrase_lang)
     else:
         # Try normalize on each word — override if clearly a language keyword
         for word in text.split():
             r = _norm_lang(word)
             if r.get("language_confidence") != "defaulted" and r["language"] != "English":
-                intent["language"] = r["language"]
+                _set_detected_language(intent, r)
                 break
         # If still no language, try normalize without requiring non-English
         if intent["language"] is None:
             for word in text.split():
                 r = _norm_lang(word)
                 if r.get("language_confidence") != "defaulted":
-                    intent["language"] = r["language"]
+                    _set_detected_language(intent, r)
                     break
         # Fall back to keyword matching
         if intent["language"] is None:
@@ -514,6 +587,11 @@ def merge_intent(previous, user_message):
                 if re.search(r'\b' + re.escape(code) + r'\b', text):
                     intent["market"] = name
                     break
+    if intent["market"] is None:
+        from lib.localization import normalize_market
+        normalized_market = normalize_market(text)
+        if normalized_market and normalized_market != text:
+            intent["market"] = normalized_market
 
     # 4. Detect audience (longest match first; always update if clearly stated)
     cn_aud = _best_match(text, _CN_AUDIENCE_MAP)
@@ -546,6 +624,28 @@ def merge_intent(previous, user_message):
                     if ind:
                         intent["industry"] = ind
 
+    # Product identity is independent from language, market, site type and
+    # audience modifiers, regardless of which extraction pattern matched.
+    if intent.get("product"):
+        from lib.localization import clean_product_display_name
+        intent["product"] = clean_product_display_name(
+            intent["product"], intent.get("language"), intent.get("market")
+        )
+
+    # Phase 9.4.1: Compute product_localized for the target language
+    if intent.get("product") and intent.get("language"):
+        from lib.product_localizer import localize_product_name
+        result = localize_product_name(
+            intent["product"],
+            intent["language"],
+            market=intent.get("market"),
+            industry=intent.get("industry"),
+            provider=None,  # Use builtin glossary; callers can override
+        )
+        intent["product_localized"] = result.product_localized
+        intent["product_localization_method"] = result.method
+        intent["translation_missing"] = result.translation_missing
+
     # 6. Detect goal
     if intent["goal"] is None:
         for kw in _GOAL_KEYWORDS:
@@ -569,7 +669,7 @@ def merge_intent(previous, user_message):
         elif "conversion" in text.lower() or "转化" in text:
             intent["tone"] = "conversion"
 
-    return intent
+    return _sync_locale(intent)
 
 
 def is_intent_ready(intent):
@@ -593,6 +693,7 @@ def is_intent_ready(intent):
     # Language defaults to English
     if not has_language and (has_product_or_industry and has_audience_or_market):
         intent["language"] = "English"
+        intent["locale"] = "en-US"
         has_language = True
 
     # Goal defaults to generate website if user clearly signaled intent

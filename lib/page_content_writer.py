@@ -6,6 +6,15 @@ from __future__ import annotations
 from html import escape
 
 from lib.industry_brief import IndustryBrief
+from lib.localization import (
+    language_coverage_score,
+    localize_cta,
+    localize_page_title,
+    localize_section_label,
+    localize_sentence,
+    localize_term,
+    normalize_language,
+)
 
 
 GENERIC_BOILERPLATE = (
@@ -120,113 +129,99 @@ def _page_type(page: dict) -> str:
     } else "supplier_guide"
 
 
-def _lang(brief: IndustryBrief) -> dict:
-    return _COPY.get(brief.language) or _COPY["English"]
-
-
-def _list(items) -> str:
-    values = [_clean(item) for item in items if _clean(item)]
+def _list(items, language="English") -> str:
+    values = [localize_term(_clean(item), language) for item in items if _clean(item)]
     return "<ul>" + "".join(f"<li>{escape(value)}</li>" for value in values) + "</ul>"
 
 
-def _sentence(product: str, lead: str, items) -> str:
-    values = ", ".join(_clean(item) for item in items if _clean(item))
-    return f"<p>{escape(product)} — {escape(lead)}: {escape(values)}.</p>"
-
-
-def _localized_terms(brief: IndustryBrief) -> str:
-    industry = brief.industry.casefold()
-    language = brief.language
-    terms = []
-    if language == "Japanese" and "pipe" in industry:
-        terms = ["外径 (outer diameter)", "肉厚 (wall thickness)", "長さ (length)", "亜鉛メッキ (galvanized steel)",
-                 "建築用途 (construction)", "梱包 (packaging)", "MOQ", "輸出書類 (export documents)"]
-    elif language == "Spanish" and "ceramic" in industry:
-        terms = ["Capacidad (capacity)", "Esmalte (glaze)", "seguridad alimentaria (food contact safety)",
-                 "personalización de logotipo (logo customization)", "caja de regalo (gift box)", "compra minorista"]
-    elif language == "German" and "pet" in industry:
-        terms = ["Tiergröße (pet size)", "Materialsicherheit (material safety)", "Reinigung (cleaning method)",
-                 "Haltbarkeit (durability)", "Verpackung für den Einzelhandel (retail packaging)"]
-    elif language == "French" and "hydraulic" in industry:
-        terms = ["norme de filetage (thread standard)", "pression nominale (pressure rating)",
-                 "type d’étanchéité (sealing type)", "qualité du matériau (material grade)"]
-    return _list(terms) if terms else ""
+def _paragraph(template_key: str, brief: IndustryBrief, **variables) -> str:
+    values = {
+        "product": brief.product,
+        "buyer": brief.buyer_type,
+        "market": brief.market,
+        **variables,
+    }
+    return f"<p>{escape(localize_sentence(template_key, brief.language, values))}</p>"
 
 
 def localized_page_title(brief: IndustryBrief, page_type: str) -> str:
     """Return a safe page title in the requested language."""
     normalized_type = _page_type({"type": page_type})
-    product = _clean(brief.product, "B2B product")
-    return _lang(brief)["titles"][normalized_type].format(product=product)
+    return localize_page_title(
+        normalized_type, brief.product, brief.language,
+        market=brief.market, audience=brief.buyer_type,
+    )
 
 
-def _body_for(page_type: str, brief: IndustryBrief, labels: dict) -> str:
-    p = brief.product
+def _section(key: str, brief: IndustryBrief, items) -> str:
+    label = localize_section_label(key, brief.language)
+    return f"<h2>{escape(label)}</h2>" + _paragraph("section_intro", brief, label=label) + _list(items, brief.language)
+
+
+def _body_for(page_type: str, brief: IndustryBrief) -> str:
     if page_type == "manufacturer":
         return (
-            f"<h2>{labels['production']}</h2>"
-            + _sentence(p, "production planning for buyer volume and lead time", brief.purchase_factors)
-            + f"<h2>{labels['materials']}</h2>" + _list(brief.materials + brief.customization_options)
-            + f"<h2>{labels['quality']}</h2>" + _list(brief.quality_checks + brief.standards)
-            + _sentence(p, "capacity confirmation before production", ["sample approval", "lead time", "batch capacity"])
+            _section("production", brief, brief.purchase_factors + ["sample approval", "lead time", "batch capacity"])
+            + _section("materials", brief, brief.materials + brief.customization_options)
+            + _section("quality", brief, brief.quality_checks + brief.standards)
         )
     if page_type == "wholesale":
         return (
-            f"<h2>{labels['orders']}</h2>"
-            + _sentence(p, "wholesale quotation factors", ["MOQ"] + brief.purchase_factors + ["payment terms", "lead time"])
-            + f"<h2>{labels['packaging']}</h2>" + _list(brief.packaging_factors + brief.customization_options)
-            + _sentence(p, "shipment planning", brief.export_factors)
+            _section("orders", brief, ["MOQ"] + brief.purchase_factors + ["payment terms", "lead time"])
+            + _section("packaging", brief, brief.packaging_factors + brief.customization_options)
+            + _section("documents", brief, brief.export_factors)
         )
     if page_type == "export":
         return (
-            f"<h2>{labels['market']}</h2>"
-            + _sentence(p, f"distributor cooperation for {brief.market}", [brief.buyer_type, "territory planning", "replenishment"])
-            + f"<h2>{labels['documents']}</h2>" + _list(brief.export_factors + brief.standards + brief.quality_checks)
-            + _sentence(p, "after-sales and replenishment controls", brief.buyer_pain_points)
+            _section("market", brief, [brief.buyer_type, "territory planning", "replenishment"] + brief.applications)
+            + _section("documents", brief, brief.export_factors + brief.standards + brief.quality_checks)
+            + _section("quality", brief, brief.buyer_pain_points)
         )
     if page_type == "specifications":
         return (
-            f"<h2>{labels['selection']}</h2>" + _list(brief.spec_dimensions + brief.materials + brief.applications)
-            + f"<h2>{labels['inquiry']}</h2>" + _list(brief.standards + brief.quality_checks)
-            + _sentence(p, "inquiry fields", brief.spec_dimensions + ["quantity", "target application", "delivery market"])
+            _section("selection", brief, brief.spec_dimensions + brief.materials + brief.applications)
+            + _section("inquiry", brief, brief.standards + brief.quality_checks)
+            + _section("orders", brief, brief.spec_dimensions + ["quantity", "target application", "delivery market"])
         )
     if page_type == "faq":
         questions = []
         for topic in brief.faq_topics:
             questions.append(
-                f"<h3>{escape(p)}: {escape(topic)}?</h3>"
-                f"<p>Confirm {escape(topic)} with the sample, quotation and purchase specification before bulk production.</p>"
+                f"<h3>{escape(brief.product)}: {escape(localize_term(topic, brief.language))}?</h3>"
+                + _paragraph("faq_answer", brief, topic=localize_term(topic, brief.language))
             )
-        questions.append(
-            f"<h3>MOQ, packaging, lead time, certification and custom options?</h3>"
-            f"<p>State the {escape(p)} quantity, packaging format, required documents and customization scope in one inquiry.</p>"
-        )
-        return f"<h2>{labels['faq']}</h2>" + "".join(questions)
+        questions.append(_paragraph("faq_summary", brief))
+        return f"<h2>{escape(localize_section_label('faq', brief.language))}</h2>" + "".join(questions)
     return (
-        f"<h2>{labels['definition']}</h2>"
-        + _sentence(p, f"defined for {brief.buyer_type} in {brief.market}", brief.content_angles)
-        + f"<h2>{labels['specs']}</h2>" + _list(brief.spec_dimensions + brief.materials + brief.standards)
-        + f"<h2>{labels['applications']}</h2>" + _list(brief.applications + brief.purchase_factors + brief.buyer_pain_points)
+        _section("definition", brief, brief.content_angles)
+        + _section("specs", brief, brief.spec_dimensions + brief.materials + brief.standards + brief.quality_checks)
+        + _section(
+            "applications", brief,
+            brief.applications + brief.purchase_factors + brief.buyer_pain_points
+            + brief.customization_options + brief.packaging_factors,
+        )
     )
 
 
 def write_page_content(page: dict, brief: IndustryBrief) -> dict:
     """Create one information-dense page directly from an IndustryBrief."""
     page_type = _page_type(page or {})
-    localized = _lang(brief)
+    language = normalize_language(brief.language)
+    brief.language = language
     product = _clean(brief.product, "B2B product")
     title = localized_page_title(brief, page_type)
-    cta = localized["cta"].format(product=product)
-    intro = (
-        f"<p>{escape(product)} is evaluated by {escape(brief.buyer_type)} for "
-        f"{escape(brief.market)} through product-specific specifications, application fit and documented quality evidence.</p>"
-    )
+    cta = localize_cta(language, product)
+    intro = _paragraph("intro", brief)
+    business_context = _paragraph("business_context", brief)
     body = (
-        f"<h1>{escape(title)}</h1>" + intro + _localized_terms(brief)
-        + _body_for(page_type, brief, localized["sections"])
+        f"<h1>{escape(title)}</h1>" + intro + business_context
+        + _body_for(page_type, brief)
         + f"<blockquote>{escape(cta)}</blockquote>"
     )
-    meta = f"{title}: {', '.join(brief.spec_dimensions[:3])}, {brief.market}, MOQ and documented B2B sourcing."
+    meta = localize_sentence("meta", language, {
+        "title": title, "product": product, "market": brief.market,
+        "summary": localize_sentence("business_context", language, {"product": product, "market": brief.market}),
+    })
     return {
         "title": title,
         "meta_description": meta[:160],
@@ -249,7 +244,8 @@ def contains_generic_boilerplate(content) -> bool:
 
 def needs_industry_reinforcement(content: dict, brief: IndustryBrief, minimum_terms: int = 5) -> bool:
     html = _clean((content or {}).get("html") or (content or {}).get("body_html"))
-    return contains_generic_boilerplate(html) or len(industry_term_hits(html, brief)) < minimum_terms
+    wrong_language = normalize_language(brief.language) != "English" and language_coverage_score(html, brief.language) < 0.45
+    return contains_generic_boilerplate(html) or len(industry_term_hits(html, brief)) < minimum_terms or wrong_language
 
 
 def reinforce_page_content(content: dict, page: dict, brief: IndustryBrief) -> dict:
