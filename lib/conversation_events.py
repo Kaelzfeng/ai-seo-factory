@@ -79,11 +79,22 @@ def stream_conversation(
     safe_message = _redact_text(message)
     state = get_conversation_state(project_id, tenant_id)
     state["messages"].append({"role": "user", "content": safe_message})
-    intent = lock_intent(safe_message, project)
 
-    if not intent_is_locked(intent):
-        prompt = next_clarification(state["messages"])
+    # Phase 9.3.8: Merge into previous intent from conversation state
+    previous_intent = state.get("intent") or {}
+    from lib.intent_engine import merge_intent as _merge, is_intent_ready as _ready, build_clarification as _build_clar
+    intent = _merge(previous_intent, safe_message)
+    # Fallback: use project seed_keyword if nothing detected
+    if not intent.get("product") and not intent.get("industry"):
+        seed = str(project.get("seed_keyword", "")).strip()
+        if seed:
+            intent["product"] = seed.split()[0] if seed else ""
+            intent["industry"] = seed
+
+    if not _ready(intent):
+        prompt, intent = _build_clar(intent)
         state["messages"].append({"role": "assistant", "content": prompt})
+        state["intent"] = intent
         save_conversation_state(project_id, tenant_id, state)
         yield _event("message_delta", {"role": "assistant", "content": prompt})
         yield _event("clarification", {"message": prompt})

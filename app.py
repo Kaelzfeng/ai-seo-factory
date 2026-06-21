@@ -789,6 +789,36 @@ def _normalize_gen_result(result: dict) -> dict:
 # ── 中文意图解析 (确定性 fallback) ──────────────────
 
 
+def _intent_to_brief(intent: dict) -> dict:
+    """Convert an intent_engine IntentState to a /intake brief response."""
+    product = str(intent.get("product") or intent.get("industry") or "")
+    industry = str(intent.get("industry") or intent.get("product") or "")
+    language = str(intent.get("language") or "English")
+    market = str(intent.get("market") or "")
+    audience = str(intent.get("audience") or "")
+    project_name = f"{product} {market} Export Site" if product else "B2B Export Site"
+
+    seed_keywords = [product] if product else []
+    if industry and industry != product:
+        seed_keywords.append(industry)
+
+    brief = {
+        "project_name": project_name.strip(),
+        "industry": industry,
+        "language": language,
+        "market": market or "global",
+        "audience": audience or "B2B buyers",
+        "seed_keywords": [k for k in seed_keywords if k],
+    }
+    return {
+        "ok": True,
+        "action": "brief",
+        "message": f"已识别：{product or industry} · {language} · {market or '全球'} · {audience or 'B2B'}",
+        "brief": brief,
+        "intent": intent,
+    }
+
+
 def _chinese_intake_parse(message: str) -> dict | None:
     """从中文/混合输入中确定性提取 brief。返回 None 表示无法解析。"""
     import re
@@ -888,32 +918,57 @@ def _chinese_intake_parse(message: str) -> dict | None:
 
 @app.route("/intake", methods=["POST"])
 def intake_chat():
-    """首页聊天 UI 的意图对话。POST {history, message} → {ok, action, message, brief, chips}。"""
+    """首页聊天 UI 的意图对话。POST {history, message, previous_intent?} → {ok, action, message, brief, chips}。
+
+    Phase 9.3.8: Uses intent_engine for multi-turn slot merging.
+    Tries LLM first, falls back to deterministic intent_engine.
+    """
     data = request.get_json() or {}
     history = data.get("history", [])
     message = data.get("message") or data.get("text") or data.get("input") or data.get("content") or ""
     if not message:
         return jsonify({"ok": False, "error": "message_required"}), 400
 
+    # Phase 9.3.8: Merge with previous intent for multi-turn context
+    from lib.intent_engine import merge_intent, is_intent_ready, build_clarification, empty_intent
+    previous_intent = data.get("previous_intent") or {}
+    intent = merge_intent(previous_intent, message)
+
     try:
         from lib.intake import step
         result = step(history, message)
 
-        # 如果 LLM 返回 ask 且信息可能足够, 尝试中文确定性解析
+        # If LLM returns ask but intent_engine says ready, override to brief
+        if result.get("action") == "ask" and is_intent_ready(intent):
+            result = _intent_to_brief(intent)
+            return jsonify(result)
+
+        # If LLM returns ask, supplement with intent_engine clarification
         if result.get("action") == "ask":
-            zh = _chinese_intake_parse(message)
-            if zh:
-                return jsonify(zh)
+            if not is_intent_ready(intent):
+                clarify_msg, intent = build_clarification(intent)
+                return jsonify({
+                    "ok": True, "action": "ask",
+                    "message": clarify_msg,
+                    "chips": result.get("chips", []),
+                    "intent": intent,
+                })
+            # Intent ready → brief
+            result = _intent_to_brief(intent)
+            return jsonify(result)
 
         return jsonify(result)
     except Exception:
-        # LLM 失败 → 直接尝试中文解析
-        zh = _chinese_intake_parse(message)
-        if zh:
-            return jsonify(zh)
-        return jsonify({"ok": True, "action": "ask",
-                        "message": "我正在理解你的需求。请告诉我：你是做什么行业的？打算卖给谁？用什么语言？",
-                        "chips": ["五金工具出口", "PU皮革B2B", "家具海外批发", "汽车配件英文"]})
+        # LLM failed → use deterministic intent_engine
+        if is_intent_ready(intent):
+            return jsonify(_intent_to_brief(intent))
+        clarify_msg, intent = build_clarification(intent)
+        return jsonify({
+            "ok": True, "action": "ask",
+            "message": clarify_msg,
+            "chips": ["五金工具出口", "PU皮革B2B", "家具海外批发", "汽车配件英文"],
+            "intent": intent,
+        })
 
 
 @app.route("/intake/confirm", methods=["POST"])

@@ -1085,6 +1085,8 @@
       .then(response => response.ok ? response.json() : null)
       .then(conversation => {
         if (!conversation || conversation.ok !== true) return false;
+        // Phase 9.3.8: restore intent for continued multi-turn conversation
+        if (conversation.intent) { currentIntent = conversation.intent; }
         const messages = Array.isArray(conversation.messages) ? conversation.messages : [];
         const artifact = conversation.artifact || {};
         const pages = Array.isArray(artifact.pages) ? artifact.pages : [];
@@ -1262,6 +1264,7 @@
   let intakeHistory = [];      // [{role:"user"|"agent", text:"…"}, …]
   let intakeBusy = false;      // 防重复提交(一问一答期间锁住发送)
   let activeChipRow = null;    // 当前一排 chips DOM(发新消息时禁用旧 chips)
+  let currentIntent = null;    // Phase 9.3.8: intent state carried across turns
 
   // agent 思考行(shimmer),返回可移除的节点
   function intakeThinking(label) {
@@ -1344,12 +1347,14 @@
     fetch("/intake", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ history: intakeHistory, message: text }),
+      body: JSON.stringify({ history: intakeHistory, message: text, previous_intent: currentIntent }),
     })
       .then(r => r.json())
       .then(d => {
         if (thinking && thinking.parentNode) thinking.parentNode.removeChild(thinking);
         intakeBusy = false; runBtn.disabled = false;
+        // Phase 9.3.8: carry intent across turns
+        if (d && d.intent) { currentIntent = d.intent; }
         // 本轮入 history(成功后才记账,失败不污染上下文)
         if (d && d.ok === true) {
           intakeHistory.push({ role: "user", text: text });
@@ -1692,7 +1697,7 @@
     clearInterval(timer); timer = null;
     runBtn.disabled = false; $("demoBtn").disabled = false;
     // 新对话:清空意图反问的多轮上下文与忙锁(下一轮从 history=[] 重新问起)。
-    intakeHistory = []; intakeBusy = false; activeChipRow = null; chatBusy = false;
+    intakeHistory = []; intakeBusy = false; activeChipRow = null; chatBusy = false; currentIntent = null;
     Object.keys(artifactProgressCards).forEach(key => delete artifactProgressCards[key]);
     enableArtifactActions(false);
     // 对话流:只保留首屏欢迎消息节点,移除其后追加的所有对话(节点引用不重建,kwLib 监听仍有效)。
